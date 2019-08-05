@@ -12,3 +12,7 @@ Big tasks:
 - [ ] Decide on the database
 - [ ] Plan out the structure of the website, features
 - [ ] Open Poll
+
+Link to the Trello <Pending>
+Link to diagrams? idk
+should probs have all these links as a pinned message in the slack
