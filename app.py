@@ -11,7 +11,9 @@ def hello_world():
 
 def get_port() -> int:
     try:
-        return os.environ['PORT']
+        port = os.environ['PORT']
+        print(f'Environment says to run on port {port}')
+        return int(port)
     except KeyError as e:
         DEFAULT_PORT = 5000
         print(f'PORT environment variable not found, using fallback {DEFAULT_PORT}')
