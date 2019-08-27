@@ -33,13 +33,16 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+
 @app.route('/dummydata')
 def dummy_data():
     return view_dummy_data(get_dummy_data())
 
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
+
 Dummy = namedtuple("Dummy", ("id", "text"))
+
 
 def get_dummy_data() -> List[Dummy]:
 
@@ -49,6 +52,7 @@ def get_dummy_data() -> List[Dummy]:
         data = [Dummy(id, text) for id, text in cur.fetchall()]
 
     return data
+
 
 def view_dummy_data(data: List[Dummy]) -> str:
     with open('dummy_data_template.html') as f:
