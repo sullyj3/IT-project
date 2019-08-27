@@ -41,6 +41,7 @@ def dummy_data():
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
 
+
 Dummy = namedtuple("Dummy", ("id", "text"))
 
 
