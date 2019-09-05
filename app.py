@@ -30,7 +30,7 @@ else:
 
 @app.route('/')
 def hello_world():
-    with open("helloturtles.html") as f:
+    with open("views/helloturtles.html") as f:
         template = Template(f.read())
     return template.render()
 
@@ -71,12 +71,12 @@ def get_dummy_data() -> List[Dummy]:
 # ------ VIEW -----------
 
 def view_artefacts(artefacts: List[Artefact]) -> str:
-    with open('artefacts_template.html') as f:
+    with open('views/artefacts_template.html') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)
 
 def view_dummy_data(data: List[Dummy]) -> str:
-    with open('dummy_data_template.html') as f:
+    with open('views/dummy_data_template.html') as f:
         template = Template(f.read())
     return template.render(data=data)
 
