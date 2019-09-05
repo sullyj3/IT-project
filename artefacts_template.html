@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Artefacts</title>
+</head>
+<body>
+    <h1>Artefacts</h1>
+    <ol id="artefacts">
+    {% for artefact in artefacts %}
+    <li>
+      Name: {{artefact.name}}<br>
+      Owner: {{artefact.owner}}<br>
+      Description: {{artefact.description}}
+    </li>
+    {% endfor %}
+    </ol>
+</body>
+</html>

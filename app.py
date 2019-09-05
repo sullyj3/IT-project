@@ -26,6 +26,7 @@ else:
     app.config['db_URL'] = db_URL
     print(f"DATABASE_URL is '{db_URL}'")
 
+# ------ ROUTES -------
 
 @app.route('/')
 def hello_world():
@@ -33,6 +34,9 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+@app.route('/artefacts')
+def artefacts():
+    return view_artefacts(get_artefacts())
 
 @app.route('/dummydata')
 def dummy_data():
@@ -40,20 +44,36 @@ def dummy_data():
 
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
-
-
 Dummy = namedtuple("Dummy", ("id", "text"))
+Artefact = namedtuple("Artefact", ("artefact_id", "name", "owner", "description"))
 
+# ------ DATABASE -------
 
-def get_dummy_data() -> List[Dummy]:
-
+'''
+    sql: A select statement
+'''
+def pg_select(sql: str) -> List[Tuple]:
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        cur.execute('SELECT * FROM ITProjectTestTable;')
-        data = [Dummy(id, text) for id, text in cur.fetchall()]
+        cur.execute(sql)
+        return cur.fetchall()
 
-    return data
+def get_artefacts() -> List[Artefact]:
+    rows = pg_select('SELECT artefact_id, name, owner, description FROM Artefact;')
+    return [Artefact(artefact_id, name, owner, description)
+            for artefact_id, name, owner, description in rows]
 
+def get_dummy_data() -> List[Dummy]:
+    rows = pg_select('SELECT * FROM ITProjectTestTable;')
+    return [Dummy(id, text) for id, text in rows]
+
+
+# ------ VIEW -----------
+
+def view_artefacts(artefacts: List[Artefact]) -> str:
+    with open('artefacts_template.html') as f:
+        template = Template(f.read())
+    return template.render(artefacts=artefacts)
 
 def view_dummy_data(data: List[Dummy]) -> str:
     with open('dummy_data_template.html') as f:
