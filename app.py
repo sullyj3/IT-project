@@ -4,7 +4,9 @@ from collections import namedtuple
 
 from flask import Flask, current_app
 from jinja2 import Template
+
 import psycopg2
+import sys
 
 app = Flask(__name__)
 
