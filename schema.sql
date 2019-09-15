@@ -10,7 +10,7 @@ CREATE TYPE stored_with AS ENUM('user', 'location');
 CREATE TABLE "User" (
     user_id     serial PRIMARY KEY,
     name        varchar(100)                         NOT NULL,
-    username    varchar(50)                          NOT NULL,
+    email		    varchar(50)                          NOT NULL,
     password    char(60)                             NOT NULL,
     location    varchar(200),
     family_id   integer REFERENCES Family(family_id) NOT NULL
@@ -21,11 +21,17 @@ CREATE TABLE Artefact (
     owner            integer REFERENCES "User"(user_id) NOT NULL,
     name             varchar(100)                       NOT NULL,
     description      text,
-    image_url        varchar(1024),
     date_stored      timestamp,
     stored_with      stored_with,
     stored_with_user integer REFERENCES "User"(user_id),
     stored_at_loc    varchar(200)
+);
+
+CREATE TABLE ArtefactImage (
+    image_id          serial PRIMARY KEY,
+    artefact_id       integer REFERENCES Artefact(artefact_id) NOT NULL,
+    image_url         varchar(1024)                            NOT NULL,
+    image_description varchar(500)
 );
 
 CREATE TABLE UserCannotView (
@@ -48,8 +54,8 @@ CREATE TABLE ArtefactTaggedWith (
 
 INSERT INTO Family (name) VALUES ('Sully');
 
-INSERT INTO "User" (name, username, password, family_id)
-VALUES ('James', 'jimmy123', 'passwordhashhere', 1);
+INSERT INTO "User" (name, email, password, family_id)
+VALUES ('James', 'sullyj3@gmail.com', 'passwordhashhere', 1);
 
 -- Make this a dry run
 ROLLBACK;
