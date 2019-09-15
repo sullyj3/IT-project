@@ -44,10 +44,24 @@ def artefacts():
 def dummy_data():
     return view_dummy_data(get_dummy_data())
 
+@app.route('/insertexample')
+def insert_example():
+    add_artefact(example_artefact)
+    return('inserting...')
+
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
 Dummy = namedtuple("Dummy", ("id", "text"))
-Artefact = namedtuple("Artefact", ("artefact_id", "name", "owner", "description"))
+Artefact = namedtuple("Artefact", ("artefact_id",
+                                   "name",
+                                   "owner",
+                                   "description",
+                                   "date_stored",
+                                   "stored_with",
+                                   "stored_with_user",
+                                   "stored_at_loc"))
+
+example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
 # ------ DATABASE -------
 
@@ -68,6 +82,15 @@ def get_artefacts() -> List[Artefact]:
 def get_dummy_data() -> List[Dummy]:
     rows = pg_select('SELECT * FROM ITProjectTestTable;')
     return [Dummy(id, text) for id, text in rows]
+
+def add_artefact(artefact):
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO Artefact
+                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s);'''
+
+        cur.execute(sql, artefact._asdict())
 
 
 # ------ VIEW -----------
