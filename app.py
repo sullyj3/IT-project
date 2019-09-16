@@ -49,6 +49,19 @@ def insert_example():
     add_artefact(example_artefact)
     return('inserting...')
 
+@app.route('/login')
+def login():
+    with open("views/login.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/register')
+def register():
+    with open("views/register.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+    
+
 @app.route('/uploadartefact', methods=['POST'])
 def upload_artefact():
     # if we get a KeyError accessing the contents of request.form, flask will
@@ -134,12 +147,12 @@ def add_artefact(artefact: Artefact):
 # ------ VIEW -----------
 
 def view_artefacts(artefacts: List[Artefact]) -> str:
-    with open('views/artefacts_template.html') as f:
+    with open('views/artefacts_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)
 
 def view_dummy_data(data: List[Dummy]) -> str:
-    with open('views/dummy_data_template.html') as f:
+    with open('views/dummy_data_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(data=data)
 
