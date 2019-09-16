@@ -60,46 +60,52 @@ def register():
     with open("views/register.html", encoding='utf8') as f:
         template = Template(f.read())
     return template.render()
-    
 
-@app.route('/uploadartefact', methods=['POST'])
+@app.route('/uploadartefact', methods=['GET','POST'])
 def upload_artefact():
-    # if we get a KeyError accessing the contents of request.form, flask will
-    # automatically reply with 400 bad request
+    if request.method == 'GET':
+        # show form
+        with open('views/upload_artefact.html', encoding="utf8") as f:
+            template = Template(f.read())
+        return template.render()
 
-    # Either stored_with_user or stored_at_loc will be null in the db,
-    # depending on the value of the stored_with enum. Figure out which case we
-    # have.
-    if request.form['stored_with'] == 'user':
-        stored_at_loc = None
-        try:
-            # stored_with_user should be user_id
-            stored_with_user = int(request.form['stored_with_user'])
-        except ValueError:
+    elif request.method == 'POST':
+        # if we get a KeyError accessing the contents of request.form, flask will
+        # automatically reply with 400 bad request
+
+        # Either stored_with_user or stored_at_loc will be null in the db,
+        # depending on the value of the stored_with enum. Figure out which case we
+        # have.
+        if request.form['stored_with'] == 'user':
+            stored_at_loc = None
+            try:
+                # stored_with_user should be user_id
+                stored_with_user = int(request.form['stored_with_user'])
+            except ValueError:
+                abort(400)
+        elif request.form['stored_with'] == 'location':
+            stored_at_loc = request.form['stored_at_loc']
+            stored_with_user = None
+        else:
+            # any other value for the stored_with enum is invalid
             abort(400)
-    elif request.form['stored_with'] == 'location':
-        stored_at_loc = request.form['stored_at_loc']
-        stored_with_user = None
-    else:
-        # any other value for the stored_with enum is invalid
-        abort(400)
 
-    new_artefact = Artefact(
-            # DB will decide the id, doesn't make sense to add it here.
-            # This is really a data modelling issue, need to think about this more.
-            None,
-            request.form['name'],
-            int(request.form['owner']),
-            request.form['description'],
+        new_artefact = Artefact(
+                # DB will decide the id, doesn't make sense to add it here.
+                # This is really a data modelling issue, need to think about this more.
+                None,
+                request.form['name'],
+                int(request.form['owner']),
+                request.form['description'],
 
-            # same for date_stored, database will call CURRENT_TIMESTAMP
-            None,
-            request.form['stored_with'],
-            stored_with_user,
-            stored_at_loc)
+                # same for date_stored, database will call CURRENT_TIMESTAMP
+                None,
+                request.form['stored_with'],
+                stored_with_user,
+                stored_at_loc)
 
-    add_artefact(new_artefact)
-    return "Success!"
+        add_artefact(new_artefact)
+        return "Success!"
 
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html

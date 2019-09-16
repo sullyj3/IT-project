@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Add an artefact</title>
+</head>
+<body>
+    <h1>Add an artefact</h1>
+    <form action="/uploadartefact" method="post">
+      Artefact name:
+      <input type="text" name="name"><br>
+      Owner id:
+      <input type="number" name="owner"><br>
+      Description:
+      <input type="text" name="description"><br>
+      Stored with:
+      <input type="radio" name="stored_with" value="user">user</input>
+      <input type="radio" name="stored_with" value="location">location</input><br>
+      stored with user id: (if applicable)
+      <input type="number" name="stored_with_user"><br>
+      stored at location: (if applicable)
+      <input type="text" name="stored_at_loc"><br>
+      <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
