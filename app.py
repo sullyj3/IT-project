@@ -114,9 +114,8 @@ def pg_select(sql: str) -> List[Tuple]:
         return cur.fetchall()
 
 def get_artefacts() -> List[Artefact]:
-    rows = pg_select('SELECT artefact_id, name, owner, description FROM Artefact;')
-    return [Artefact(artefact_id, name, owner, description)
-            for artefact_id, name, owner, description in rows]
+    rows = pg_select('SELECT * FROM Artefact;')
+    return [Artefact(*row) for row in rows]
 
 def get_dummy_data() -> List[Dummy]:
     rows = pg_select('SELECT * FROM ITProjectTestTable;')
