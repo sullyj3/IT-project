@@ -32,7 +32,7 @@ else:
 
 @app.route('/')
 def hello_world():
-    with open("views/helloturtles.html") as f:
+    with open("views/helloturtles.html", encoding="utf8") as f:
         template = Template(f.read())
     return template.render()
 
