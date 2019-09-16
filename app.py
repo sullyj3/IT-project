@@ -2,7 +2,7 @@ import os
 from typing import List, Tuple
 from collections import namedtuple
 
-from flask import Flask, current_app
+from flask import Flask, current_app, request
 from jinja2 import Template
 
 import psycopg2
@@ -49,6 +49,45 @@ def insert_example():
     add_artefact(example_artefact)
     return('inserting...')
 
+@app.route('/uploadartefact', methods=['POST'])
+def upload_artefact():
+    # if we get a KeyError accessing the contents of request.form, flask will
+    # automatically reply with 400 bad request
+
+    # Either stored_with_user or stored_at_loc will be null in the db,
+    # depending on the value of the stored_with enum. Figure out which case we
+    # have.
+    if request.form['stored_with'] == 'user':
+        stored_at_loc = None
+        try:
+            # stored_with_user should be user_id
+            stored_with_user = int(request.form['stored_with_user'])
+        except ValueError:
+            abort(400)
+    elif request.form['stored_with'] == 'location':
+        stored_at_loc = request.form['stored_at_loc']
+        stored_with_user = None
+    else:
+        # any other value for the stored_with enum is invalid
+        abort(400)
+
+    new_artefact = Artefact(
+            # DB will decide the id, doesn't make sense to add it here.
+            # This is really a data modelling issue, need to think about this more.
+            None,
+            request.form['name'],
+            int(request.form['owner']),
+            request.form['description'],
+
+            # same for date_stored, database will call CURRENT_TIMESTAMP
+            None,
+            request.form['stored_with'],
+            stored_with_user,
+            stored_at_loc)
+
+    add_artefact(new_artefact)
+    return "Success!"
+
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
 Dummy = namedtuple("Dummy", ("id", "text"))
@@ -83,7 +122,7 @@ def get_dummy_data() -> List[Dummy]:
     rows = pg_select('SELECT * FROM ITProjectTestTable;')
     return [Dummy(id, text) for id, text in rows]
 
-def add_artefact(artefact):
+def add_artefact(artefact: Artefact):
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
         sql = '''INSERT INTO Artefact
