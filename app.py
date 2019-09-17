@@ -49,17 +49,25 @@ def insert_example():
     add_artefact(example_artefact)
     return('inserting...')
 
-@app.route('/login')
+@app.route('/login', methods=['GET','POST'])
 def login():
-    with open("views/login.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    if request.method == 'GET':
+        with open("views/login.html", encoding='utf8') as f:
+            template = Template(f.read())
+        return template.render()
+    elif request.method == 'POST':
+        print("finish doing the login stuff")
+        
 
-@app.route('/register')
+@app.route('/register', methods=['GET','POST'])
 def register():
-    with open("views/register.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    if request.method == 'GET':
+        with open("views/register.html", encoding='utf8') as f:
+            template = Template(f.read())
+        return template.render()
+    elif request.method == 'POST':
+        if request.form['pass'] == request.form['confirm_pass']:
+            new_user = Credentials(request.form['email'], request.form['pass'])
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 def upload_artefact():
@@ -119,6 +127,10 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "stored_with_user",
                                    "stored_at_loc"))
 
+Credentials = namedtuple("Credentials", ("email", "password"))
+
+Credentials("hello@hello.com", "123321")
+
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
 # ------ DATABASE -------
@@ -148,6 +160,15 @@ def add_artefact(artefact: Artefact):
                  VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s);'''
 
         cur.execute(sql, artefact._asdict())
+
+def authenticate_user():
+    # TODO
+    pass
+
+def email_taken():
+    # TODO
+    pass
+    
 
 
 # ------ VIEW -----------
