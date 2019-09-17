@@ -13,7 +13,8 @@ CREATE TABLE "User" (
     email       varchar(50)                          NOT NULL,
     password    char(60)                             NOT NULL,
     location    varchar(200),
-    family_id   integer REFERENCES Family(family_id) NOT NULL
+    family_id   integer REFERENCES Family(family_id) NOT NULL,
+      UNIQUE(email)
 );
 
 CREATE TABLE Artefact (
