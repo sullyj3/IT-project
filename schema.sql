@@ -9,7 +9,8 @@ CREATE TYPE stored_with AS ENUM('user', 'location');
 
 CREATE TABLE "User" (
     user_id     serial PRIMARY KEY,
-    name        varchar(100)                         NOT NULL,
+    first_name  varchar(100)                         NOT NULL,
+    surname     varchar(100)                         NOT NULL,
     email       varchar(50)                          NOT NULL,
     password    char(60)                             NOT NULL,
     location    varchar(200),
@@ -54,8 +55,8 @@ CREATE TABLE ArtefactTaggedWith (
 
 INSERT INTO Family (name) VALUES ('Sully');
 
-INSERT INTO "User" (name, email, password, family_id)
-VALUES ('James', 'sullyj3@gmail.com', 'passwordhashhere', 1);
+INSERT INTO "User" (first_name, surname, email, password, family_id)
+VALUES ('James', 'sully', 'sullyj3@gmail.com', 'passwordhashhere', 1);
 
 -- Make this a dry run
 ROLLBACK;
