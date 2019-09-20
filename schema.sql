@@ -10,10 +10,11 @@ CREATE TYPE stored_with AS ENUM('user', 'location');
 CREATE TABLE "User" (
     user_id     serial PRIMARY KEY,
     name        varchar(100)                         NOT NULL,
-    email		    varchar(50)                          NOT NULL,
+    email       varchar(50)                          NOT NULL,
     password    char(60)                             NOT NULL,
     location    varchar(200),
-    family_id   integer REFERENCES Family(family_id) NOT NULL
+    family_id   integer REFERENCES Family(family_id) NOT NULL,
+      UNIQUE(email)
 );
 
 CREATE TABLE Artefact (
@@ -31,7 +32,7 @@ CREATE TABLE ArtefactImage (
     image_id          serial PRIMARY KEY,
     artefact_id       integer REFERENCES Artefact(artefact_id) NOT NULL,
     image_url         varchar(1024)                            NOT NULL,
-    image_description varchar(500)
+    image_description text
 );
 
 CREATE TABLE UserCannotView (
