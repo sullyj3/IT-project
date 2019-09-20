@@ -1,0 +1,13 @@
+body { 
+    background: url(/static/images/circle-blues.png) repeat 0 0;
+}
+h1 {
+	color: red;
+	font-family: verdana;
+	font-size: 300%;
+}
+p {
+	color: blue;
+	font-family: courier;
+	font-size: 160%;
+}
