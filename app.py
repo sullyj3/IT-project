@@ -129,7 +129,11 @@ Artefact = namedtuple("Artefact", ("artefact_id",
 
 Credentials = namedtuple("Credentials", ("email", "password"))
 
-Credentials("hello@hello.com", "123321")
+Register = namedtuple("Register", ("first_name",
+                                   "surname",
+                                   "familyID",
+                                   "email",
+                                   "password"))
 
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
@@ -167,6 +171,7 @@ def authenticate_user():
 
 def email_taken():
     # TODO
+    # test email: hello@hello.com
     pass
     
 
