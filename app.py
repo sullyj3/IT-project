@@ -120,14 +120,18 @@ def get_artefacts() -> List[Artefact]:
     rows = pg_select('SELECT * FROM Artefact;')
     return [Artefact(*row) for row in rows]
 
-def add_artefact(artefact: Artefact):
+def add_artefact(artefact: Artefact) -> int:
+    '''returns the id of the newly inserted artefact'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
         sql = '''INSERT INTO Artefact
                  (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s);'''
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+                 RETURNING artefact_id;'''
 
         cur.execute(sql, artefact._asdict())
+        (artefact_id,) = cur.fetchone()
+        return artefact_id
 
 
 # ------ VIEW -----------
