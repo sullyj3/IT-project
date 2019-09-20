@@ -2,11 +2,15 @@ import os
 from typing import List, Tuple
 from collections import namedtuple
 
-from flask import Flask, current_app, request
+from flask import Flask, current_app, request, abort
 from jinja2 import Template
+from werkzeug.datastructures import FileStorage
 
 import psycopg2
 import sys
+from datetime import datetime
+
+from images import upload_image
 
 app = Flask(__name__)
 
@@ -88,8 +92,23 @@ def upload_artefact():
                 stored_with_user,
                 stored_at_loc)
 
-        add_artefact(new_artefact)
+        artefact_id = add_artefact(new_artefact)
+
+        # is there an image?
+        if 'pic' in request.files:
+            pic = request.files['pic']
+            fname = generate_img_filename(request.form['owner'], pic)
+            upload_image(pic, fname)
+
+            artefact_image = ArtefactImage(None, artefact_id, fname, None)
+            add_image(artefact_image)
+
         return "Success!"
+
+def generate_img_filename(user_id: str, img: FileStorage):
+    name, ext = img.filename.rsplit('.',1)
+    timestamp = datetime.utcnow().isoformat().replace(":", "_")
+    return f'{user_id}-{name}-{timestamp}.{ext}'
 
 # doing it this way allows us to do "item.text" instead of "item[1]" which 
 # would mean nothing. We use this in the for loop in dummy_data_template.html
@@ -102,6 +121,10 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "stored_with",
                                    "stored_with_user",
                                    "stored_at_loc"))
+ArtefactImage = namedtuple("ArtefactImage", ("image_id",
+                                             "artefact_id",
+                                             "image_url",
+                                             "image_description"))
 
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
@@ -132,6 +155,15 @@ def add_artefact(artefact: Artefact) -> int:
         cur.execute(sql, artefact._asdict())
         (artefact_id,) = cur.fetchone()
         return artefact_id
+
+def add_image(artefact_image: ArtefactImage):
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO ArtefactImage
+                 (artefact_id, image_url, image_description)
+                 VALUES (%(artefact_id)s, %(image_url)s, %(image_description)s)'''
+
+        cur.execute(sql, artefact_image._asdict())
 
 
 # ------ VIEW -----------

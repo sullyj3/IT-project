@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Add an artefact</h1>
-    <form action="/uploadartefact" method="post">
+    <form action="/uploadartefact" method="post" enctype="multipart/form-data">
       Artefact name:
       <input type="text" name="name"><br>
       Owner id:
@@ -19,6 +19,8 @@
       <input type="number" name="stored_with_user"><br>
       stored at location: (if applicable)
       <input type="text" name="stored_at_loc"><br>
+      image: (optional)
+      <input type="file" name="pic" accept="image/*"><br>
       <input type="submit" value="Submit">
     </form>
 </body>
