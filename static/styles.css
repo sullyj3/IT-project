@@ -1,12 +1,14 @@
 body { 
+    background: url(/static/images/circle-blues.png) repeat 0 0;
 }
 h1 {
-	color: red;
-	font-family: verdana;
-	font-size: 300%;
+	font-family: 'Allerta', Helvetica, Arial, sans-serif;
+	font-size: 50px;
+	line-height: 55px;
 }
+ 
 p {
-	color: blue;
-	font-family: courier;
-	font-size: 160%;
+	font-family: 'Crimson Text', Georgia, Times, serif;
+	font-size: 16px;
+	line-height: 25px;
 }
