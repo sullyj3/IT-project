@@ -1,12 +1,13 @@
+import sys
 import os
-from typing import List, Tuple
-from collections import namedtuple
 
 from flask import Flask, current_app, request
-from jinja2 import Template
+from jinja2 import Template #TODO move all rendering code to views.py
 
-import psycopg2
-import sys
+from persistence import get_artefacts, add_artefact, email_available, register_user
+# from authentication import authenticate_user
+from views import view_artefacts 
+from model import Artefact, Credentials, Register, example_artefact
 
 app = Flask(__name__)
 
@@ -18,6 +19,7 @@ app = Flask(__name__)
 # DATABASE_URL is the env variable that heroku uses to give us a reference to
 # our postgres database in production. When developing, backend developers 
 # should set it to the appropriate URL when running this app
+
 db_URL = os.environ.get("DATABASE_URL")
 if db_URL is None:
     print("DATABASE_URL not found! Exiting")
@@ -28,22 +30,26 @@ else:
     app.config['db_URL'] = db_URL
     print(f"DATABASE_URL is '{db_URL}'")
 
-# ------ ROUTES -------
-
+# --------------------- #
+# ------ ROUTES ------- #
+# --------------------- #
 @app.route('/')
 def hello_world():
     with open("views/helloturtles.html", encoding="utf8") as f:
         template = Template(f.read())
     return template.render()
 
+
 @app.route('/artefacts')
 def artefacts():
     return view_artefacts(get_artefacts())
+
 
 @app.route('/insertexample')
 def insert_example():
     add_artefact(example_artefact)
     return('inserting...')
+
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -53,7 +59,7 @@ def login():
         return template.render()
     elif request.method == 'POST':
         print("finish doing the login stuff")
-        
+
 
 @app.route('/register', methods=['GET','POST'])
 def register():
@@ -86,7 +92,6 @@ def register():
                 return "User Exists 😳"
         else:
             return "Different Passwords 😳"
-
 
 
 @app.route('/uploadartefact', methods=['GET','POST'])
@@ -135,96 +140,6 @@ def upload_artefact():
         add_artefact(new_artefact)
         return "Success!"
 
-# doing it this way allows us to do "item.text" instead of "item[1]" which 
-# would mean nothing. We use this in the for loop in dummy_data_template.html
-Dummy = namedtuple("Dummy", ("id", "text"))
-Artefact = namedtuple("Artefact", ("artefact_id",
-                                   "name",
-                                   "owner",
-                                   "description",
-                                   "date_stored",
-                                   "stored_with",
-                                   "stored_with_user",
-                                   "stored_at_loc"))
-
-Credentials = namedtuple("Credentials", ("email", "password"))
-
-Register = namedtuple("Register", ("first_name",
-                                   "surname",
-                                   "family_id",
-                                   "email",
-                                   "location",
-                                   "password"))
-
-example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
-
-# ------ DATABASE -------
-
-'''
-    sql: A select statement
-'''
-def pg_select(sql: str) -> List[Tuple]:
-    with psycopg2.connect(current_app.config['db_URL']) as conn:
-        cur = conn.cursor()
-        cur.execute(sql)
-        return cur.fetchall()
-
-def get_artefacts() -> List[Artefact]:
-    rows = pg_select('SELECT * FROM Artefact;')
-    return [Artefact(*row) for row in rows]
-
-def add_artefact(artefact: Artefact) -> int:
-    '''returns the id of the newly inserted artefact'''
-    with psycopg2.connect(current_app.config['db_URL']) as conn:
-        cur = conn.cursor()
-        sql = '''INSERT INTO Artefact
-                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
-                 RETURNING artefact_id;'''
-
-        cur.execute(sql, artefact._asdict())
-        (artefact_id,) = cur.fetchone()
-        return artefact_id
-
-''' '''
-def authenticate_user(credentials: Credentials):
-
-
-    pass
-
-''' Determines if an email is taken in the database '''
-def email_available(credentials: Credentials):
-    
-    sql = "SELECT *\
-        FROM 'User'\
-        WHERE email=%s\
-        LIMIT 1"
-
-    # Returns user, if none with email returns None
-    with psycopg2.connect(current_app.cofig['db_URL']) as conn:
-        cur = conn.cursor()
-        cur.execute(sql, (credentials.email))
-        return cur.fetchone()
-    # test email: hello@hello.com
-
-
-''' Adds new user to the Database '''
-def register_user(register: Register):
-
-    with psycopg2.connect(current_app.config['db_URL']) as conn:
-        cur = conn.cursor()
-        sql = '''INSERT INTO "Users"
-                 (first_name, surname, email, password, location, family_id)
-                 VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
-
-
-# ------ VIEW -----------
-
-def view_artefacts(artefacts: List[Artefact]) -> str:
-    with open('views/artefacts_template.html', encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render(artefacts=artefacts)
 
 if __name__ == '__main__':
     app.run()
-
