@@ -65,13 +65,15 @@ def register():
         with open("views/register.html", encoding='utf8') as f:
             template = Template(f.read())
         return template.render()
+
     elif request.method == 'POST':
+        print("got here")
         if request.form['pass'] == request.form['confirm_pass']:
             new_user = Credentials(request.form['email'], request.form['pass'])
 
             user_details = email_available(new_user)
 
-            if (user_details):
+            if (user_details is not None):
 
                 # TODO: change hashing from plaintext to encrypted
 
@@ -79,10 +81,16 @@ def register():
                                         request.form['surname'],
                                         request.form['family_id'],
                                         request.form['email'],
-                                        request.form['password'])
+                                        request.form['location'],
+                                        request.form['pass'])
 
                 register_user(Register)
-                return('inserting...')
+                return "Success! 🔥😎"
+            else:
+                return "User Exists 😳"
+        else:
+            return "Different Passwords 😳"
+
 
 
 @app.route('/uploadartefact', methods=['GET','POST'])
@@ -147,7 +155,7 @@ Credentials = namedtuple("Credentials", ("email", "password"))
 
 Register = namedtuple("Register", ("first_name",
                                    "surname",
-                                   "familyID",
+                                   "family_id",
                                    "email",
                                    "location",
                                    "password"))
@@ -196,16 +204,11 @@ def email_available(credentials: Credentials):
         WHERE email=%s\
         LIMIT 1"
 
-    # Gets information of the user
+    # Returns user, if none with email returns None
     with psycopg2.connect(current_app.cofig['db_URL']) as conn:
         cur = conn.cursor()
         cur.execute(sql, (credentials.email))
-        user = cur.fetchone()
-
-    if credentials.email == user[3]:
-        return False
-    else:
-        return user
+        return cur.fetchone()
     # test email: hello@hello.com
 
 
@@ -214,7 +217,7 @@ def register_user(register: Register):
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        sql = '''INSERT INTO 'Users'
+        sql = '''INSERT INTO "Users"
                  (first_name, surname, email, password, location, family_id)
                  VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
 
