@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request
+from flask import Flask, request
 from jinja2 import Template #TODO move all rendering code to views.py
 
 from persistence import get_artefacts, add_artefact, email_available, register_user

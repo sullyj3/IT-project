@@ -2,6 +2,7 @@ import psycopg2
 from typing import List, Tuple
 
 from model import Artefact, Credentials, Register
+from flask import current_app
 
 '''
     sql: A select statement
