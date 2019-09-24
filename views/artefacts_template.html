@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
     <title>Artefacts</title>
 </head>
 <body>
@@ -8,9 +11,9 @@
     <ol id="artefacts">
     {% for artefact in artefacts %}
     <li>
-      Name: {{artefact.name}}<br>
-      Owner: {{artefact.owner}}<br>
-      Description: {{artefact.description}}
+      <p>Name: {{artefact.name}}</p>
+      <p>Owner: {{artefact.owner}}</p>
+      <p>Description: {{artefact.description}}</p> <br>
     </li>
     {% endfor %}
     </ol>

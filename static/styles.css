@@ -1,0 +1,18 @@
+body { 
+    background: url(/static/images/green-sidelight-background.jpg) repeat 0 0;
+}
+h1 {
+	font-family: 'Allerta', Helvetica, Arial, sans-serif;
+	color: black;
+	font-size: 50px;
+	line-height: 55px;
+	text-align: center;
+}
+ 
+p {
+	font-family: 'Crimson Text', Georgia, Times, serif;
+	text-align: center;
+	color: black;
+	font-size: 16px;
+	line-height: 25px;
+}
