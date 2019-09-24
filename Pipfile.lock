@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5ac9e0544c8eb6514fd6a83d87ab113c9677fc3c6649deecc2b982d9ec014f24"
+            "sha256": "21fd30b18bce523c3e2f84a95f283c26f323422938b9f669fe82a5d0885935d1"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,18 +18,18 @@
     "default": {
         "boto3": {
             "hashes": [
-                "sha256:0e4d047feb4d7d701e9b2107f10bb8d674952243385cd35d0b413a273c299751",
-                "sha256:67f957389cf56fb4c24c1093c6d58baebe6cf18139f6dca0f8a177239b0a4f8c"
+                "sha256:273d3cb6d0206d40b2020e1871e1d95b284cff870fdf1e8816701da1063474c4",
+                "sha256:6f9c9f393d4951b9e86d4b26ff5cf1d5b9845bd1c3eb9a2f6b969887c2e4155e"
             ],
             "index": "pypi",
-            "version": "==1.9.232"
+            "version": "==1.9.234"
         },
         "botocore": {
             "hashes": [
-                "sha256:724d2349198c6f15f3cee0c0e4d33ecf4435e6d0db311bb79a3a28f6cf5a4090",
-                "sha256:a57a8fd0145c68e31bb4baab549b27a12f6695068c8dd5f2901d8dc06572dbeb"
+                "sha256:4103382697418c24702b7731ef2bd73606ca6a86336b1a898e97c34d0d241c69",
+                "sha256:d809ac570f630491778b47ae8d02475162f04eeb0ca39ccd3f4112d729d7eaa7"
             ],
-            "version": "==1.12.232"
+            "version": "==1.12.234"
         },
         "click": {
             "hashes": [
@@ -161,11 +161,11 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:319cef72311e511d94be1bb478d202fde499935d0347a9e8f0d232dc3bce47c6",
-                "sha256:8a8090dd02b145256534c205e624eb20161080428ffa14408f6f283c0d0c356e"
+                "sha256:2f3eadfea5d92bc7899e75b5968410b749a054b492d5a6379c1344a1481bc2cb",
+                "sha256:9c6c593cb28f52075016307fc26b0a0f8e82bc7d1ff19aaaa959b91710a56c47"
             ],
             "markers": "python_version >= '3.4'",
-            "version": "==1.25.4"
+            "version": "==1.25.5"
         },
         "werkzeug": {
             "hashes": [
@@ -183,14 +183,6 @@
                 "sha256:b65db1bbaac9f9f4d190199bb8680af6f6f84fd3769a5ea883df8a91fe68b4c4"
             ],
             "version": "==2.2.5"
-        },
-        "colorama": {
-            "hashes": [
-                "sha256:05eed71e2e327246ad6b38c540c4a3117230b19679b875190486ddd2d721422d",
-                "sha256:f8ac84de7840f5b9c4e3347b3c1eaa50f7e49c2b07596221daec5edaabbd7c48"
-            ],
-            "markers": "sys_platform == 'win32'",
-            "version": "==0.4.1"
         },
         "isort": {
             "hashes": [
