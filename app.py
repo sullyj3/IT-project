@@ -40,10 +40,6 @@ def hello_world():
 def artefacts():
     return view_artefacts(get_artefacts())
 
-@app.route('/dummydata')
-def dummy_data():
-    return view_dummy_data(get_dummy_data())
-
 @app.route('/insertexample')
 def insert_example():
     add_artefact(example_artefact)
@@ -177,18 +173,18 @@ def get_artefacts() -> List[Artefact]:
     rows = pg_select('SELECT * FROM Artefact;')
     return [Artefact(*row) for row in rows]
 
-def get_dummy_data() -> List[Dummy]:
-    rows = pg_select('SELECT * FROM ITProjectTestTable;')
-    return [Dummy(id, text) for id, text in rows]
-
-def add_artefact(artefact: Artefact):
+def add_artefact(artefact: Artefact) -> int:
+    '''returns the id of the newly inserted artefact'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
         sql = '''INSERT INTO Artefact
                  (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s);'''
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+                 RETURNING artefact_id;'''
 
         cur.execute(sql, artefact._asdict())
+        (artefact_id,) = cur.fetchone()
+        return artefact_id
 
 ''' '''
 def authenticate_user(credentials: Credentials):
@@ -228,12 +224,6 @@ def view_artefacts(artefacts: List[Artefact]) -> str:
     with open('views/artefacts_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)
-
-def view_dummy_data(data: List[Dummy]) -> str:
-    with open('views/dummy_data_template.html', encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render(data=data)
-
 
 if __name__ == '__main__':
     app.run()
