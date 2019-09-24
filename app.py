@@ -40,10 +40,6 @@ def hello_world():
 def artefacts():
     return view_artefacts(get_artefacts())
 
-@app.route('/dummydata')
-def dummy_data():
-    return view_dummy_data(get_dummy_data())
-
 @app.route('/insertexample')
 def insert_example():
     add_artefact(example_artefact)
@@ -65,9 +61,33 @@ def register():
         with open("views/register.html", encoding='utf8') as f:
             template = Template(f.read())
         return template.render()
+
     elif request.method == 'POST':
+        print("got here")
         if request.form['pass'] == request.form['confirm_pass']:
             new_user = Credentials(request.form['email'], request.form['pass'])
+
+            user_details = email_available(new_user)
+
+            if (user_details is not None):
+
+                # TODO: change hashing from plaintext to encrypted
+
+                new_register = Register(request.form['first_name'],
+                                        request.form['surname'],
+                                        request.form['family_id'],
+                                        request.form['email'],
+                                        request.form['location'],
+                                        request.form['pass'])
+
+                register_user(Register)
+                return "Success! 🔥😎"
+            else:
+                return "User Exists 😳"
+        else:
+            return "Different Passwords 😳"
+
+
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 def upload_artefact():
@@ -129,7 +149,12 @@ Artefact = namedtuple("Artefact", ("artefact_id",
 
 Credentials = namedtuple("Credentials", ("email", "password"))
 
-Credentials("hello@hello.com", "123321")
+Register = namedtuple("Register", ("first_name",
+                                   "surname",
+                                   "family_id",
+                                   "email",
+                                   "location",
+                                   "password"))
 
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
@@ -148,27 +173,49 @@ def get_artefacts() -> List[Artefact]:
     rows = pg_select('SELECT * FROM Artefact;')
     return [Artefact(*row) for row in rows]
 
-def get_dummy_data() -> List[Dummy]:
-    rows = pg_select('SELECT * FROM ITProjectTestTable;')
-    return [Dummy(id, text) for id, text in rows]
-
-def add_artefact(artefact: Artefact):
+def add_artefact(artefact: Artefact) -> int:
+    '''returns the id of the newly inserted artefact'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
         sql = '''INSERT INTO Artefact
                  (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s);'''
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+                 RETURNING artefact_id;'''
 
         cur.execute(sql, artefact._asdict())
+        (artefact_id,) = cur.fetchone()
+        return artefact_id
 
-def authenticate_user():
-    # TODO
+''' '''
+def authenticate_user(credentials: Credentials):
+
+
     pass
 
-def email_taken():
-    # TODO
-    pass
+''' Determines if an email is taken in the database '''
+def email_available(credentials: Credentials):
     
+    sql = "SELECT *\
+        FROM 'User'\
+        WHERE email=%s\
+        LIMIT 1"
+
+    # Returns user, if none with email returns None
+    with psycopg2.connect(current_app.cofig['db_URL']) as conn:
+        cur = conn.cursor()
+        cur.execute(sql, (credentials.email))
+        return cur.fetchone()
+    # test email: hello@hello.com
+
+
+''' Adds new user to the Database '''
+def register_user(register: Register):
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO "Users"
+                 (first_name, surname, email, password, location, family_id)
+                 VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
 
 
 # ------ VIEW -----------
@@ -177,12 +224,6 @@ def view_artefacts(artefacts: List[Artefact]) -> str:
     with open('views/artefacts_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)
-
-def view_dummy_data(data: List[Dummy]) -> str:
-    with open('views/dummy_data_template.html', encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render(data=data)
-
 
 if __name__ == '__main__':
     app.run()
