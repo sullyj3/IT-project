@@ -45,6 +45,50 @@ def insert_example():
     add_artefact(example_artefact)
     return('inserting...')
 
+@app.route('/login', methods=['GET','POST'])
+def login():
+    if request.method == 'GET':
+        with open("views/login.html", encoding='utf8') as f:
+            template = Template(f.read())
+        return template.render()
+    elif request.method == 'POST':
+        print("finish doing the login stuff")
+        
+
+@app.route('/register', methods=['GET','POST'])
+def register():
+    if request.method == 'GET':
+        with open("views/register.html", encoding='utf8') as f:
+            template = Template(f.read())
+        return template.render()
+
+    elif request.method == 'POST':
+        print("got here")
+        if request.form['pass'] == request.form['confirm_pass']:
+            new_user = Credentials(request.form['email'], request.form['pass'])
+
+            user_details = email_available(new_user)
+
+            if (user_details is not None):
+
+                # TODO: change hashing from plaintext to encrypted
+
+                new_register = Register(request.form['first_name'],
+                                        request.form['surname'],
+                                        request.form['family_id'],
+                                        request.form['email'],
+                                        request.form['location'],
+                                        request.form['pass'])
+
+                register_user(Register)
+                return "Success! 🔥😎"
+            else:
+                return "User Exists 😳"
+        else:
+            return "Different Passwords 😳"
+
+
+
 @app.route('/uploadartefact', methods=['GET','POST'])
 def upload_artefact():
     if request.method == 'GET':
@@ -103,6 +147,15 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "stored_with_user",
                                    "stored_at_loc"))
 
+Credentials = namedtuple("Credentials", ("email", "password"))
+
+Register = namedtuple("Register", ("first_name",
+                                   "surname",
+                                   "family_id",
+                                   "email",
+                                   "location",
+                                   "password"))
+
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
 
 # ------ DATABASE -------
@@ -133,11 +186,42 @@ def add_artefact(artefact: Artefact) -> int:
         (artefact_id,) = cur.fetchone()
         return artefact_id
 
+''' '''
+def authenticate_user(credentials: Credentials):
+
+
+    pass
+
+''' Determines if an email is taken in the database '''
+def email_available(credentials: Credentials):
+    
+    sql = "SELECT *\
+        FROM 'User'\
+        WHERE email=%s\
+        LIMIT 1"
+
+    # Returns user, if none with email returns None
+    with psycopg2.connect(current_app.cofig['db_URL']) as conn:
+        cur = conn.cursor()
+        cur.execute(sql, (credentials.email))
+        return cur.fetchone()
+    # test email: hello@hello.com
+
+
+''' Adds new user to the Database '''
+def register_user(register: Register):
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO "Users"
+                 (first_name, surname, email, password, location, family_id)
+                 VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
+
 
 # ------ VIEW -----------
 
 def view_artefacts(artefacts: List[Artefact]) -> str:
-    with open('views/artefacts_template.html') as f:
+    with open('views/artefacts_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)
 
