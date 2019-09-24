@@ -69,6 +69,22 @@ def register():
         if request.form['pass'] == request.form['confirm_pass']:
             new_user = Credentials(request.form['email'], request.form['pass'])
 
+            user_details = email_available(new_user)
+
+            if (user_details):
+
+                # TODO: change hashing from plaintext to encrypted
+
+                new_register = Register(request.form['first_name'],
+                                        request.form['surname'],
+                                        request.form['family_id'],
+                                        request.form['email'],
+                                        request.form['password'])
+
+                register_user(Register)
+                return('inserting...')
+
+
 @app.route('/uploadartefact', methods=['GET','POST'])
 def upload_artefact():
     if request.method == 'GET':
@@ -133,6 +149,7 @@ Register = namedtuple("Register", ("first_name",
                                    "surname",
                                    "familyID",
                                    "email",
+                                   "location",
                                    "password"))
 
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
@@ -165,15 +182,41 @@ def add_artefact(artefact: Artefact):
 
         cur.execute(sql, artefact._asdict())
 
-def authenticate_user():
-    # TODO
+''' '''
+def authenticate_user(credentials: Credentials):
+
+
     pass
 
-def email_taken():
-    # TODO
-    # test email: hello@hello.com
-    pass
+''' Determines if an email is taken in the database '''
+def email_available(credentials: Credentials):
     
+    sql = "SELECT *\
+        FROM 'User'\
+        WHERE email=%s\
+        LIMIT 1"
+
+    # Gets information of the user
+    with psycopg2.connect(current_app.cofig['db_URL']) as conn:
+        cur = conn.cursor()
+        cur.execute(sql, (credentials.email))
+        user = cur.fetchone()
+
+    if credentials.email == user[3]:
+        return False
+    else:
+        return user
+    # test email: hello@hello.com
+
+
+''' Adds new user to the Database '''
+def register_user(register: Register):
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO 'Users'
+                 (first_name, surname, email, password, location, family_id)
+                 VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
 
 
 # ------ VIEW -----------
