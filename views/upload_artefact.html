@@ -1,24 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Add an artefact</title>
+  <title>Add an artefact</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
 </head>
 <body>
     <h1>Add an artefact</h1>
-    <form action="/uploadartefact" method="post">
-      Artefact name:
+    <form action="/uploadartefact" method="post" enctype="multipart/form-data">
+      <p>Artefact name:</p>
       <input type="text" name="name"><br>
-      Owner id:
+      <p>Owner id:</p>
       <input type="number" name="owner"><br>
-      Description:
+      <p>Description:</p>
       <input type="text" name="description"><br>
-      Stored with:
+      <p>Stored with:
       <input type="radio" name="stored_with" value="user">user</input>
-      <input type="radio" name="stored_with" value="location">location</input><br>
-      stored with user id: (if applicable)
+      <input type="radio" name="stored_with" value="location">location</input><br></p>
+      <p>Stored with user id: (if applicable)</p>
       <input type="number" name="stored_with_user"><br>
-      stored at location: (if applicable)
-      <input type="text" name="stored_at_loc"><br>
+      <p>Stored at location: (if applicable)</p>
+      <input type="text" name="stored_at_loc"><br><br>
+      <p>image: (optional)</p>
+      <input type="file" name="pic" accept="image/*"><br>
       <input type="submit" value="Submit">
     </form>
 </body>
