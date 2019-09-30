@@ -18,4 +18,9 @@ Register = namedtuple("Register", ("first_name",
                                    "location",
                                    "password"))
 
+ArtefactImage = namedtuple("ArtefactImage", ("image_id",
+                                             "artefact_id",
+                                             "image_url",
+                                             "image_description"))
+
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)

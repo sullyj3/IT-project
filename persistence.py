@@ -1,8 +1,17 @@
-import psycopg2
 from typing import List, Tuple
+from datetime import datetime
 
-from model import Artefact, Credentials, Register
 from flask import current_app
+from werkzeug.datastructures import FileStorage
+import psycopg2
+
+import boto3
+
+from model import Artefact, Credentials, Register, ArtefactImage
+
+############
+# Database #
+############
 
 '''
     sql: A select statement
@@ -55,3 +64,29 @@ def register_user(register: Register):
                  (first_name, surname, email, password, location, family_id)
                  VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
 
+#############
+# Amazon S3 #
+#############
+s3 = boto3.resource('s3')
+
+def print_buckets():
+    for bucket in s3.buckets.all():
+        print(bucket.name)
+
+def upload_image(img, s3key):
+    bucket = s3.Bucket('shell-safe')
+    bucket.put_object(Key=s3key, Body=img)
+
+def add_image(artefact_image: ArtefactImage):
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO ArtefactImage
+                 (artefact_id, image_url, image_description)
+                 VALUES (%(artefact_id)s, %(image_url)s, %(image_description)s)'''
+
+        cur.execute(sql, artefact_image._asdict())
+
+def generate_img_filename(user_id: str, img: FileStorage):
+    name, ext = img.filename.rsplit('.',1)
+    timestamp = datetime.utcnow().isoformat().replace(":", "_")
+    return f'{user_id}-{name}-{timestamp}.{ext}'

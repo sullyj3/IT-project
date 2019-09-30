@@ -1,13 +1,14 @@
 import sys
 import os
 
-from flask import Flask, request
+from flask import Flask, current_app, request, abort
 from jinja2 import Template #TODO move all rendering code to views.py
+import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_available, register_user
+from persistence import get_artefacts, add_artefact, email_available, register_user, upload_image, add_image, generate_img_filename
 # from authentication import authenticate_user
 from views import view_artefacts 
-from model import Artefact, Credentials, Register, example_artefact
+from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
 app = Flask(__name__)
 
@@ -137,9 +138,18 @@ def upload_artefact():
                 stored_with_user,
                 stored_at_loc)
 
-        add_artefact(new_artefact)
-        return "Success!"
+        artefact_id = add_artefact(new_artefact)
 
+        # is there an image?
+        if 'pic' in request.files:
+            pic = request.files['pic']
+            fname = generate_img_filename(request.form['owner'], pic)
+            upload_image(pic, fname)
+
+            artefact_image = ArtefactImage(None, artefact_id, fname, None)
+            add_image(artefact_image)
+
+        return "Success!"
 
 if __name__ == '__main__':
     app.run()
