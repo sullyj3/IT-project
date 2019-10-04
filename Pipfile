@@ -17,6 +17,7 @@ Werkzeug = "==0.15.5"
 psycopg2 = "*"
 boto3 = "*"
 flask-login = "*"
+sqlalchemy = "*"
 
 [requires]
 python_version = "3.7"
