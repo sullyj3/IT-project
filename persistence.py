@@ -42,7 +42,7 @@ def add_artefact(artefact: Artefact) -> int:
         return artefact_id
 
 ''' Determines if an email is taken in the database, if not returns the  '''
-def email_available(credentials: Credentials):
+def email_taken(credentials: Credentials):
 
     sql = '''SELECT *
         FROM "User"

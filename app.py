@@ -5,8 +5,8 @@ from flask import Flask, current_app, request, abort
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_available, register_user, upload_image, add_image, generate_img_filename
-# from authentication import authenticate_user
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename
+from authentication import authenticate_user
 from views import view_artefacts 
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 from authentication import generate_pass
@@ -60,6 +60,17 @@ def login():
             template = Template(f.read())
         return template.render()
     elif request.method == 'POST':
+        
+        new_user = Credentials(request.form['email'],
+                           request.form['password'])
+        
+        db_user = email_taken(new_user)
+
+        if db_user:
+            return authenticate_user(new_user, db_user[3])
+
+        else:
+            return "no user exists 😳"
         print("finish doing the login stuff")
 
 
@@ -76,7 +87,7 @@ def register():
             
             new_user = Credentials(request.form['email'], request.form['pass'])
 
-            user_details = email_available(new_user)
+            user_details = email_taken(new_user)
 
             if (not user_details):
                 # TODO: change hashing from plaintext to encrypted
