@@ -9,6 +9,7 @@ from persistence import get_artefacts, add_artefact, email_available, register_u
 # from authentication import authenticate_user
 from views import view_artefacts 
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
+from authentication import generate_pass
 
 app = Flask(__name__)
 
@@ -82,12 +83,13 @@ def register():
 
                 hashed_pword = ""
 
+                # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
                                         request.form['family_id'],
                                         request.form['email'],
                                         request.form['location'],
-                                        request.form['pass'])
+                                        generate_pass(request.form['pass']))
 
                 register_user(new_register)
                 return "Success! 🔥😎"

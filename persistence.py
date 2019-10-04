@@ -9,6 +9,8 @@ import boto3
 
 from model import Artefact, Credentials, Register, ArtefactImage
 
+from authentication import authenticate_user, test_password, generate_pass
+
 ############
 # Database #
 ############
@@ -39,7 +41,7 @@ def add_artefact(artefact: Artefact) -> int:
         (artefact_id,) = cur.fetchone()
         return artefact_id
 
-''' Determines if an email is taken in the database '''
+''' Determines if an email is taken in the database, if not returns the  '''
 def email_available(credentials: Credentials):
 
     sql = '''SELECT *
@@ -58,13 +60,12 @@ def email_available(credentials: Credentials):
 ''' Adds new user to the Database '''
 def register_user(register: Register):
 
-
     sql = '''INSERT INTO "User"
             (first_name, surname, email, password, location, family_id)
             VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s);'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        cur.execute(sql, register._asdict())        
+        cur.execute(sql, register._asdict())
 
 #############
 # Amazon S3 #
