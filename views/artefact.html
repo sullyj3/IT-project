@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
+    <title>Artefacts</title>
+</head>
+<body>
+    <h1>{{artefact.name}}</h1>
+    <p>Owner: {{artefact.owner}}</p>
+    <p>Description: {{artefact.description}}</p> <br>
+
+    <ol id="artefacts">
+    {% for image in artefact_images %}
+    <li>
+      <img src="{{ image.presigned_url }}">
+    </li>
+    {% endfor %}
+    </ol>
+</body>
+</html>

@@ -43,6 +43,10 @@ def hello_world():
 
 @app.route('/artefacts')
 def artefacts():
+    artefacts = get_artefacts()
+    artefact_images = {}
+    for a in artefact
+
     return view_artefacts(get_artefacts())
 
 
