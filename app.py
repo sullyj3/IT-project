@@ -2,6 +2,10 @@ import sys
 import os
 
 from flask import Flask, current_app, request, abort
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
@@ -31,6 +35,27 @@ else:
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
     print(f"DATABASE_URL is '{db_URL}'")
+
+
+app.config['SQLALCHEMY_DATABASE_URI'] = db_URL
+app.config['SECRET_KEY'] = 'hidden'
+
+
+db = SQLAlchemy()
+db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(30), unique=True)
+    email = None
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # --------------------- #
 # ------ ROUTES ------- #
@@ -63,14 +88,34 @@ def login():
         
         new_user = Credentials(request.form['email'],
                            request.form['password'])
-        
-        db_user = email_taken(new_user)
 
+        # Determines if a user with that email exists in the database   
+        db_user = email_taken(new_user)
         if db_user:
-            return authenticate_user(new_user, db_user[3])
+
+            user_id = db_user[0]
+            hash_pw = db_user[3]
+
+            # Determines if the password has is correct
+            if authenticate_user(new_user, hash_pw):
+
+                # TODO: Create User class and use for logging in session
+                
+                new_user = User()
+                new_user.id = user_id
+                new_user.email = db_user[1]
+
+                login_user(new_user)
+                return "user logged in!"
+            
+            else:
+                return "incorrent password"
+
 
         else:
             return "no user exists 😳"
+
+
         print("finish doing the login stuff")
 
 
@@ -89,10 +134,7 @@ def register():
 
             user_details = email_taken(new_user)
 
-            if (not user_details):
-                # TODO: change hashing from plaintext to encrypted
-
-                hashed_pword = ""
+            if (not user_details):         
 
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
@@ -110,7 +152,15 @@ def register():
             return "Different Passwords 😳"
 
 
+@app.route('/logout')
+@login_required
+def logout_page():
+    if request.method == 'GET':
+        logout_user()
+        return "user logged out"
+
 @app.route('/uploadartefact', methods=['GET','POST'])
+@login_required
 def upload_artefact():
     if request.method == 'GET':
         # show form
