@@ -45,7 +45,7 @@ def add_artefact(artefact: Artefact) -> int:
 def email_taken(credentials: Credentials):
 
     sql = '''SELECT *
-        FROM "User"
+        FROM "user"
         WHERE email=%(email)s
         LIMIT 1'''
 
@@ -60,7 +60,7 @@ def email_taken(credentials: Credentials):
 ''' Adds new user to the Database '''
 def register_user(register: Register):
 
-    sql = '''INSERT INTO "User"
+    sql = '''INSERT INTO "user"
             (first_name, surname, email, password, location, family_id)
             VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s);'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:

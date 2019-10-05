@@ -49,8 +49,7 @@ login_manager.init_app(app)
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(30), unique=True)
-    email = None
+    email = db.Column(db.String(50), unique=True)
 
 
 @login_manager.user_loader
