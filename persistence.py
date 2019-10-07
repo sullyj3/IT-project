@@ -39,30 +39,31 @@ def add_artefact(artefact: Artefact) -> int:
         (artefact_id,) = cur.fetchone()
         return artefact_id
 
-''' Determines if an email is taken in the database '''
-def email_available(credentials: Credentials):
-    
-    sql = "SELECT *\
-        FROM 'User'\
-        WHERE email=%s\
-        LIMIT 1"
+''' Determines if an email is taken in the database, if not returns the  '''
+def email_taken(credentials: Credentials):
+
+    sql = '''SELECT *
+        FROM "user"
+        WHERE email=%(email)s
+        LIMIT 1'''
 
     # Returns user, if none with email returns None
-    with psycopg2.connect(current_app.cofig['db_URL']) as conn:
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        cur.execute(sql, (credentials.email))
+        cur.execute(sql, credentials._asdict())
         return cur.fetchone()
-    # test email: hello@hello.com
+
 
 
 ''' Adds new user to the Database '''
 def register_user(register: Register):
 
+    sql = '''INSERT INTO "user"
+            (first_name, surname, email, password, location, family_id)
+            VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s);'''
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        sql = '''INSERT INTO "Users"
-                 (first_name, surname, email, password, location, family_id)
-                 VALUES (%(first_name)s, %(surname)s, %(email)s, %(password)s, %(location)s, %(family_id)s)'''
+        cur.execute(sql, register._asdict())
 
 #############
 # Amazon S3 #
