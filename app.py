@@ -5,15 +5,14 @@ from flask import Flask, current_app, request, abort, redirect
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import check_password_hash, generate_password_hash
 
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
 from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename
-from authentication import authenticate_user
 from views import view_artefacts 
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
-from authentication import generate_pass
 
 app = Flask(__name__)
 
@@ -107,12 +106,10 @@ def login():
             user_email = db_user[2]
 
             # Determines if the password has is correct
-            if authenticate_user(new_user, hash_pw):
+            # if authenticate_user(new_user, hash_pw):
+            if check_password_hash(hash_pw.tobytes(), new_user.password):
 
-                # TODO: Create User class and use for logging in session
-                
                 new_user = User(user_id, user_email)
-                # new_user.id = user_id
 
                 login_user(new_user)
                 str = "User id: {}<br>User email: {}"
@@ -152,9 +149,10 @@ def register():
                                         request.form['family_id'],
                                         request.form['email'],
                                         request.form['location'],
-                                        generate_pass(request.form['pass']))
+                                        generate_password_hash(request.form['pass']))
 
                 register_user(new_register)
+
                 return "Success! 🔥😎"
             else:
                 return "User Exists 😳"
@@ -162,6 +160,7 @@ def register():
             return "Different Passwords 😳"
 
 
+# Dummy route to logout
 @app.route('/logout')
 @login_required
 def logout_page():
@@ -169,6 +168,8 @@ def logout_page():
         logout_user()
         return "user logged out"
 
+
+# Dummy route to check if logged in
 @app.route('/islogged')
 def is_logged_in():
     if request.method == 'GET':

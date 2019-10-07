@@ -9,8 +9,6 @@ import boto3
 
 from model import Artefact, Credentials, Register, ArtefactImage
 
-from authentication import authenticate_user, test_password, generate_pass
-
 ############
 # Database #
 ############
