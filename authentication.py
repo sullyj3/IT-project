@@ -6,7 +6,6 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 
 
 def authenticate_user(credentials: Credentials, pw_hash):
-
     
     return check_password_hash(pw_hash.tobytes(), credentials.password)
 

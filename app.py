@@ -1,10 +1,10 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort
+from flask import Flask, current_app, request, abort, redirect
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
@@ -31,7 +31,7 @@ if db_URL is None:
     print("DATABASE_URL not found! Exiting")
     sys.exit()
 else:
-    # we store the db_URL in the app config, rather than as a global variable, 
+    # we store the db_URL in the app config, rather than as a global variable,
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
     print(f"DATABASE_URL is '{db_URL}'")
@@ -47,9 +47,19 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
+# User class to track logging
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
+
+    def __init__(self, user_id, email,*args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.id = user_id
+        self.email = email
+
+# Anonymous user class to track if not logged in
+# class
 
 
 @login_manager.user_loader
@@ -94,18 +104,19 @@ def login():
 
             user_id = db_user[0]
             hash_pw = db_user[3]
+            user_email = db_user[2]
 
             # Determines if the password has is correct
             if authenticate_user(new_user, hash_pw):
 
                 # TODO: Create User class and use for logging in session
                 
-                new_user = User()
-                new_user.id = user_id
-                new_user.email = db_user[1]
+                new_user = User(user_id, user_email)
+                # new_user.id = user_id
 
                 login_user(new_user)
-                return "user logged in!"
+                str = "User id: {}<br>User email: {}"
+                return str.format(new_user.id, new_user.email)
             
             else:
                 return "incorrent password"
@@ -157,6 +168,18 @@ def logout_page():
     if request.method == 'GET':
         logout_user()
         return "user logged out"
+
+@app.route('/islogged')
+def is_logged_in():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+
+            user_info = "Logged in<br>User_id: {}<br>User_email: {}"
+            return user_info.format(current_user.id, current_user.email)
+        else:
+            return "not logged in"
+
+        
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
