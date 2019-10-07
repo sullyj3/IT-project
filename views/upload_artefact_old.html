@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Add an artefact</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
+</head>
+<body>
+    <h1>Add an artefact</h1>
+    <form action="/uploadartefact" method="post">
+      <p>Artefact name:</p>
+      <input type="text" name="name"><br>
+      <p>Owner id:</p>
+      <input type="number" name="owner"><br>
+      <p>Description:</p>
+      <input type="text" name="description"><br>
+      <p>Stored with:
+      <input type="radio" name="stored_with" value="user">user</input>
+      <input type="radio" name="stored_with" value="location">location</input><br></p>
+      <p>Stored with user id: (if applicable)</p>
+      <input type="number" name="stored_with_user"><br>
+      <p>Stored at location: (if applicable)</p>
+      <input type="text" name="stored_at_loc"><br><br>
+      <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
