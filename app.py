@@ -31,7 +31,7 @@ if db_URL is None:
     print("DATABASE_URL not found! Exiting")
     sys.exit()
 else:
-    # we store the db_URL in the app config, rather than as a global variable, 
+    # we store the db_URL in the app config, rather than as a global variable,
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
     print(f"DATABASE_URL is '{db_URL}'")
@@ -112,7 +112,7 @@ def login():
                 # TODO: Create User class and use for logging in session
                 
                 new_user = User(user_id, user_email)
-                new_user.id = user_id
+                # new_user.id = user_id
 
                 login_user(new_user)
                 str = "User id: {}<br>User email: {}"
