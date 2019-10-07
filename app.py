@@ -76,6 +76,7 @@ def hello_world():
 
 
 @app.route('/artefacts')
+@login_required
 def artefacts():
     return view_artefacts(get_artefacts())
 
@@ -89,9 +90,16 @@ def insert_example():
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        with open("views/login.html", encoding='utf8') as f:
-            template = Template(f.read())
-        return template.render()
+        
+        if current_user.is_authenticated:
+
+            # TODO Fill in with appropriate HTML
+
+            return "already logged in"
+        else:
+            with open("views/login.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render()
     elif request.method == 'POST':
         
         new_user = Credentials(request.form['email'],
@@ -112,26 +120,31 @@ def login():
                 new_user = User(user_id, user_email)
 
                 login_user(new_user)
-                str = "User id: {}<br>User email: {}"
-                return str.format(new_user.id, new_user.email)
+
+                return redirect('/')
+
+                # str = "User id: {}<br>User email: {}"
+                # return str.format(new_user.id, new_user.email)
             
             else:
-                return "incorrent password"
+                return 0
+                # return "incorrent password"
 
 
         else:
             return "no user exists 😳"
 
 
-        print("finish doing the login stuff")
-
-
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'GET':
-        with open("views/register.html", encoding='utf8') as f:
-            template = Template(f.read())
-        return template.render()
+
+        if current_user.is_authenticated:
+            return "already logged in 🙄"
+        else:
+            with open("views/register.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render()
 
     elif request.method == 'POST':
         
@@ -153,7 +166,17 @@ def register():
 
                 register_user(new_register)
 
-                return "Success! 🔥😎"
+
+                # Logs in user after adding to database
+                db_user = email_taken(new_user)
+
+                user_id = db_user[0]
+                user_email = db_user[2]
+
+                login_user(User(user_id, user_email))
+
+                # return "hmmm"
+                return redirect('/')
             else:
                 return "User Exists 😳"
         else:
@@ -238,6 +261,22 @@ def upload_artefact():
             add_image(artefact_image)
 
         return "Success!"
+
+@app.errorhandler(404)
+def page_not_found(e):
+
+    # TODO Make and actual error page
+
+    return '''whoopsie, you entered a bad url, page not found<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
 
 if __name__ == '__main__':
     app.run()
