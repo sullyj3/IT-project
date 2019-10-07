@@ -17,29 +17,29 @@
         
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
-            <li class="nav-item active">
+              <li class="nav-item active">
                 <a class="nav-link" href="/#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="/login">Login</a>
-            </li>
-            <li class="nav-item">
-                    <a class="nav-link" href="/register">Register</a>
-                </li>
-            <li class="nav-item dropdown">
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/register">Register</a>
+              </li>
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown
+                  Dropdown
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
+                  <a class="dropdown-item" href="#">Action</a>
+                  <a class="dropdown-item" href="#">Another action</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Something else here</a>
                 </div>
-            </li>
-            <li class="nav-item">
+              </li>
+              <li class="nav-item">
                 <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-            </li>
+              </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -51,7 +51,7 @@
         <div class="jumbotron">
             <h1 class="display-4">Login</h1>
         <div class="container form-container">
-            <form action="/register" method='POST'>
+            <form action="/login" method='POST'>
                 <div class="row">
                     <div class="col-sm">
                         
@@ -63,7 +63,7 @@
                     <div class="col-sm">
                         
                         <div class="form-group">
-                                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter Password" name="pass">
+                                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter Password" name="password">
                                 <small id="passWordHelp" class="form-text text-muted"> <a href="/register">Forgot your password?</a> </small>
                         </div>
                         
@@ -71,7 +71,7 @@
                     </div>
                 </div>
                 <div class="wrapper">
-                    <button type="submit" value="Register" class="btn btn-primary btn-lg"> Login</button>
+                    <button type="submit" value="Login" class="btn btn-primary btn-lg"> Login</button>
                 </div>
             </div>
         
