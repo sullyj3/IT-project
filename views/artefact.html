@@ -7,14 +7,14 @@
     <title>Artefacts</title>
 </head>
 <body>
-    <h1>{{artefact.name}}</h1>
+    <h1>Name: {{artefact.name}}</h1>
     <p>Owner: {{artefact.owner}}</p>
     <p>Description: {{artefact.description}}</p> <br>
 
     <ol id="artefacts">
     {% for image in artefact_images %}
     <li>
-      <img src="{{ image.presigned_url }}">
+      <img src="{{ image.image_url }}">
     </li>
     {% endfor %}
     </ol>

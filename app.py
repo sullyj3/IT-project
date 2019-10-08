@@ -10,8 +10,8 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename
-from views import view_artefacts 
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata
+from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
 app = Flask(__name__)
@@ -78,12 +78,19 @@ def hello_world():
 @app.route('/artefacts')
 @login_required
 def artefacts():
-    artefacts = get_artefacts()
-    artefact_images = {}
-    for a in artefact
-
     return view_artefacts(get_artefacts())
 
+@app.route('/artefact/<int:artefact_id>')
+@login_required
+def artefact(artefact_id):
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    artefact_images = get_artefact_images_metadata(artefact_id)
+
+    return view_artefact(artefact, artefact_images)
 
 @app.route('/insertexample')
 def insert_example():
