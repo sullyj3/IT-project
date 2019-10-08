@@ -116,7 +116,8 @@ def add_image(artefact_image: ArtefactImage):
         cur.execute(sql, artefact_image._asdict())
 
 def get_artefact_images_metadata(artefact_id: int) -> [ArtefactImage]:
-    rows = pg_select('SELECT * FROM ArtefactImage;')
+    rows = pg_select('SELECT * FROM ArtefactImage WHERE artefact_id = %s;',
+            (artefact_id, ))
     return [img_with_presigned_url(ArtefactImage(*row)) for row in rows]
 
 
