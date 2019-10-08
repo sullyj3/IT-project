@@ -75,6 +75,11 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+@app.route('/viewartefact')
+def view_artefact():
+    with open("views/artefact_view.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
 
 @app.route('/artefacts')
 def artefacts():
