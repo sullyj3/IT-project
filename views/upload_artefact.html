@@ -101,22 +101,20 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
   -->
 <div class="container">
   <form action="/uploadartefact" method="post">
-    <form>
-        <div class="row">
-          <div class="col">
-              <div class="form-group">
-                  <label for="artefactTitle">Artefact Title</label>
-                  <input type="text" class="form-control" id="artefactTitle" name="name">
-                </div>
-          </div>
-          <div class="col">
-              <div class="form-group">
-                  <label for="artefactOwner">Owner</label>
-                  <input type="number" class="form-control" id="artefactOwner" name="owner">
-                </div>
-          </div>
+      <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="artefactTitle">Artefact Title</label>
+                <input type="text" class="form-control" id="artefactTitle" name="name">
+              </div>
         </div>
-      </form>
+        <div class="col">
+            <div class="form-group">
+                <label for="artefactOwner">Owner</label>
+                <input type="number" class="form-control" id="artefactOwner" name="owner">
+              </div>
+        </div>
+      </div>
       <div class="form-group">
           <label for="artefactDescription">Description</label>
           <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
@@ -134,40 +132,30 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
           Location
         </label>
       </div>
-
-      <p>Stored with user id: (if applicable)</p>
-    <input type="number" name="stored_with_user"><br>
-    <p>Stored at location: (if applicable)</p>
-    <input type="text" name="stored_at_loc"><br><br>
-    <input type="submit" value="Submit">
-
-    <p>image: (optional)</p>
-      <input type="file" name="pic" accept="image/*"><br>
-      <input type="submit" value="Submit">
       
-      <div class="form-group">
-        <label for="exampleFormControlSelect1">Example select</label>
-        <select class="form-control" id="exampleFormControlSelect1">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="exampleFormControlSelect2">Example multiple select</label>
-        <select multiple class="form-control" id="exampleFormControlSelect2">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-        </select>
-      </div>
+
+<!-- What's the point of both these two????
+      <p>Stored with user id: (if applicable)</p>
+    <input type="number" name="stored_with_user"><br>-->    
+    <div class="form-group">
+      <label for="artefactTitle">Stored at location: (if applicable)</label>
+      <input type="text" class="form-control" name="stored_at_loc">
+    </div>
+
+    <div class="form-group">
+      <label for="imageUpload">Image/s: (optional)</label>
+      <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+    </div>
+
+    <div class="wrapper">
+        <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
+    </div>
+
     </form>
   </div>
-   
+  <p></p>
+  <p></p>
+
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
