@@ -81,6 +81,12 @@ def view_artefact():
         template = Template(f.read())
     return template.render()
 
+@app.route('/editartefact')
+def edit_artefact():
+    with open("views/edit_artefact.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
 @app.route('/artefacts')
 def artefacts():
     return view_artefacts(get_artefacts())

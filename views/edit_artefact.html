@@ -69,11 +69,35 @@
 
     <section class="jumbotron text-center">
       <div class="container">
-        <h1 class="jumbotron-heading">Add Artefact</h1>
-        <p class="lead text-muted">From here you can contribute to your family's collection of wonderful artefacts! Upload a picture, description and title.</p>
+        <h1 class="jumbotron-heading">Edit Artefact</h1>
+        <p class="lead text-muted">From here you can edit your wonderful artefact! Reupload pictures, change the description and title.</p>
         <p>
-          <a href="/artefacts" class="btn btn-primary my-2">Back to Artefacts</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+          <a href="/viewartefact" class="btn btn-primary my-2">Back to Artefact</a>
+          
+          <a class="nav-item btn-logout">
+              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#deleteModal">
+                Delete Artefact
+                </button>
+                <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Delete Artefact</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                      Are you sure you want to delete this artefact?
+                      </div>
+                      <div class="modal-footer">
+                        <a class="btn btn-secondary" data-dismiss="modal" role="button">Close</a>
+                        <a class="btn btn-primary" href="/artefacts" role="button">Delete</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
         </p>
       </div>
     </section>
@@ -138,71 +162,71 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
       <p>Stored with user id: (if applicable)</p>
     <input type="number" name="stored_with_user"><br>-->    
     <div class="form-group">
-      <label for="artefactTitle">Stored at location: (if applicable)</label>
-      <input type="text" class="form-control" name="stored_at_loc">
-    </div>
-    <div class="row">
-        <div class="col">          
-          <div class="form-group">
-            <div class="dropdown">
-              <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Tags
-              </a>
-              <div class="dropdown-menu">
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag1"> Tag1 </input>
-                </li>
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag2"> Tag2 </input>
-                </li>
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag3"> Tag3 </input>
-                </li>
+        <label for="artefactTitle">Stored at location: (if applicable)</label>
+        <input type="text" class="form-control" name="stored_at_loc">
+      </div>
+      <div class="row">
+          <div class="col">          
+            <div class="form-group">
+              <div class="dropdown">
+                <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Tags
+                </a>
+                <div class="dropdown-menu">
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag1"> Tag1 </input>
+                  </li>
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag2"> Tag2 </input>
+                  </li>
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag3"> Tag3 </input>
+                  </li>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <form>
-            <div class="form-row align-items-center">
-              <div class="col-sm-3 my-1">
-                <label class="sr-only" for="inlineFormInputName">Tag</label>
-                <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
-              </div>  
-              <div class="col-auto my-1">
-                <button type="submit" class="btn btn-secondary">+</button>
+            
+            <form>
+              <div class="form-row align-items-center">
+                <div class="col-sm-3 my-1">
+                  <label class="sr-only" for="inlineFormInputName">Tag</label>
+                  <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
+                </div>  
+                <div class="col-auto my-1">
+                  <button type="submit" class="btn btn-secondary">+</button>
+                </div>
               </div>
-            </div>
-          </form>
-          
-        </div>
-
-        <div class="col">
-          <div class="form-group">
-            <label for="imageUpload">Image/s: (optional)</label>
-            <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+            </form>
+            
           </div>
-        </div>
-
+  
+          <div class="col">
+            <div class="form-group">
+              <label for="imageUpload">Image/s: (optional)</label>
+              <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+            </div>
+          </div>
+  
+      </div>
+  
+      <p></p>
+      <p></p>
+  
+      
+  
+      <div class="wrapper">
+          <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
+      </div>
+  
+      </form>
     </div>
-
     <p></p>
     <p></p>
-
-    
-
-    <div class="wrapper">
-        <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
-    </div>
-
-    </form>
-  </div>
-  <p></p>
-  <p></p>
-  <p></p>
-  <p></p>
+    <p></p>
+    <p></p>
 
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
