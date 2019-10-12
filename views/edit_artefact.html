@@ -161,12 +161,45 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
 <!-- What's the point of both these two????
       <p>Stored with user id: (if applicable)</p>
     <input type="number" name="stored_with_user"><br>-->    
-    <div class="form-group">
-        <label for="artefactTitle">Stored at location: (if applicable)</label>
-        <input type="text" class="form-control" name="stored_at_loc">
-      </div>
+  
       <div class="row">
-          <div class="col">          
+        <div class="col">
+          <div class="form-group">
+            <label for="artefactTitle">Stored at location: (if applicable)</label>
+            <input type="text" class="form-control" name="stored_at_loc">
+          </div>
+          <div class="form-group">
+              <label for="imageUpload">Image/s: (optional)</label>
+              <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+            </div>
+        </div>
+
+        <div class="col">
+          <div class="row">
+            <div class="col">
+              <div class="dropdown">
+                <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Hide From
+                </a>
+                <div class="dropdown-menu">
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag1"> Bill </input>
+                  </li>
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag2"> Joe </input>
+                  </li>
+                  <li>
+                    &nbsp
+                    <input type="checkbox" value="tag3"> Raph </input>
+                  </li>
+                </div>
+              </div>
+            </div>  
+              
+          <div class="col">
+                
             <div class="form-group">
               <div class="dropdown">
                 <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -185,37 +218,26 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
                     &nbsp
                     <input type="checkbox" value="tag3"> Tag3 </input>
                   </li>
+                  
                 </div>
               </div>
-            </div>
-            
-            <form>
-              <div class="form-row align-items-center">
-                <div class="col-sm-3 my-1">
-                  <label class="sr-only" for="inlineFormInputName">Tag</label>
-                  <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
-                </div>  
-                <div class="col-auto my-1">
-                  <button type="submit" class="btn btn-secondary">+</button>
+              <form>
+                <div class="form-row align-items-center">
+                  <div class="col my-1">
+                    <label class="sr-only" for="inlineFormInputName">Tag</label>
+                    <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
+                  </div>  
+                  <div class="col my-1">
+                    <button type="submit" class="btn btn-secondary">+</button>
+                  </div>
                 </div>
-              </div>
-            </form>
-            
-          </div>
-  
-          <div class="col">
-            <div class="form-group">
-              <label for="imageUpload">Image/s: (optional)</label>
-              <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+              </form>
+          
             </div>
           </div>
-  
+        </div>
       </div>
-  
-      <p></p>
-      <p></p>
-  
-      
+    </div>
   
       <div class="wrapper">
           <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
