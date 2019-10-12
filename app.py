@@ -99,6 +99,12 @@ def settings():
         template = Template(f.read())
     return template.render()
 
+@app.route('/family')
+def familysettings():
+    with open("views/family_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
 @app.route('/artefacts')
 def artefacts():
     return view_artefacts(get_artefacts())
