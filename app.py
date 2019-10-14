@@ -74,6 +74,11 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+@app.route('/temp')
+def template_testing():
+    with open("views/base.html", encoding="utf8") as f:
+        template = Template(f.read())
+    return template.render()
 
 @app.route('/artefacts')
 @login_required

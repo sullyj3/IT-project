@@ -108,3 +108,6 @@ venv.bak/
 cat.png
 # Vscode
 .vscode
+
+# Web Icon
+*.ico
