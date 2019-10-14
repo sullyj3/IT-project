@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect
+from flask import Flask, current_app, request, abort, redirect, render_template
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -14,7 +14,7 @@ from persistence import get_artefacts, add_artefact, email_taken, register_user,
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='views')
 
 # this stuff needs to go at the top level, rather than in the 
 # "if __name__ == '__main__'" stanza. This ensures that when our code is 
@@ -46,11 +46,6 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-# jinja environment for templating
-env = Environment(
-    loader = FileSystemLoader(searchpath = "views")
-    #autoescape = select_autoescape(['html', 'xml'])
-)
 
 
 # User class to track logging
@@ -76,12 +71,10 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    return env.get_template('helloturtles.html').render()
+    return render_template('helloturtles.html')
 
-@app.route('/temp')
-def template_testing():
-    template = env.get_template('base.html')
-    return template.render()
+# @app.route('/temp')
+# template_testing()
 
 @app.route('/artefacts')
 @login_required
@@ -161,9 +154,7 @@ def register():
         if current_user.is_authenticated:
             return "already logged in 🙄"
         else:
-            with open("views/register.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('register.html')
 
     elif request.method == 'POST':
         
