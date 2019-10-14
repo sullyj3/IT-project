@@ -74,6 +74,29 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+@app.route('/editartefact')
+def edit_artefact():
+    with open("views/edit_artefact.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/editsettings')
+def editsettings():
+    with open("views/edit_account_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/settings')
+def settings():
+    with open("views/account_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/family')
+def familysettings():
+    with open("views/family_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
 
 @app.route('/artefacts')
 @login_required

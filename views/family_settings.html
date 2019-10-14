@@ -3,10 +3,8 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/styles.css">
-    <link rel="stylesheet" href="/static/artefacts.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
-    <title>Artefacts</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff">
@@ -60,48 +58,51 @@
             </form>
         </div>
     </nav>
-
-    <section class="jumbotron text-center">
-      <div class="container">
-        <h1 class="jumbotron-heading">Artefacts</h1>
-        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
-        <p>
-          <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-        </p>
-      </div>
-    </section>
-
-    <div class="container">
-      <div class="album py-5 bg-light">
-          <div class="container">
-            <div class="row">
-              {% for artefact in artefacts %}
-              <div class="col-md-4">
-                  <div class="card mb-4 box-shadow">
-                      <img class="card-img-top" src="/static/images/circle-blues.png">
-                      <div class="card-body">
-                        <h5 class="card-title">Name: {{artefact.name}}</p></h5>
-                        <p style="text-align: left;" class="card-text">Description: {{artefact.description}}</p></p>
-                        <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact.owner}}</small></p>
-                        <div class="btn-group">
-                            <a href="/artefact/{{artefact.artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
-                            <a href="/editartefact" class="btn btn-sm btn-outline-secondary">Edit</a>
+    
+    <div class="container home-container">
+        <div class="jumbotron">
+            <div class="container">
+              <h1>My Family</h1>
+                <hr>
+                
+              <div class="row">                      
+                <div class="col-md-9 personal-info">
+                  
+                  <form class="form-horizontal" role="form">
+                     
+                    <div class="form-group col-md-8">
+                      <label for="exampleFormControlInput1">Add a new family member</label>
+                      <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+                    </div>
+                    <div class="form-group col-md-8">
+                      <label for="exampleFormControlSelect1">Remove a family member</label>
+                      <select class="form-control" id="exampleFormControlSelect1">
+                        <option>Name</option>
+                        <option>John</option>
+                        <option>Michelle</option>
+                        <option>Obunga</option>
+                        <option>Shrek 2</option>
+                      </select>
+                    </div>                    
+                      
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"></label>
+                        <div class="col-md-8">
+                        <a role="button" href="/editsettings" class="btn btn-primary" value="Make Changes">Apply Changes</a>
                         </div>
-                      </div>
-                  </div>
-              </div>
-              {% endfor %}
+                    </div>
+                  </form>
+                </div>
             </div>
           </div>
+          <hr>
         </div>
-      
-  </div>
-   
+      </div>
+    </div>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>

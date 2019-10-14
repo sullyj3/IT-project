@@ -20,14 +20,20 @@
             <li class="nav-item active">
                 <a class="nav-link" href="/artefacts">Artefacts <span class="sr-only">(current)</span></a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Register</a>
+            </li>
             </ul>
             <div class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 Profile
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="/settings">Account Settings</a>
-                <a class="dropdown-item" href="/family">My Family</a>
+                <a class="dropdown-item" href="#">Account Settings</a>
+                <a class="dropdown-item" href="#">My Family</a>
                 </div>
               </div>
             <a class="nav-item btn-logout">
@@ -59,49 +65,61 @@
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
             </form>
         </div>
-    </nav>
+      </nav>
 
-    <section class="jumbotron text-center">
       <div class="container">
-        <h1 class="jumbotron-heading">Artefacts</h1>
-        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
-        <p>
-          <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-        </p>
-      </div>
-    </section>
 
-    <div class="container">
-      <div class="album py-5 bg-light">
-          <div class="container">
-            <div class="row">
-              {% for artefact in artefacts %}
-              <div class="col-md-4">
-                  <div class="card mb-4 box-shadow">
-                      <img class="card-img-top" src="/static/images/circle-blues.png">
-                      <div class="card-body">
-                        <h5 class="card-title">Name: {{artefact.name}}</p></h5>
-                        <p style="text-align: left;" class="card-text">Description: {{artefact.description}}</p></p>
-                        <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact.owner}}</small></p>
-                        <div class="btn-group">
-                            <a href="/artefact/{{artefact.artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
-                            <a href="/editartefact" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        </div>
-                      </div>
+          <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">{{artefact.name}} <a class="btn btn-primary" href="/artefacts" role="button" style="font-family: 'Crimson Text', Georgia, Times, serif;">Back</a>
+             <a href="/editartefact" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a> </h1>
+          <span class="badge badge-info">Tag1</span>
+        <span class="badge badge-info">Tag2</span>
+        <span class="badge badge-info">Tag3</span>
+        
+          <hr class="mt-2 mb-5">
+        
+          <div class="row text-center text-lg-left">
+        
+            <div class="col-lg-3 col-md-4 col-6">
+              <a href="#" data-toggle="modal" data-target=".image1" class="d-block mb-4 h-100">
+                <img class="img-fluid img-thumbnail" src="/static/images/circle-blues.png" alt="">
+              </a>
+            </div>
+
+            <div class="modal fade image1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <img class="img-fluid img-thumbnail" src="/static/images/circle-blues.png" alt="" height="100%" width="100%">
+                </div>
+              </div>
+            </div>
+
+            {% for image in artefact_images %}
+            <div class="col-lg-3 col-md-4 col-6">
+                <a href="#" data-toggle="modal" data-target=".image_{{image.image_id}}" class="d-block mb-4 h-100">
+                  <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="">
+                </a>
+              </div>
+  
+              <div class="modal fade image_{{image.image_id}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="" height="100%" width="100%">
                   </div>
+                </div>
               </div>
               {% endfor %}
-            </div>
-          </div>
-        </div>
-      
-  </div>
-   
 
+          </div>   
+          <hr class="mt-2 mb-5">     
+        <p style="text-align: left">{{artefact.description}}</p>
+        <p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
+        <p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
+
+      </div>
+        
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        
+       
 </body>
 </html>
