@@ -99,111 +99,133 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
     <input type="submit" value="Submit">
   </form>
   -->
-<div class="container">
-  <form action="/uploadartefact" method="post">
-      <div class="row">
-        <div class="col">
-            <div class="form-group">
-                <label for="artefactTitle">Artefact Title</label>
-                <input type="text" class="form-control" id="artefactTitle" name="name">
-              </div>
-        </div>
-        <div class="col">
-            <div class="form-group">
-                <label for="artefactOwner">Owner</label>
-                <input type="number" class="form-control" id="artefactOwner" name="owner">
-              </div>
-        </div>
-      </div>
-      <div class="form-group">
-          <label for="artefactDescription">Description</label>
-          <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
-        </div>
-      <label for="artefactDescription">Artefact stored with: &nbsp&nbsp</label>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" checked>
-        <label class="form-check-label" for="location">
-          You
-        </label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="location" value="location">
-        <label class="form-check-label" for="location">
-          Location
-        </label>
-      </div>
-      
-
-<!-- What's the point of both these two????
-      <p>Stored with user id: (if applicable)</p>
-    <input type="number" name="stored_with_user"><br>-->    
-    <div class="form-group">
-      <label for="artefactTitle">Stored at location: (if applicable)</label>
-      <input type="text" class="form-control" name="stored_at_loc">
-    </div>
-    <div class="row">
-        <div class="col">          
-          <div class="form-group">
-            <div class="dropdown">
-              <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Tags
-              </a>
-              <div class="dropdown-menu">
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag1"> Tag1 </input>
-                </li>
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag2"> Tag2 </input>
-                </li>
-                <li>
-                  &nbsp
-                  <input type="checkbox" value="tag3"> Tag3 </input>
-                </li>
-              </div>
+  <div class="container">
+      <form action="/uploadartefact" method="post">
+          <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    <label for="artefactTitle">Artefact Title</label>
+                    <input type="text" class="form-control" id="artefactTitle" name="name">
+                  </div>
+            </div>
+            <div class="col">
+                <div class="form-group">
+                    <label for="artefactOwner">Owner</label>
+                    <input type="number" class="form-control" id="artefactOwner" name="owner">
+                  </div>
             </div>
           </div>
-          
-          <form>
-            <div class="form-row align-items-center">
-              <div class="col-sm-3 my-1">
-                <label class="sr-only" for="inlineFormInputName">Tag</label>
-                <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
-              </div>  
-              <div class="col-auto my-1">
-                <button type="submit" class="btn btn-secondary">+</button>
-              </div>
-            </div>
-          </form>
-          
-        </div>
-
-        <div class="col">
           <div class="form-group">
-            <label for="imageUpload">Image/s: (optional)</label>
-            <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+              <label for="artefactDescription">Description</label>
+              <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
+            </div>
+          <label for="artefactDescription">Artefact stored with: &nbsp&nbsp</label>
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" checked>
+            <label class="form-check-label" for="location">
+              You
+            </label>
           </div>
-        </div>
-
-    </div>
-
-    <p></p>
-    <p></p>
-
+          <div class="form-check form-check-inline">
+            <input class="form-check-input" type="radio" name="stored_with" id="location" value="location">
+            <label class="form-check-label" for="location">
+              Location
+            </label>
+          </div>
+          
     
-
-    <div class="wrapper">
-        <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
-    </div>
-
-    </form>
-  </div>
-  <p></p>
-  <p></p>
-  <p></p>
-  <p></p>
-
+    <!-- What's the point of both these two????
+          <p>Stored with user id: (if applicable)</p>
+        <input type="number" name="stored_with_user"><br>-->    
+      
+          <div class="row">
+            <div class="col">
+              <div class="form-group">
+                <label for="artefactTitle">Stored at location: (if applicable)</label>
+                <input type="text" class="form-control" name="stored_at_loc">
+              </div>
+              <div class="form-group">
+                  <label for="imageUpload">Image/s: (optional)</label>
+                  <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+                </div>
+            </div>
+    
+            <div class="col">
+              <div class="row">
+                <div class="col">
+                  <div class="dropdown">
+                    <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Hide From
+                    </a>
+                    <div class="dropdown-menu">
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag1"> Bill </input>
+                      </li>
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag2"> Joe </input>
+                      </li>
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag3"> Raph </input>
+                      </li>
+                    </div>
+                  </div>
+                </div>  
+                  
+              <div class="col">
+                    
+                <div class="form-group">
+                  <div class="dropdown">
+                    <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Tags
+                    </a>
+                    <div class="dropdown-menu">
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag1"> Tag1 </input>
+                      </li>
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag2"> Tag2 </input>
+                      </li>
+                      <li>
+                        &nbsp
+                        <input type="checkbox" value="tag3"> Tag3 </input>
+                      </li>
+                      
+                    </div>
+                  </div>
+                  <form>
+                    <div class="form-row align-items-center">
+                      <div class="col my-1">
+                        <label class="sr-only" for="inlineFormInputName">Tag</label>
+                        <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
+                      </div>  
+                      <div class="col my-1">
+                        <button type="submit" class="btn btn-secondary">+</button>
+                      </div>
+                    </div>
+                  </form>
+              
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+          <div class="wrapper">
+              <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
+          </div>
+      
+          </form>
+        </div>
+        <p></p>
+        <p></p>
+        <p></p>
+        <p></p>
+    
 
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
