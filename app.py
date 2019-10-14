@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-from jinja2 import Template #TODO move all rendering code to views.py
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape #TODO move all rendering code to views.py
 import psycopg2
 
 from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata
@@ -46,6 +46,12 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# jinja environment for templating
+env = Environment(
+    loader = FileSystemLoader(searchpath = "views")
+    #autoescape = select_autoescape(['html', 'xml'])
+)
+
 
 # User class to track logging
 class User(UserMixin, db.Model):
@@ -70,14 +76,11 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    with open("views/helloturtles.html", encoding="utf8") as f:
-        template = Template(f.read())
-    return template.render()
+    return env.get_template('helloturtles.html').render()
 
 @app.route('/temp')
 def template_testing():
-    with open("views/base.html", encoding="utf8") as f:
-        template = Template(f.read())
+    template = env.get_template('base.html')
     return template.render()
 
 @app.route('/artefacts')
