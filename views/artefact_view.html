@@ -69,7 +69,7 @@
 
       <div class="container">
 
-          <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">Artefact Name <a class="btn btn-primary" href="/artefacts" role="button" style="font-family: 'Crimson Text', Georgia, Times, serif;">Back</a>
+          <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">{{artefact.name}} <a class="btn btn-primary" href="/artefacts" role="button" style="font-family: 'Crimson Text', Georgia, Times, serif;">Back</a>
              <a href="/editartefact" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a> </h1>
           <span class="badge badge-info">Tag1</span>
         <span class="badge badge-info">Tag2</span>
@@ -93,66 +93,26 @@
               </div>
             </div>
 
+            {% for image in artefact_images %}
             <div class="col-lg-3 col-md-4 col-6">
-              <a href="#" data-toggle="modal" data-target=".image2" class="d-block mb-4 h-100">
-                <img class="img-fluid img-thumbnail" src="/static/images/background.jpg" alt="">
-              </a>
-            </div>
+                <a href="#" data-toggle="modal" data-target=".image1" class="d-block mb-4 h-100">
+                  <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="">
+                </a>
+              </div>
   
-            <div class="modal fade image2" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <img class="img-fluid img-thumbnail" src="/static/images/background.jpg" alt="" height="100%" width="100%">
+              <div class="modal fade image1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="" height="100%" width="100%">
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div class="col-lg-3 col-md-4 col-6">
-              <a href="#" data-toggle="modal" data-target=".image3" class="d-block mb-4 h-100">
-                <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/EUfxH-pze7s/400x300" alt="">
-              </a>
-            </div>
-  
-            <div class="modal fade image3" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/EUfxH-pze7s/400x300" alt="" height="100%" width="100%">
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-3 col-md-4 col-6">
-              <a href="#" data-toggle="modal" data-target=".image4" class="d-block mb-4 h-100">
-                <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/M185_qYH8vg/400x300" alt="">
-              </a>
-            </div>
-    
-            <div class="modal fade image4" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/M185_qYH8vg/400x300" alt="" height="100%" width="100%">
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-3 col-md-4 col-6">
-              <a href="#" data-toggle="modal" data-target=".image5" class="d-block mb-4 h-100">
-                <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/sesveuG_rNo/400x300" alt="">
-              </a>
-            </div>
-      
-            <div class="modal fade image5" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-              <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                  <img class="img-fluid img-thumbnail" src="https://source.unsplash.com/sesveuG_rNo/400x300" alt="" height="100%" width="100%">
-                </div>
-              </div>
-            </div>
+              {% endfor %}
 
           </div>   
           <hr class="mt-2 mb-5">     
-        <p style="text-align: left">Artefact Description What the fuck did you just fucking say about me, you little bitch? I'll have you know I graduated top of my class in the Navy Seals, and I've been involved in numerous secret raids on Al-Quaeda, and I have over 300 confirmed kills. I am trained in gorilla warfare and I'm the top sniper in the entire US armed forces. You are nothing to me but just another target. I will wipe you the fuck out with precision the likes of which has never been seen before on this Earth, mark my fucking words. You think you can get away with saying that shit to me over the Internet? Think again, fucker. As we speak I am contacting my secret network of spies across the USA and your IP is being traced right now so you better prepare for the storm, maggot. The storm that wipes out the pathetic little thing you call your life. You're fucking dead, kid. I can be anywhere, anytime, and I can kill you in over seven hundred ways, and that's just with my bare hands. Not only am I extensively trained in unarmed combat, but I have access to the entire arsenal of the United States Marine Corps and I will use it to its full extent to wipe your miserable ass off the face of the continent, you little shit. If only you could have known what unholy retribution your little "clever" comment was about to bring down upon you, maybe you would have held your fucking tongue. But you couldn't, you didn't, and now you're paying the price, you goddamn idiot. I will shit fury all over you and you will drown in it. You're fucking dead, kiddo.</p>
-        <p style="text-align: left"> Added on: "0/69/420" by "Bigus Dickus"</p>
+        <p style="text-align: left">{{artefact.description}}</p>
+        <p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
         <p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
 
       </div>
