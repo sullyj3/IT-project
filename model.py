@@ -1,8 +1,8 @@
 from collections import namedtuple
 
 Artefact = namedtuple("Artefact", ("artefact_id",
-                                   "name",
                                    "owner",
+                                   "name",
                                    "description",
                                    "date_stored",
                                    "stored_with",

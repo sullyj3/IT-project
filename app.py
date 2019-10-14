@@ -5,15 +5,14 @@ from flask import Flask, current_app, request, abort, redirect
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_bcrypt import check_password_hash, generate_password_hash
 
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename
-from authentication import authenticate_user
-from views import view_artefacts 
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata
+from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
-from authentication import generate_pass
 
 app = Flask(__name__)
 
@@ -106,9 +105,21 @@ def familysettings():
     return template.render()
 
 @app.route('/artefacts')
+@login_required
 def artefacts():
     return view_artefacts(get_artefacts())
 
+@app.route('/artefact/<int:artefact_id>')
+@login_required
+def artefact(artefact_id):
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    artefact_images = get_artefact_images_metadata(artefact_id)
+
+    return view_artefact(artefact, artefact_images)
 
 @app.route('/insertexample')
 def insert_example():
@@ -119,9 +130,16 @@ def insert_example():
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        with open("views/login.html", encoding='utf8') as f:
-            template = Template(f.read())
-        return template.render()
+        
+        if current_user.is_authenticated:
+
+            # TODO Fill in with appropriate HTML
+
+            return "already logged in"
+        else:
+            with open("views/login.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render()
     elif request.method == 'POST':
         
         new_user = Credentials(request.form['email'],
@@ -136,34 +154,37 @@ def login():
             user_email = db_user[2]
 
             # Determines if the password has is correct
-            if authenticate_user(new_user, hash_pw):
+            # if authenticate_user(new_user, hash_pw):
+            if check_password_hash(hash_pw.tobytes(), new_user.password):
 
-                # TODO: Create User class and use for logging in session
-                
                 new_user = User(user_id, user_email)
-                # new_user.id = user_id
 
                 login_user(new_user)
-                str = "User id: {}<br>User email: {}"
-                return str.format(new_user.id, new_user.email)
+
+                return redirect('/')
+
+                # str = "User id: {}<br>User email: {}"
+                # return str.format(new_user.id, new_user.email)
             
             else:
-                return "incorrent password"
+                return 0
+                # return "incorrent password"
 
 
         else:
             return "no user exists 😳"
 
 
-        print("finish doing the login stuff")
-
-
 @app.route('/register', methods=['GET','POST'])
 def register():
     if request.method == 'GET':
-        with open("views/register.html", encoding='utf8') as f:
-            template = Template(f.read())
-        return template.render()
+
+        if current_user.is_authenticated:
+            return "already logged in 🙄"
+        else:
+            with open("views/register.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render()
 
     elif request.method == 'POST':
         
@@ -181,16 +202,28 @@ def register():
                                         request.form['family_id'],
                                         request.form['email'],
                                         request.form['location'],
-                                        generate_pass(request.form['pass']))
+                                        generate_password_hash(request.form['pass']))
 
                 register_user(new_register)
-                return "Success! 🔥😎"
+
+
+                # Logs in user after adding to database
+                db_user = email_taken(new_user)
+
+                user_id = db_user[0]
+                user_email = db_user[2]
+
+                login_user(User(user_id, user_email))
+
+                # return "hmmm"
+                return redirect('/')
             else:
                 return "User Exists 😳"
         else:
             return "Different Passwords 😳"
 
 
+# Dummy route to logout
 @app.route('/logout')
 @login_required
 def logout_page():
@@ -198,6 +231,8 @@ def logout_page():
         logout_user()
         return "user logged out"
 
+
+# Dummy route to check if logged in
 @app.route('/islogged')
 def is_logged_in():
     if request.method == 'GET':
@@ -266,6 +301,22 @@ def upload_artefact():
             add_image(artefact_image)
 
         return "Success!"
+
+@app.errorhandler(404)
+def page_not_found(e):
+
+    # TODO Make and actual error page
+
+    return '''whoopsie, you entered a bad url, page not found<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
+    <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
 
 if __name__ == '__main__':
     app.run()
