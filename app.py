@@ -259,8 +259,11 @@ def upload_artefact():
             try:
                 # stored_with_user should be user_id
                 stored_with_user = int(request.form['stored_with_user'])
+            except KeyError:
+                return "missing stored_with_user field", 400
             except ValueError:
-                abort(400)
+                return "stored with user wasn't an integer!", 400
+
         elif request.form['stored_with'] == 'location':
             stored_at_loc = request.form['stored_at_loc']
             stored_with_user = None
@@ -271,16 +274,16 @@ def upload_artefact():
         new_artefact = Artefact(
                 # DB will decide the id, doesn't make sense to add it here.
                 # This is really a data modelling issue, need to think about this more.
-                None,
-                request.form['name'],
-                current_user.id,
-                request.form['description'],
+                artefact_id = None,
+                name        = request.form['name'],
+                owner       = current_user.id,
+                description = request.form['description'],
 
                 # same for date_stored, database will call CURRENT_TIMESTAMP
-                None,
-                request.form['stored_with'],
-                stored_with_user,
-                stored_at_loc)
+                date_stored = None,
+                stored_with = request.form['stored_with'],
+                stored_with_user = stored_with_user,
+                stored_at_loc = stored_at_loc)
 
         artefact_id = add_artefact(new_artefact)
 
