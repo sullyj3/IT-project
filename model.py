@@ -9,6 +9,19 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "stored_with_user",
                                    "stored_at_loc"))
 
+
+# Needed to display the details of the artefact and the family who owns them
+ArtefactUser = namedtuple("ArtefactUser", ("artefact_id",
+                                           "owner",
+                                           "name",
+                                           "description",
+                                           "date_stored",
+                                           "stored_with",
+                                           "stored_with_user",
+                                           "stored_at_loc", 
+                                           "first_name",
+                                           "surname"))
+
 Credentials = namedtuple("Credentials", ("email", "password"))
 
 Register = namedtuple("Register", ("first_name",

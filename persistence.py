@@ -7,7 +7,7 @@ import psycopg2
 
 import boto3
 
-from model import Artefact, Credentials, Register, ArtefactImage
+from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser
 
 ############
 # Database #
@@ -15,8 +15,35 @@ from model import Artefact, Credentials, Register, ArtefactImage
 
 '''
     sql: A select statement
+    can now work with input dicts
 '''
-def pg_select(sql: str, select_what=None) -> List[Tuple]:
+
+# Returns the artefacts that the user is able to view
+def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
+
+    # Relevant inputs for where clauses
+    inputs = {"user_id": user_id,
+              "family_id": family_id}
+
+    sql = '''SELECT artefact.*, "user".first_name, "user".surname
+             FROM "user"
+             INNER JOIN Artefact
+             ON Artefact.owner = "user".id
+             WHERE "user".family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where=inputs)
+    print(rows)
+
+    return [ArtefactUser(*row) for row in rows]
+
+'''
+    sql: A select statement
+    can now work with input dicts
+'''
+
+
+
+def pg_select(sql: str, where=None) -> List[Tuple]:
     try:
         conn = psycopg2.connect(current_app.config['db_URL'])
     except e:
@@ -25,8 +52,8 @@ def pg_select(sql: str, select_what=None) -> List[Tuple]:
 
     with conn:
         cur = conn.cursor()
-        if select_what is not None:
-            cur.execute(sql, select_what)
+        if where is not None:
+            cur.execute(sql, where)
         else:
             cur.execute(sql)
 
