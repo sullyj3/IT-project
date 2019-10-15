@@ -71,6 +71,8 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
+    if current_user.is_authenticated:
+        return artefacts()        
     return render_template('helloturtles.html')
 
 # @app.route('/temp')
@@ -109,9 +111,7 @@ def login():
 
             return "already logged in"
         else:
-            with open("views/login.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('login.html')
     elif request.method == 'POST':
         
         new_user = Credentials(request.form['email'],

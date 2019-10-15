@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="/static/styles.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
-    <title>Artefacts</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block title %}{{artefact.name}}{% endblock %}
+
+{% block mainbody %}
     <h1>Name: {{artefact.name}}</h1>
     <p>Owner: {{artefact.owner}}</p>
     <p>Description: {{artefact.description}}</p> <br>
@@ -18,5 +14,4 @@
     </li>
     {% endfor %}
     </ol>
-</body>
-</html>
+{% endblock %}
