@@ -17,17 +17,9 @@ from model import Artefact, Credentials, Register, ArtefactImage
     sql: A select statement
     can now work with input dicts
 '''
-def pg_select(sql: str, input_dict = None) -> List[Tuple]:
-    with psycopg2.connect(current_app.config['db_URL']) as conn:
-        cur = conn.cursor()
-        if input_dict:
-            cur.execute(sql, input_dict)
-        else:
-            cur.execute(sql)
-        return cur.fetchall()
 
 # Returns the artefacts that the user is able to view
-def get_artefacts(user_id, family_id) -> List[Artefact]:
+def get_user_artefacts(user_id, family_id) -> List[Artefact]:
 
     # Relevant inputs for where clauses
     inputs = {"user_id": user_id,
@@ -46,8 +38,48 @@ def get_artefacts(user_id, family_id) -> List[Artefact]:
              WHERE "user".family_id = %(family_id)s'''
 
     rows = pg_select(sql=sql, input_dict=inputs)
-    # rows = pg_select('SELECT * FROM Artefact;')
+
+'''
+    sql: A select statement
+    can now work with input dicts
+'''
+def pg_select(sql: str, where=None) -> List[Tuple]:
+    try:
+        conn = psycopg2.connect(current_app.config['db_URL'])
+    except e:
+        print("couldn't connect to " + current_app.config['db_URL'])
+        raise e
+
+    with conn:
+        cur = conn.cursor()
+        if where is not None:
+            cur.execute(sql, where)
+        else:
+            cur.execute(sql)
+
+        return cur.fetchall()
+
+
+def get_artefacts(artefact_ids=None) -> [Artefact]:
+    '''Can be passed a single id or a list of IDs. If a single id is passed, 
+       the returned list will contain just one Artefact.
+    '''
+
+    if artefact_ids is None:
+        rows = pg_select('SELECT * FROM Artefact;')
+
+    elif type(artefact_ids) == int:
+        rows = pg_select('SELECT * from Artefact WHERE artefact_id=%s',
+                (artefact_ids,))
+
+    elif type(artefact_ids) == list:
+        rows = pg_select('SELECT * from Artefact WHERE artefact_id IN %s',
+                (artefact_ids,))
+    else:
+        raise ValueError("artefact_ids must be an int or list of ints")
+
     return [Artefact(*row) for row in rows]
+
 
 def add_artefact(artefact: Artefact) -> int:
     '''returns the id of the newly inserted artefact'''
@@ -110,7 +142,47 @@ def add_image(artefact_image: ArtefactImage):
 
         cur.execute(sql, artefact_image._asdict())
 
+def get_artefact_images_metadata(artefact_id: int) -> [ArtefactImage]:
+    rows = pg_select('SELECT * FROM ArtefactImage WHERE artefact_id = %s;',
+            (artefact_id, ))
+    return [img_with_presigned_url(ArtefactImage(*row)) for row in rows]
+
+
 def generate_img_filename(user_id: str, img: FileStorage):
     name, ext = img.filename.rsplit('.',1)
     timestamp = datetime.utcnow().isoformat().replace(":", "_")
     return f'{user_id}-{name}-{timestamp}.{ext}'
+
+# from https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html
+def create_presigned_url(object_name, expiration=3600):
+    """Generate a presigned URL to share an S3 object
+
+    :param object_name: string
+    :param expiration: Time in seconds for the presigned URL to remain valid
+    :return: Presigned URL as string. If error, returns None.
+    """
+
+    # Generate a presigned URL for the S3 object
+    s3_client = boto3.client('s3')
+    try:
+        response = s3_client.generate_presigned_url('get_object',
+                                                    Params={'Bucket': "shell-safe",
+                                                            'Key': object_name},
+                                                    ExpiresIn=expiration)
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # The response contains the presigned URL
+    return response
+
+def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
+    '''Convert the "image_url" in the ArtefactImage from an S3 Object key (how
+       it is stored in the DB) to a presigned URL suitable for the frontend to
+       GET.
+    '''
+    return ArtefactImage(artefact_image.image_id,
+                         artefact_image.image_id,
+                         create_presigned_url(artefact_image.image_url),
+                         artefact_image.image_description)
+

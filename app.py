@@ -10,8 +10,8 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename
-from views import view_artefacts 
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts
+from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
 app = Flask(__name__)
@@ -79,13 +79,47 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
+@app.route('/editartefact')
+def edit_artefact():
+    with open("views/edit_artefact.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/editsettings')
+def editsettings():
+    with open("views/edit_account_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/settings')
+def settings():
+    with open("views/account_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
+
+@app.route('/family')
+def familysettings():
+    with open("views/family_settings.html", encoding='utf8') as f:
+        template = Template(f.read())
+    return template.render()
 
 @app.route('/artefacts')
 @login_required
 def artefacts():
     
-    return view_artefacts(get_artefacts(current_user.id, current_user.family_id))
+    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id))
 
+@app.route('/artefact/<int:artefact_id>')
+@login_required
+def artefact(artefact_id):
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    artefact_images = get_artefact_images_metadata(artefact_id)
+
+    return view_artefact(artefact, artefact_images)
 
 @app.route('/insertexample')
 def insert_example():
@@ -115,12 +149,9 @@ def login():
         db_user = email_taken(new_user)
         if db_user:
 
-            user_id = db_user[0]
             hash_pw = db_user[3]
-            user_email = db_user[2]
 
             # Determines if the password has is correct
-            # if authenticate_user(new_user, hash_pw):
             if check_password_hash(hash_pw.tobytes(), new_user.password):
 
                 new_user = User(db_user)

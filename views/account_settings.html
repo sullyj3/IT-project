@@ -3,10 +3,8 @@
 <head>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="/static/styles.css">
-    <link rel="stylesheet" href="/static/artefacts.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta" >
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Crimson+Text">
-    <title>Artefacts</title>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #ffffff">
@@ -60,48 +58,57 @@
             </form>
         </div>
     </nav>
-
-    <section class="jumbotron text-center">
-      <div class="container">
-        <h1 class="jumbotron-heading">Artefacts</h1>
-        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
-        <p>
-          <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-        </p>
-      </div>
-    </section>
-
-    <div class="container">
-      <div class="album py-5 bg-light">
-          <div class="container">
-            <div class="row">
-              {% for artefact in artefacts %}
-              <div class="col-md-4">
-                  <div class="card mb-4 box-shadow">
-                      <img class="card-img-top" src="/static/images/circle-blues.png">
-                      <div class="card-body">
-                        <h5 class="card-title">Name: {{artefact.name}}</p></h5>
-                        <p style="text-align: left;" class="card-text">Description: {{artefact.description}}</p></p>
-                        <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact.owner}}</small></p>
-                        <div class="btn-group">
-                            <a href="/artefact/{{artefact.artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
-                            <a href="/editartefact" class="btn btn-sm btn-outline-secondary">Edit</a>
-                        </div>
+    
+    <div class="container home-container">
+        <div class="jumbotron">
+            <div class="container">
+                    <h1>Profile</h1>
+                      <hr>
+                    <div class="row">                      
+                      <div class="col-md-8 personal-info">
+                        
+                        <form class="form-horizontal" role="form">
+                          <fieldset disabled>
+                           
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">First name:</label>
+                                <div class="col-lg-10">
+                                <input class="form-control" type="text" value="Jane">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Last name:</label>
+                                <div class="col-lg-10">
+                                <input class="form-control" type="text" value="Bishop">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-3 control-label">Email:</label>
+                                <div class="col-lg-10">
+                                <input class="form-control" type="text" value="janesemail@gmail.com">
+                                </div>
+                            </div>
+                            
+                          </fieldset>
+                          <div class="form-group">
+                              <label class="col-md-3 control-label"></label>
+                              <div class="col-md-10">
+                              <a role="button" href="/editsettings" class="btn btn-primary" value="Make Changes">Make Changes</a>
+                              </div>
+                          </div>
+                        </form>
                       </div>
                   </div>
-              </div>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-      
-  </div>
-   
+                </div>
+                <hr>
 
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-        
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 </body>
 </html>
