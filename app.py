@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect
+from flask import Flask, current_app, request, abort, redirect, flash
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -51,14 +51,19 @@ login_manager.init_app(app)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
+    first_name = db.Column(db.String(100))
+    surname = db.Column(db.String(100), unique=True)
+    family_id = db.Column(db.Integer)
 
-    def __init__(self, user_id, email,*args, **kwargs):
+    def __init__(self, db_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.id = user_id
-        self.email = email
 
-# Anonymous user class to track if not logged in
-# class
+        self.id = db_user[0]
+        self.first_name = db_user[1]
+        self.email = db_user[2]
+        self.family_id = db_user[5]
+        self.surname = db_user[6]
+        
 
 
 @login_manager.user_loader
@@ -78,7 +83,8 @@ def hello_world():
 @app.route('/artefacts')
 @login_required
 def artefacts():
-    return view_artefacts(get_artefacts())
+    
+    return view_artefacts(get_artefacts(current_user.id, current_user.family_id))
 
 
 @app.route('/insertexample')
@@ -117,18 +123,17 @@ def login():
             # if authenticate_user(new_user, hash_pw):
             if check_password_hash(hash_pw.tobytes(), new_user.password):
 
-                new_user = User(user_id, user_email)
+                new_user = User(db_user)
 
                 login_user(new_user)
 
                 return redirect('/')
-
-                # str = "User id: {}<br>User email: {}"
-                # return str.format(new_user.id, new_user.email)
             
             else:
-                return 0
-                # return "incorrent password"
+
+                # TODO Popup message showing incorrect 
+                
+                return redirect('/login')
 
 
         else:
@@ -170,10 +175,7 @@ def register():
                 # Logs in user after adding to database
                 db_user = email_taken(new_user)
 
-                user_id = db_user[0]
-                user_email = db_user[2]
-
-                login_user(User(user_id, user_email))
+                login_user(User(db_user))
 
                 # return "hmmm"
                 return redirect('/')
@@ -210,7 +212,7 @@ def is_logged_in():
 def upload_artefact():
     if request.method == 'GET':
         # show form
-        with open('views/upload_artefact.html', encoding="utf8") as f:
+        with open('views/upload_artefact_old.html', encoding="utf8") as f:
             template = Template(f.read())
         return template.render()
 
@@ -240,7 +242,7 @@ def upload_artefact():
                 # This is really a data modelling issue, need to think about this more.
                 None,
                 request.form['name'],
-                int(request.form['owner']),
+                current_user.id,
                 request.form['description'],
 
                 # same for date_stored, database will call CURRENT_TIMESTAMP
@@ -262,6 +264,14 @@ def upload_artefact():
 
         return "Success!"
 
+@login_manager.unauthorized_handler
+def unauthorized():
+    
+    # TODO Make unauthorized html page, redirect to login page
+
+    return '''you must be logged in to access this page<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+
 @app.errorhandler(404)
 def page_not_found(e):
 
@@ -277,6 +287,15 @@ def page_not_found(e):
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
     <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
+
+
+@app.errorhandler(400)
+def bad_request(e):
+
+    # TODO make bad request page
+
+    return ''' bad request<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
 
 if __name__ == '__main__':
     app.run()

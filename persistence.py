@@ -15,15 +15,38 @@ from model import Artefact, Credentials, Register, ArtefactImage
 
 '''
     sql: A select statement
+    can now work with input dicts
 '''
-def pg_select(sql: str) -> List[Tuple]:
+def pg_select(sql: str, input_dict = None) -> List[Tuple]:
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        cur.execute(sql)
+        if input_dict:
+            cur.execute(sql, input_dict)
+        else:
+            cur.execute(sql)
         return cur.fetchall()
 
-def get_artefacts() -> List[Artefact]:
-    rows = pg_select('SELECT * FROM Artefact;')
+# Returns the artefacts that the user is able to view
+def get_artefacts(user_id, family_id) -> List[Artefact]:
+
+    # Relevant inputs for where clauses
+    inputs = {"user_id": user_id,
+              "family_id": family_id}
+
+    sql = '''SELECT artefact.artefact_id, artefact.owner, artefact.StoredWithUser, artefact.Name, artefact.Description, artefact.StoredWith, artefact.StoredAtLoc
+             FROM "user"
+             INNER JOIN Artefact
+             ON Artefact.owner = "user".id
+             WHERE "user".family_id = %(family_id)s'''
+
+    sql = '''SELECT artefact.*
+             FROM "user"
+             INNER JOIN Artefact
+             ON Artefact.owner = "user".id
+             WHERE "user".family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, input_dict=inputs)
+    # rows = pg_select('SELECT * FROM Artefact;')
     return [Artefact(*row) for row in rows]
 
 def add_artefact(artefact: Artefact) -> int:
