@@ -7,7 +7,7 @@ import psycopg2
 
 import boto3
 
-from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser
+from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser, User
 
 ############
 # Database #
@@ -40,9 +40,6 @@ def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
     sql: A select statement
     can now work with input dicts
 '''
-
-
-
 def pg_select(sql: str, where=None) -> List[Tuple]:
     try:
         conn = psycopg2.connect(current_app.config['db_URL'])
@@ -58,6 +55,21 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
             cur.execute(sql)
 
         return cur.fetchall()
+
+
+''' Returns a family with the ids and users '''
+def get_family(family_id) -> List[User]:
+
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT id, first_name, surname
+             FROM "user"
+             WHERE family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where=inputs)
+
+
+    return [User(*row) for row in rows]
 
 
 def get_artefacts(artefact_ids=None) -> [Artefact]:
