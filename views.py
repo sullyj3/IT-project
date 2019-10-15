@@ -1,8 +1,8 @@
 from typing import List
-from model import Artefact, ArtefactImage
+from model import Artefact, ArtefactImage, ArtefactUser
 from jinja2 import Template
 
-def view_artefacts(artefacts: List[Artefact]) -> str:
+def view_artefacts(artefacts: List[ArtefactUser]) -> str:
     with open('views/artefacts_template.html', encoding='utf8') as f:
         template = Template(f.read())
     return template.render(artefacts=artefacts)

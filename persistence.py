@@ -7,7 +7,7 @@ import psycopg2
 
 import boto3
 
-from model import Artefact, Credentials, Register, ArtefactImage
+from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser
 
 ############
 # Database #
@@ -19,30 +19,30 @@ from model import Artefact, Credentials, Register, ArtefactImage
 '''
 
 # Returns the artefacts that the user is able to view
-def get_user_artefacts(user_id, family_id) -> List[Artefact]:
+def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
 
     # Relevant inputs for where clauses
     inputs = {"user_id": user_id,
               "family_id": family_id}
 
-    sql = '''SELECT artefact.artefact_id, artefact.owner, artefact.StoredWithUser, artefact.Name, artefact.Description, artefact.StoredWith, artefact.StoredAtLoc
+    sql = '''SELECT artefact.*, "user".first_name, "user".surname
              FROM "user"
              INNER JOIN Artefact
              ON Artefact.owner = "user".id
              WHERE "user".family_id = %(family_id)s'''
 
-    sql = '''SELECT artefact.*
-             FROM "user"
-             INNER JOIN Artefact
-             ON Artefact.owner = "user".id
-             WHERE "user".family_id = %(family_id)s'''
+    rows = pg_select(sql=sql, where=inputs)
+    print(rows)
 
-    rows = pg_select(sql=sql, input_dict=inputs)
+    return [ArtefactUser(*row) for row in rows]
 
 '''
     sql: A select statement
     can now work with input dicts
 '''
+
+
+
 def pg_select(sql: str, where=None) -> List[Tuple]:
     try:
         conn = psycopg2.connect(current_app.config['db_URL'])

@@ -106,7 +106,7 @@ def familysettings():
 @app.route('/artefacts')
 @login_required
 def artefacts():
-    
+
     return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id))
 
 @app.route('/artefact/<int:artefact_id>')
