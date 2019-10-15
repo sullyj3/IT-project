@@ -212,7 +212,7 @@ def is_logged_in():
 def upload_artefact():
     if request.method == 'GET':
         # show form
-        with open('views/upload_artefact_old.html', encoding="utf8") as f:
+        with open('views/upload_artefact.html', encoding="utf8") as f:
             template = Template(f.read())
         return template.render()
 
