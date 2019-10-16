@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from datetime import datetime
 
 from flask import current_app
@@ -13,10 +13,33 @@ from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser
 # Database #
 ############
 
-'''
-    sql: A select statement
-    can now work with input dicts
-'''
+
+def row_to_artefact_preview(row: Tuple) -> Dict:
+    '''
+    takes a row consisting of the artefact fields, user first and last names,
+    and optionally the first ArtefactImage associated with that artefact
+    and collates them into a dict like this:
+
+    {
+        'artefact': Artefact
+        'first_name': str
+        'last_name': str
+        'image': ArtefactImage or None
+    }
+    '''
+
+    d = dict()
+    d['artefact'] = Artefact(*(row[0:8]))
+    d['first_name'] = row[8]
+    d['last_name'] = row[9]
+
+    # artefact may not have any images associated with it
+    d['image'] = (img_with_presigned_url(ArtefactImage(*(row[10:])))
+                  if row[10] is not None
+                  else None)
+
+    return d
+
 
 # Returns the artefacts that the user is able to view
 def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
@@ -25,25 +48,27 @@ def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
     inputs = {"user_id": user_id,
               "family_id": family_id}
 
-    sql = '''SELECT artefact.*, "user".first_name, "user".surname
-             FROM "user"
-             INNER JOIN Artefact
-             ON Artefact.owner = "user".id
-             WHERE "user".family_id = %(family_id)s'''
+    sql = '''
+    SELECT DISTINCT ON (Artefact.artefact_id)
+        Artefact.*, "user".first_name, "user".surname, ArtefactImage.*
+    FROM "user"
+    INNER JOIN Artefact
+    ON Artefact.owner = "user".id
+    LEFT JOIN ArtefactImage
+    ON Artefact.artefact_id = ArtefactImage.artefact_id
+    WHERE "user".family_id = %(family_id)s
+    '''
 
     rows = pg_select(sql=sql, where=inputs)
-    print(rows)
 
-    return [ArtefactUser(*row) for row in rows]
-
-'''
-    sql: A select statement
-    can now work with input dicts
-'''
-
+    return [row_to_artefact_preview(row) for row in rows]
 
 
 def pg_select(sql: str, where=None) -> List[Tuple]:
+    '''
+        sql: A select statement
+        can now work with input dicts
+    '''
     try:
         conn = psycopg2.connect(current_app.config['db_URL'])
     except e:

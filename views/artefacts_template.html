@@ -77,17 +77,23 @@
       <div class="album py-5 bg-light">
           <div class="container">
             <div class="row">
-              {% for artefact in artefacts %}
+              {% for artefact_preview in artefact_previews %}
               <div class="col-md-4">
                   <div class="card mb-4 box-shadow">
+                      {% if artefact_preview['image'] is not none %}
+                      <img class="card-img-top" src="{{artefact_preview['image'].image_url}}">
+                      {% else %}
                       <img class="card-img-top" src="/static/images/circle-blues.png">
+                      {% endif %}
                       <div class="card-body">
-                        <h5 class="card-title">Name: {{artefact.name}}</p></h5>
-                        <p style="text-align: left;" class="card-text">Description: {{artefact.description}}</p></p>
-                        <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact.owner}}</small></p>
-                        <p style="text-align: left;" class="card-text"><small class="text-muted">Name: {{artefact.first_name}} {{artefact.surname}}</small></p>
+                        <h5 class="card-title">Name: {{artefact_preview['artefact'].name}}</p></h5>
+                        <p style="text-align: left;" class="card-text">Description: {{artefact_preview['artefact'].description}}</p></p>
+                        <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['artefact'].owner}}</small></p>
+                        <p style="text-align: left;" class="card-text">
+                          <small class="text-muted">Name: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small>
+                        </p>
                         <div class="btn-group">
-                            <a href="/artefact/{{artefact.artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
+                            <a href="/artefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
                             <a href="/editartefact" class="btn btn-sm btn-outline-secondary">Edit</a>
                         </div>
                       </div>
