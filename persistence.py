@@ -50,7 +50,7 @@ def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
 
     sql = '''
     SELECT DISTINCT ON (Artefact.artefact_id)
-        (Artefact.*, "user".first_name, "user".surname, ArtefactImage.*)
+        Artefact.*, "user".first_name, "user".surname, ArtefactImage.*
     FROM "user"
     INNER JOIN Artefact
     ON Artefact.owner = "user".id
