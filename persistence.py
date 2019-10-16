@@ -106,6 +106,19 @@ def add_artefact(artefact: Artefact) -> int:
         (artefact_id,) = cur.fetchone()
         return artefact_id
 
+
+def change_artefact(artefact: Artefact, artefact_id):
+    ''' changes a new artefact '''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''INSERT INTO Artefact
+                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+                 RETURNING artefact_id;'''
+
+        cur.execute(sql, artefact._asdict())
+
 ''' Determines if an email is taken in the database, if not returns the  '''
 def email_taken(credentials: Credentials):
 
