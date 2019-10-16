@@ -82,11 +82,7 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
         else:
             cur.execute(sql)
 
-        rows = cur.fetchall()
-        print("\nrows:")
-        for r in rows:
-            print(r)
-        return rows
+        return cur.fetchall()
 
 
 def get_artefacts(artefact_ids=None) -> [Artefact]:
