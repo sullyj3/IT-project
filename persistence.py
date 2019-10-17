@@ -100,6 +100,23 @@ def get_family(family_id) -> List[User]:
     return [User(*row) for row in rows]
 
 
+def family_user_ids(family_id) -> List[int]:
+
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT id
+             FROM "user"
+             WHERE family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where=inputs)
+    print(rows)
+
+    print(rows)
+    return rows
+
+    # return [row(0) for row in rows]
+
+
 def get_artefacts(artefact_ids=None) -> [Artefact]:
     '''Can be passed a single id or a list of IDs. If a single id is passed, 
        the returned list will contain just one Artefact.
@@ -135,17 +152,22 @@ def add_artefact(artefact: Artefact) -> int:
         return artefact_id
 
 
-def change_artefact(artefact: Artefact, artefact_id):
+def edit_artefact(artefact: Artefact, artefact_id):
     ''' changes a new artefact '''
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        sql = '''INSERT INTO Artefact
+        sql = '''UPDATE Artefact
                  (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
                  VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
                  RETURNING artefact_id;'''
 
+        sql = '''UPDATE Artefact
+                 SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with)s, stored_at_loc = %(stored_at_loc)s
+                 WHERE artefactid = %(artefact_id)s;'''
+
         cur.execute(sql, artefact._asdict())
+
 
 ''' Determines if an email is taken in the database, if not returns the  '''
 def email_taken(credentials: Credentials):

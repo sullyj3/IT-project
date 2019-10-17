@@ -10,7 +10,7 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
@@ -79,11 +79,30 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
-@app.route('/editartefact')
-def edit_artefact():
-    with open("views/edit_artefact.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+@app.route('/editartefact/<int:artefact_id>')
+@login_required
+def edit_artefact(artefact_id):
+
+    if request.method == "GET":
+
+        try:
+            [artefact] = get_artefacts(artefact_id)
+        except ValueError as e:
+            return "Couldn't find that Artefact!", 400
+
+        if artefact.owner == current_user.id:
+            with open("views/edit_artefact.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render()
+
+        else:
+
+            # TODO Make doesn't own page
+
+            return "you don't own this item, and are unable to edit it"
+
+    elif request.method == "POST":
+        pass
 
 @app.route('/editsettings')
 def editsettings():
@@ -117,9 +136,12 @@ def artefact(artefact_id):
     except ValueError as e:
         return "Couldn't find that Artefact!", 400
 
-    artefact_images = get_artefact_images_metadata(artefact_id)
+    if (artefact.owner,) in  family_user_ids(current_user.family_id):   
+        artefact_images = get_artefact_images_metadata(artefact_id)
+        return view_artefact(artefact, artefact_images)
 
-    return view_artefact(artefact, artefact_images)
+    else:
+        return "you can't view this artefact"
 
 @app.route('/insertexample')
 def insert_example():
