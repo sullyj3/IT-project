@@ -80,10 +80,6 @@ def hello_world():
         return artefacts()        
     return render_template('helloturtles.html')
 
-<<<<<<< HEAD
-# @app.route('/temp')
-# template_testing()
-=======
 @app.route('/editartefact')
 def edit_artefact():
     with open("views/edit_artefact.html", encoding='utf8') as f:
@@ -107,7 +103,6 @@ def familysettings():
     with open("views/family_settings.html", encoding='utf8') as f:
         template = Template(f.read())
     return template.render()
->>>>>>> master
 
 @app.route('/artefacts')
 @login_required
