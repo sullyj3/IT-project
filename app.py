@@ -239,10 +239,7 @@ def is_logged_in():
 @login_required
 def upload_artefact():
     if request.method == 'GET':
-        # show form
-        with open('views/upload_artefact.html', encoding="utf8") as f:
-            template = Template(f.read())
-        return template.render()
+        return render_template('upload_artefact.html')
 
     elif request.method == 'POST':
         # if we get a KeyError accessing the contents of request.form, flask will
