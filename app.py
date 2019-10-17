@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect
+from flask import Flask, current_app, request, abort, redirect, flash
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -10,7 +10,7 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
@@ -51,14 +51,19 @@ login_manager.init_app(app)
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
+    first_name = db.Column(db.String(100))
+    surname = db.Column(db.String(100), unique=True)
+    family_id = db.Column(db.Integer)
 
-    def __init__(self, user_id, email,*args, **kwargs):
+    def __init__(self, db_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.id = user_id
-        self.email = email
 
-# Anonymous user class to track if not logged in
-# class
+        self.id = db_user[0]
+        self.first_name = db_user[1]
+        self.email = db_user[2]
+        self.family_id = db_user[5]
+        self.surname = db_user[6]
+        
 
 
 @login_manager.user_loader
@@ -101,7 +106,8 @@ def familysettings():
 @app.route('/artefacts')
 @login_required
 def artefacts():
-    return view_artefacts(get_artefacts())
+
+    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id))
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
@@ -143,26 +149,22 @@ def login():
         db_user = email_taken(new_user)
         if db_user:
 
-            user_id = db_user[0]
             hash_pw = db_user[3]
-            user_email = db_user[2]
 
             # Determines if the password has is correct
-            # if authenticate_user(new_user, hash_pw):
             if check_password_hash(hash_pw.tobytes(), new_user.password):
 
-                new_user = User(user_id, user_email)
+                new_user = User(db_user)
 
                 login_user(new_user)
 
                 return redirect('/')
-
-                # str = "User id: {}<br>User email: {}"
-                # return str.format(new_user.id, new_user.email)
             
             else:
-                return 0
-                # return "incorrent password"
+
+                # TODO Popup message showing incorrect 
+                
+                return redirect('/login')
 
 
         else:
@@ -204,10 +206,7 @@ def register():
                 # Logs in user after adding to database
                 db_user = email_taken(new_user)
 
-                user_id = db_user[0]
-                user_email = db_user[2]
-
-                login_user(User(user_id, user_email))
+                login_user(User(db_user))
 
                 # return "hmmm"
                 return redirect('/')
@@ -260,8 +259,11 @@ def upload_artefact():
             try:
                 # stored_with_user should be user_id
                 stored_with_user = int(request.form['stored_with_user'])
+            except KeyError:
+                return "missing stored_with_user field", 400
             except ValueError:
-                abort(400)
+                return "stored with user wasn't an integer!", 400
+
         elif request.form['stored_with'] == 'location':
             stored_at_loc = request.form['stored_at_loc']
             stored_with_user = None
@@ -272,16 +274,16 @@ def upload_artefact():
         new_artefact = Artefact(
                 # DB will decide the id, doesn't make sense to add it here.
                 # This is really a data modelling issue, need to think about this more.
-                None,
-                request.form['name'],
-                int(request.form['owner']),
-                request.form['description'],
+                artefact_id = None,
+                name        = request.form['name'],
+                owner       = current_user.id,
+                description = request.form['description'],
 
                 # same for date_stored, database will call CURRENT_TIMESTAMP
-                None,
-                request.form['stored_with'],
-                stored_with_user,
-                stored_at_loc)
+                date_stored = None,
+                stored_with = request.form['stored_with'],
+                stored_with_user = stored_with_user,
+                stored_at_loc = stored_at_loc)
 
         artefact_id = add_artefact(new_artefact)
 
@@ -295,6 +297,14 @@ def upload_artefact():
             add_image(artefact_image)
 
         return "Success!"
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    
+    # TODO Make unauthorized html page, redirect to login page
+
+    return '''you must be logged in to access this page<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -311,6 +321,15 @@ def page_not_found(e):
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
     <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
+
+
+@app.errorhandler(400)
+def bad_request(e):
+
+    # TODO make bad request page
+
+    return ''' bad request<br>
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
 
 if __name__ == '__main__':
     app.run()
