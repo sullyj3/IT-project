@@ -130,45 +130,55 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
         <div class="col">
             <div class="form-group">
                 <label for="artefactTitle">Artefact Title</label>
-                <input type="text" class="form-control" id="artefactTitle" name="name">
+                <input type="text" class="form-control" id="artefactTitle" name="name" value="{{artefact.name}}">
               </div>
         </div>
+        <!--
         <div class="col">
             <div class="form-group">
                 <label for="artefactOwner">Owner</label>
                 <input type="number" class="form-control" id="artefactOwner" name="owner">
-              </div>
+            </div>
         </div>
+        -->
       </div>
       <div class="form-group">
           <label for="artefactDescription">Description</label>
-          <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
+          <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3">{{artefact.description}}</textarea>
         </div>
-      <label for="artefactDescription">Artefact stored with: &nbsp&nbsp</label>
+      <label for="artefactDescription">Artefact stored with: &nbsp;&nbsp;</label>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" checked>
+        <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" {% if artefact.stored_with == "user"%}checked{% endif %}>
         <label class="form-check-label" for="location">
           You
         </label>
       </div>
       <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="location" value="location">
+        <input class="form-check-input" type="radio" name="stored_with" id="location" value="location" {% if artefact.stored_with == "location"%}checked{% endif %}>
         <label class="form-check-label" for="location">
           Location
         </label>
       </div>
       
 
-<!-- What's the point of both these two????
-      <p>Stored with user id: (if applicable)</p>
-    <input type="number" name="stored_with_user"><br>-->    
   
       <div class="row">
         <div class="col">
           <div class="form-group">
+            <label for="stored_with_user">Stored with user id: (if applicable)</label>
+            <input type="number" id="stored_with_user" name="stored_with_user"
+              {% if artefact.stored_with == "user" %}
+                value="{{artefact.stored_with_user}}"
+              {% endif %} ><br>
+
             <label for="artefactTitle">Stored at location: (if applicable)</label>
-            <input type="text" class="form-control" name="stored_at_loc">
+            <input type="text" class="form-control" id="stored_at_loc" name="stored_at_loc"
+              {% if artefact.stored_with == "location" %}
+                value="{{artefact.stored_at_loc}}"
+              {% endif %} ><br>
+
           </div>
+          <h1>TODO</h1>
           <div class="form-group">
               <label for="imageUpload">Image/s: (optional)</label>
               <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
