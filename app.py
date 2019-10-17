@@ -137,7 +137,7 @@ def artefact(artefact_id):
         return "Couldn't find that Artefact!", 400
 
     if (artefact.owner,) in  family_user_ids(current_user.family_id):   
-        
+
         artefact_images = get_artefact_images_metadata(artefact_id)
         return view_artefact(artefact, artefact_images)
 
