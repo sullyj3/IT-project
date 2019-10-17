@@ -1,24 +1,24 @@
-
 {% extends 'base.html' %}
 
 {% block title %}{{artefact.name}}{% endblock %}
+{% block head %}
+    <link rel="stylesheet" href="/static/artefacts.css">
+{% endblock %}
 
 {% block mainbody %}
 
-    <section class="jumbotron text-center">
-      <div class="container">
-        <h1 class="jumbotron-heading">Add Artefact</h1>
-        <p class="lead text-muted">From here you can contribute to your family's collection of wonderful artefacts! Upload a picture, description and title.</p>
-        <p>
-          <a href="/artefacts" class="btn btn-primary my-2">Back to Artefacts</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
-        </p>
-      </div>
-    </section>
-      
+<section class="jumbotron text-center">
+  <div class="container">
+    <h1 class="jumbotron-heading">Add Artefact</h1>
+    <p class="lead text-muted">From here you can contribute to your family's collection of wonderful artefacts! Upload a picture, description and title.</p>
+    <p>
+    <a href="/artefacts" class="btn btn-primary my-2">Back to Artefacts</a>
+    <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+    </p>
   </div>
-<!-- You will not be able to see this text. 
+</section>
 
+<!-- You will not be able to see this text. 
 Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
   <form action="/uploadartefact" method="post">
     <p>Artefact name:</p>
@@ -37,73 +37,133 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
     <input type="submit" value="Submit">
   </form>
   -->
+
 <div class="container">
   <form action="/uploadartefact" method="post">
-    <form>
-        <div class="row">
-          <div class="col">
-              <div class="form-group">
-                  <label for="artefactTitle">Artefact Title</label>
-                  <input type="text" class="form-control" id="artefactTitle" name="name">
-                </div>
-          </div>
-          <div class="col">
-              <div class="form-group">
-                  <label for="artefactOwner">Owner</label>
-                  <input type="number" class="form-control" id="artefactOwner" name="owner">
-                </div>
-          </div>
-        </div>
-      </form>
-      <div class="form-group">
-          <label for="artefactDescription">Description</label>
-          <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
-        </div>
-      <label for="artefactDescription">Artefact stored with: &nbsp&nbsp</label>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" checked>
-        <label class="form-check-label" for="location">
-          You
-        </label>
-      </div>
-      <div class="form-check form-check-inline">
-        <input class="form-check-input" type="radio" name="stored_with" id="location" value="location">
-        <label class="form-check-label" for="location">
-          Location
-        </label>
-      </div>
 
-      <p>Stored with user id: (if applicable)</p>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="artefactTitle">Artefact Title</label>
+          <input type="text" class="form-control" id="artefactTitle" name="name">
+        </div>
+      </div>
+      <div class="col">
+        <div class="form-group">
+          <label for="artefactOwner">Owner</label>
+          <input type="number" class="form-control" id="artefactOwner" name="owner">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="artefactDescription">Description</label>
+      <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3"></textarea>
+    </div>
+
+    <label for="artefactDescription">Artefact stored with: &nbsp;&nbsp;</label>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" checked>
+      <label class="form-check-label" for="location">
+        You
+      </label>
+    </div>
+    <div class="form-check form-check-inline">
+      <input class="form-check-input" type="radio" name="stored_with" id="location" value="location">
+      <label class="form-check-label" for="location">
+        Location
+      </label>
+    </div>
+
+    <!-- What's the point of both these two????-->
+    <p>Stored with user id: (if applicable)</p>
     <input type="number" name="stored_with_user"><br>
-    <p>Stored at location: (if applicable)</p>
-    <input type="text" name="stored_at_loc"><br><br>
-    <input type="submit" value="Submit">
 
-    <p>image: (optional)</p>
-      <input type="file" name="pic" accept="image/*"><br>
-      <input type="submit" value="Submit">
-      
-      <div class="form-group">
-        <label for="exampleFormControlSelect1">Example select</label>
-        <select class="form-control" id="exampleFormControlSelect1">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-        </select>
+    <div class="row">
+      <div class="col">
+        <div class="form-group">
+          <label for="artefactTitle">Stored at location: (if applicable)</label>
+          <input type="text" class="form-control" name="stored_at_loc">
+        </div>
+        <div class="form-group">
+          <label for="imageUpload">Image/s: (optional)</label>
+          <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
+        </div>
       </div>
-      <div class="form-group">
-        <label for="exampleFormControlSelect2">Example multiple select</label>
-        <select multiple class="form-control" id="exampleFormControlSelect2">
-          <option>1</option>
-          <option>2</option>
-          <option>3</option>
-          <option>4</option>
-          <option>5</option>
-        </select>
+
+      <div class="col">
+        <div class="row">
+
+          <div class="col">
+            <div class="dropdown">
+              <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Hide From
+              </a>
+              <div class="dropdown-menu">
+                <li>
+                  &nbsp;
+                  <input type="checkbox" value="tag1"> Bill </input>
+                </li>
+                <li>
+                  &nbsp;
+                  <input type="checkbox" value="tag2"> Joe </input>
+                </li>
+                <li>
+                  &nbsp;
+                  <input type="checkbox" value="tag3"> Raph </input>
+                </li>
+              </div>
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="form-group">
+              <div class="dropdown">
+                <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Tags
+                </a>
+                <div class="dropdown-menu">
+                  <li>
+                    &nbsp;
+                    <input type="checkbox" value="tag1"> Tag1 </input>
+                  </li>
+                  <li>
+                    &nbsp;
+                    <input type="checkbox" value="tag2"> Tag2 </input>
+                  </li>
+                  <li>
+                    &nbsp;
+                    <input type="checkbox" value="tag3"> Tag3 </input>
+                  </li>
+
+                </div>
+              </div>
+              <!-- 
+                <form>
+                <div class="form-row align-items-center">
+                <div class="col my-1">
+                <label class="sr-only" for="inlineFormInputName">Tag</label>
+                <input type="text" class="form-control" id="inlineFormInputName" placeholder="New Tag">
+                </div>  
+                <div class="col my-1">
+                <button type="submit" class="btn btn-secondary">+</button>
+                </div>
+                </div>
+                </form>
+              -->
+            </div>
+          </div>
+
+        </div>
       </div>
-    </form>
-  </div>
+
+    </div>
+
+    <div class="wrapper">
+      <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
+    </div>
+
+  </form>
+</div>
 
 {%endblock%}
