@@ -100,6 +100,7 @@ def get_family(family_id) -> List[User]:
     return [User(*row) for row in rows]
 
 
+# Returns the list of users ids for a given family
 def family_user_ids(family_id) -> List[int]:
 
     inputs = {"family_id": family_id}
@@ -109,10 +110,9 @@ def family_user_ids(family_id) -> List[int]:
              WHERE family_id = %(family_id)s'''
 
     rows = pg_select(sql=sql, where=inputs)
-    print(rows)
-
-    print(rows)
-    return rows
+    
+    return [row[0] for row in rows]
+    # return rows
 
     # return [row(0) for row in rows]
 

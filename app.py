@@ -81,8 +81,8 @@ def hello_world():
 
 @app.route('/editartefact/<int:artefact_id>')
 @login_required
-def edit_artefact(artefact_id):
-
+def edit_artefact(artefact_id, methods=['GET','POST']):
+    print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
     if request.method == "GET":
 
         try:
@@ -93,16 +93,38 @@ def edit_artefact(artefact_id):
         if artefact.owner == current_user.id:
             with open("views/edit_artefact.html", encoding='utf8') as f:
                 template = Template(f.read())
-            return template.render()
+            return template.render(artefact=artefact)
 
         else:
-
-            # TODO Make doesn't own page
-
-            return "you don't own this item, and are unable to edit it"
+            unauthorized()
 
     elif request.method == "POST":
-        pass
+        
+
+        if request.form['stored_with'] == 'user':
+            stored_at_loc = None
+            try:
+                # stored_with_user should be user_id
+                stored_with_user = int(request.form['stored_with_user'])
+            except KeyError:
+                return "missing stored_with_user field", 400
+            except ValueError:
+                return "stored with user wasn't an integer!", 400
+
+        elif request.form['stored_with'] == 'location':
+            stored_at_loc = request.form['stored_at_loc']
+            stored_with_user = None
+
+        else: abort(400)
+
+        changed_artefact = Artefact(
+            artefact_id = artefact_id,
+            name = request.form["name"],
+            description = request.form["description"],
+            stored_with = request.form["stored_with"]
+        )
+
+        return redirect('/')
 
 @app.route('/editsettings')
 def editsettings():
@@ -136,13 +158,13 @@ def artefact(artefact_id):
     except ValueError as e:
         return "Couldn't find that Artefact!", 400
 
-    if (artefact.owner,) in  family_user_ids(current_user.family_id):   
+    if artefact.owner in  family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
         return view_artefact(artefact, artefact_images)
 
     else:
-        return "you can't view this artefact"
+        return unauthorized()
 
 @app.route('/insertexample')
 def insert_example():
@@ -185,7 +207,7 @@ def login():
             
             else:
 
-                # TODO Popup message showing incorrect 
+                # TODO Popup message showing incorrect details 
                 
                 return redirect('/login')
 
@@ -326,8 +348,14 @@ def unauthorized():
     
     # TODO Make unauthorized html page, redirect to login page
 
-    return '''you must be logged in to access this page<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+    ''' Must either redirect to a login page if you aren't logged in or say you can't access the page'''
+
+    if current_user.is_authenticated:
+        return '''you don't have access to this page<br>
+        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+    else:
+        return '''you must be logged in to access this page<br>
+        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -107,7 +107,7 @@
 <!-- You will not be able to see this text. 
 
 Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
-  <form action="/uploadartefact" method="post">
+  <form action="/editartefact" method="post">
     <p>Artefact name:</p>
     <input type="text" name="name"><br>
     <p>Owner id:</p>
@@ -125,7 +125,7 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
   </form>
   -->
 <div class="container">
-  <form action="/uploadartefact" method="post">
+  <form action="/editartefact/{{artefact.artefact_id}}" method="post">
       <div class="row">
         <div class="col">
             <div class="form-group">
@@ -232,6 +232,7 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
                   
                 </div>
               </div>
+              <!--
               <form>
                 <div class="form-row align-items-center">
                   <div class="col my-1">
@@ -243,6 +244,7 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
                   </div>
                 </div>
               </form>
+              <-->
           
             </div>
           </div>
@@ -251,7 +253,7 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
     </div>
   
       <div class="wrapper">
-          <button type="submit" value="uploadArtefact" class="btn btn-primary btn-lg"> Publish</button>
+          <button type="submit" value="editartefact" class="btn btn-primary btn-lg"> Publish</button>
       </div>
   
       </form>
