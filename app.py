@@ -97,7 +97,7 @@ def edit_artefact(artefact_id):
             return template.render(artefact=artefact)
 
         else:
-            unauthorized()
+            return "not your artefact"
 
     elif request.method == "POST":
         
@@ -115,7 +115,7 @@ def edit_artefact(artefact_id):
             return redirect('/artefact/'+str(artefact_id))
 
         else:
-            "not your artefact to edit"
+            return "not your artefact to edit"
 
 @app.route('/editsettings')
 def editsettings():
