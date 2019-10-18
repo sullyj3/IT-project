@@ -283,44 +283,8 @@ def upload_artefact():
         return template.render()
 
     elif request.method == 'POST':
-        # if we get a KeyError accessing the contents of request.form, flask will
-        # automatically reply with 400 bad request
-
-        # Either stored_with_user or stored_at_loc will be null in the db,
-        # depending on the value of the stored_with enum. Figure out which case we
-        # have.
-        # if request.form['stored_with'] == 'user':
-        #     stored_at_loc = None
-        #     try:
-        #         # stored_with_user should be user_id
-        #         stored_with_user = int(request.form['stored_with_user'])
-        #     except KeyError:
-        #         return "missing stored_with_user field", 400
-        #     except ValueError:
-        #         return "stored with user wasn't an integer!", 400
-
-        # elif request.form['stored_with'] == 'location':
-        #     stored_at_loc = request.form['stored_at_loc']
-        #     stored_with_user = None
-        # else:
-        #     # any other value for the stored_with enum is invalid
-        #     abort(400)
-
-        # new_artefact = Artefact(
-        #         # DB will decide the id, doesn't make sense to add it here.
-        #         # This is really a data modelling issue, need to think about this more.
-        #         artefact_id = None,
-        #         name        = request.form['name'],
-        #         owner       = current_user.id,
-        #         description = request.form['description'],
-
-        #         # same for date_stored, database will call CURRENT_TIMESTAMP
-        #         date_stored = None,
-        #         stored_with = request.form['stored_with'],
-        #         stored_with_user = stored_with_user,
-        #         stored_at_loc = stored_at_loc)
-
-        artefact_id = create_artefact()
+        
+        new_artefact = create_artefact()
 
         artefact_id = add_artefact(new_artefact)
 
@@ -378,6 +342,12 @@ def bad_request(e):
 
 def create_artefact(artefact_id=None):
 
+    # if we get a KeyError accessing the contents of request.form, flask will
+        # automatically reply with 400 bad request
+
+        # Either stored_with_user or stored_at_loc will be null in the db,
+        # depending on the value of the stored_with enum. Figure out which case we
+        # have.
     if request.form['stored_with'] == 'user':
         stored_at_loc = None
         try:
