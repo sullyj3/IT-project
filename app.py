@@ -10,7 +10,7 @@ from flask_bcrypt import check_password_hash, generate_password_hash
 from jinja2 import Template #TODO move all rendering code to views.py
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids
+from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids, edit_artefact_db
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
@@ -79,9 +79,9 @@ def hello_world():
         template = Template(f.read())
     return template.render()
 
-@app.route('/editartefact/<int:artefact_id>')
+@app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
 @login_required
-def edit_artefact(artefact_id, methods=['GET','POST']):
+def edit_artefact(artefact_id):
     print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
     if request.method == "GET":
 
@@ -100,31 +100,11 @@ def edit_artefact(artefact_id, methods=['GET','POST']):
 
     elif request.method == "POST":
         
+        changed_artefact = create_artefact(artefact_id)
 
-        if request.form['stored_with'] == 'user':
-            stored_at_loc = None
-            try:
-                # stored_with_user should be user_id
-                stored_with_user = int(request.form['stored_with_user'])
-            except KeyError:
-                return "missing stored_with_user field", 400
-            except ValueError:
-                return "stored with user wasn't an integer!", 400
-
-        elif request.form['stored_with'] == 'location':
-            stored_at_loc = request.form['stored_at_loc']
-            stored_with_user = None
-
-        else: abort(400)
-
-        changed_artefact = Artefact(
-            artefact_id = artefact_id,
-            name = request.form["name"],
-            description = request.form["description"],
-            stored_with = request.form["stored_with"]
-        )
-
-        return redirect('/')
+        edit_artefact_db(changed_artefact)
+        
+        return redirect('/artefact/'+str(artefact_id))
 
 @app.route('/editsettings')
 def editsettings():
@@ -299,38 +279,42 @@ def upload_artefact():
         # Either stored_with_user or stored_at_loc will be null in the db,
         # depending on the value of the stored_with enum. Figure out which case we
         # have.
-        if request.form['stored_with'] == 'user':
-            stored_at_loc = None
-            try:
-                # stored_with_user should be user_id
-                stored_with_user = int(request.form['stored_with_user'])
-            except KeyError:
-                return "missing stored_with_user field", 400
-            except ValueError:
-                return "stored with user wasn't an integer!", 400
+        # if request.form['stored_with'] == 'user':
+        #     stored_at_loc = None
+        #     try:
+        #         # stored_with_user should be user_id
+        #         stored_with_user = int(request.form['stored_with_user'])
+        #     except KeyError:
+        #         return "missing stored_with_user field", 400
+        #     except ValueError:
+        #         return "stored with user wasn't an integer!", 400
 
-        elif request.form['stored_with'] == 'location':
-            stored_at_loc = request.form['stored_at_loc']
-            stored_with_user = None
-        else:
-            # any other value for the stored_with enum is invalid
-            abort(400)
+        # elif request.form['stored_with'] == 'location':
+        #     stored_at_loc = request.form['stored_at_loc']
+        #     stored_with_user = None
+        # else:
+        #     # any other value for the stored_with enum is invalid
+        #     abort(400)
 
-        new_artefact = Artefact(
-                # DB will decide the id, doesn't make sense to add it here.
-                # This is really a data modelling issue, need to think about this more.
-                artefact_id = None,
-                name        = request.form['name'],
-                owner       = current_user.id,
-                description = request.form['description'],
+        # new_artefact = Artefact(
+        #         # DB will decide the id, doesn't make sense to add it here.
+        #         # This is really a data modelling issue, need to think about this more.
+        #         artefact_id = None,
+        #         name        = request.form['name'],
+        #         owner       = current_user.id,
+        #         description = request.form['description'],
 
-                # same for date_stored, database will call CURRENT_TIMESTAMP
-                date_stored = None,
-                stored_with = request.form['stored_with'],
-                stored_with_user = stored_with_user,
-                stored_at_loc = stored_at_loc)
+        #         # same for date_stored, database will call CURRENT_TIMESTAMP
+        #         date_stored = None,
+        #         stored_with = request.form['stored_with'],
+        #         stored_with_user = stored_with_user,
+        #         stored_at_loc = stored_at_loc)
+
+        artefact_id = create_artefact()
 
         artefact_id = add_artefact(new_artefact)
+
+
 
         # is there an image?
         if 'pic' in request.files:
@@ -381,6 +365,42 @@ def bad_request(e):
 
     return ''' bad request<br>
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
+
+def create_artefact(artefact_id=None):
+
+    if request.form['stored_with'] == 'user':
+        stored_at_loc = None
+        try:
+            # stored_with_user should be user_id
+            stored_with_user = int(request.form['stored_with_user'])
+        except KeyError:
+            return "missing stored_with_user field", 400
+        except ValueError:
+            return "stored with user wasn't an integer!", 400
+
+    elif request.form['stored_with'] == 'location':
+        stored_at_loc = request.form['stored_at_loc']
+        stored_with_user = None
+    else:
+        # any other value for the stored_with enum is invalid
+        abort(400)
+
+    new_artefact = Artefact(
+            # DB will decide the id, doesn't make sense to add it here.
+            # This is really a data modelling issue, need to think about this more.
+            artefact_id = artefact_id,
+            name        = request.form['name'],
+            owner       = current_user.id,
+            description = request.form['description'],
+
+            # same for date_stored, database will call CURRENT_TIMESTAMP
+            date_stored = None,
+            stored_with = request.form['stored_with'],
+            stored_with_user = stored_with_user,
+            stored_at_loc = stored_at_loc)
+
+    return new_artefact
+
 
 if __name__ == '__main__':
     app.run()

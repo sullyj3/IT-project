@@ -152,7 +152,7 @@ def add_artefact(artefact: Artefact) -> int:
         return artefact_id
 
 
-def edit_artefact(artefact: Artefact, artefact_id):
+def edit_artefact_db(artefact: Artefact):
     ''' changes a new artefact '''
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
@@ -163,8 +163,8 @@ def edit_artefact(artefact: Artefact, artefact_id):
                  RETURNING artefact_id;'''
 
         sql = '''UPDATE Artefact
-                 SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with)s, stored_at_loc = %(stored_at_loc)s
-                 WHERE artefactid = %(artefact_id)s;'''
+                 SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with_user)s, stored_at_loc = %(stored_at_loc)s, stored_with = %(stored_with)s
+                 WHERE artefact_id = %(artefact_id)s;'''
 
         cur.execute(sql, artefact._asdict())
 
@@ -260,4 +260,3 @@ def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
                          artefact_image.image_id,
                          create_presigned_url(artefact_image.image_url),
                          artefact_image.image_description)
-
