@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 
-{% block title %}{{artefact.name}}{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="/static/artefacts.css">
 {% endblock %}
@@ -46,12 +45,6 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
         <div class="form-group">
           <label for="artefactTitle">Artefact Title</label>
           <input type="text" class="form-control" id="artefactTitle" name="name">
-        </div>
-      </div>
-      <div class="col">
-        <div class="form-group">
-          <label for="artefactOwner">Owner</label>
-          <input type="number" class="form-control" id="artefactOwner" name="owner">
         </div>
       </div>
     </div>
