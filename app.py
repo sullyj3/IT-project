@@ -100,11 +100,21 @@ def edit_artefact(artefact_id):
 
     elif request.method == "POST":
         
-        changed_artefact = create_artefact(artefact_id)
+        try:
+            [artefact] = get_artefacts(artefact_id)
+        except ValueError as e:
+            return "Couldn't find that Artefact!", 400
 
-        edit_artefact_db(changed_artefact)
-        
-        return redirect('/artefact/'+str(artefact_id))
+
+        if artefact.owner == current_user.id:
+            changed_artefact = create_artefact(artefact_id)
+
+            edit_artefact_db(changed_artefact)
+            
+            return redirect('/artefact/'+str(artefact_id))
+
+        else:
+            "not your artefact to edit"
 
 @app.route('/editsettings')
 def editsettings():
