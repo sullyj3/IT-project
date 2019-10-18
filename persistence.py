@@ -7,7 +7,7 @@ import psycopg2
 
 import boto3
 
-from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser
+from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser, User
 
 ############
 # Database #
@@ -85,6 +85,38 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
         return cur.fetchall()
 
 
+''' Returns a family with the ids and users '''
+def get_family(family_id) -> List[User]:
+
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT id, first_name, surname
+             FROM "user"
+             WHERE family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where=inputs)
+
+
+    return [User(*row) for row in rows]
+
+
+# Returns the list of users ids for a given family
+def family_user_ids(family_id) -> List[int]:
+
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT id
+             FROM "user"
+             WHERE family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where=inputs)
+    
+    return [row[0] for row in rows]
+    # return rows
+
+    # return [row(0) for row in rows]
+
+
 def get_artefacts(artefact_ids=None) -> [Artefact]:
     '''Can be passed a single id or a list of IDs. If a single id is passed, 
        the returned list will contain just one Artefact.
@@ -118,6 +150,24 @@ def add_artefact(artefact: Artefact) -> int:
         cur.execute(sql, artefact._asdict())
         (artefact_id,) = cur.fetchone()
         return artefact_id
+
+
+def edit_artefact_db(artefact: Artefact):
+    ''' changes a new artefact '''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        sql = '''UPDATE Artefact
+                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
+                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+                 RETURNING artefact_id;'''
+
+        sql = '''UPDATE Artefact
+                 SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with_user)s, stored_at_loc = %(stored_at_loc)s, stored_with = %(stored_with)s
+                 WHERE artefact_id = %(artefact_id)s;'''
+
+        cur.execute(sql, artefact._asdict())
+
 
 ''' Determines if an email is taken in the database, if not returns the  '''
 def email_taken(credentials: Credentials):
@@ -210,4 +260,3 @@ def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
                          artefact_image.image_id,
                          create_presigned_url(artefact_image.image_url),
                          artefact_image.image_description)
-

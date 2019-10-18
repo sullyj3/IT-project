@@ -22,6 +22,11 @@ ArtefactUser = namedtuple("ArtefactUser", ("artefact_id",
                                            "first_name",
                                            "surname"))
 
+
+User = namedtuple("FamilyID", ("user_id",
+                               "first_name",
+                               "surname"))
+
 Credentials = namedtuple("Credentials", ("email", "password"))
 
 Register = namedtuple("Register", ("first_name",
