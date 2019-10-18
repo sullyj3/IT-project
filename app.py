@@ -1,20 +1,20 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect, flash
+from flask import Flask, current_app, request, abort, redirect, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-from jinja2 import Template #TODO move all rendering code to views.py
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape #TODO move all rendering code to views.py
 import psycopg2
 
 from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids, edit_artefact_db
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='views')
 
 # this stuff needs to go at the top level, rather than in the 
 # "if __name__ == '__main__'" stanza. This ensures that when our code is 
@@ -47,6 +47,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 
+
 # User class to track logging
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,9 +76,9 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    with open("views/helloturtles.html", encoding="utf8") as f:
-        template = Template(f.read())
-    return template.render()
+    if current_user.is_authenticated:
+        return artefacts()        
+    return render_template('helloturtles.html')
 
 @app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
 @login_required
@@ -172,9 +173,7 @@ def login():
 
             return "already logged in"
         else:
-            with open("views/login.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('login.html')
     elif request.method == 'POST':
         
         new_user = Credentials(request.form['email'],
@@ -213,9 +212,7 @@ def register():
         if current_user.is_authenticated:
             return "already logged in 🙄"
         else:
-            with open("views/register.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('register.html')
 
     elif request.method == 'POST':
         
@@ -277,10 +274,7 @@ def is_logged_in():
 @login_required
 def upload_artefact():
     if request.method == 'GET':
-        # show form
-        with open('views/upload_artefact.html', encoding="utf8") as f:
-            template = Template(f.read())
-        return template.render()
+        return render_template('upload_artefact.html')
 
     elif request.method == 'POST':
         
