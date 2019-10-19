@@ -1,20 +1,41 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect, flash
+from flask import Flask, current_app, request, abort, redirect, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import (
+        LoginManager,
+        UserMixin,
+        login_user,
+        login_required,
+        logout_user,
+        current_user
+)
+
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-from jinja2 import Template #TODO move all rendering code to views.py
+#TODO move all rendering code to views.py
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts
+from persistence import (
+        get_artefacts,
+        add_artefact,
+        email_taken,
+        register_user,
+        upload_image,
+        add_image,
+        generate_img_filename,
+        get_artefact_images_metadata,
+        get_user_artefacts,
+        family_user_ids,
+        edit_artefact_db,
+)
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='views')
 
 # this stuff needs to go at the top level, rather than in the 
 # "if __name__ == '__main__'" stanza. This ensures that when our code is 
@@ -33,18 +54,21 @@ else:
     # we store the db_URL in the app config, rather than as a global variable,
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
-    print(f"DATABASE_URL is '{db_URL}'")
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_URL
 app.config['SECRET_KEY'] = 'hidden'
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy()
 db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+print()
+print("Shell-safe is running!")
+print()
 
 
 # User class to track logging
@@ -75,15 +99,46 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    with open("views/helloturtles.html", encoding="utf8") as f:
-        template = Template(f.read())
-    return template.render()
+    if current_user.is_authenticated:
+        return artefacts()        
+    return render_template('helloturtles.html')
 
-@app.route('/editartefact')
-def edit_artefact():
-    with open("views/edit_artefact.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+@app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
+@login_required
+def edit_artefact(artefact_id):
+    print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
+    if request.method == "GET":
+
+        try:
+            [artefact] = get_artefacts(artefact_id)
+        except ValueError as e:
+            return "Couldn't find that Artefact!", 400
+
+        if artefact.owner == current_user.id:
+            with open("views/edit_artefact.html", encoding='utf8') as f:
+                template = Template(f.read())
+            return template.render(artefact=artefact)
+
+        else:
+            return "not your artefact"
+
+    elif request.method == "POST":
+        
+        try:
+            [artefact] = get_artefacts(artefact_id)
+        except ValueError as e:
+            return "Couldn't find that Artefact!", 400
+
+
+        if artefact.owner == current_user.id:
+            changed_artefact = create_artefact(artefact_id)
+
+            edit_artefact_db(changed_artefact)
+            
+            return redirect('/artefact/'+str(artefact_id))
+
+        else:
+            return "not your artefact to edit"
 
 @app.route('/editsettings')
 def editsettings():
@@ -117,9 +172,13 @@ def artefact(artefact_id):
     except ValueError as e:
         return "Couldn't find that Artefact!", 400
 
-    artefact_images = get_artefact_images_metadata(artefact_id)
+    if artefact.owner in  family_user_ids(current_user.family_id):
 
-    return view_artefact(artefact, artefact_images)
+        artefact_images = get_artefact_images_metadata(artefact_id)
+        return view_artefact(artefact, artefact_images)
+
+    else:
+        return unauthorized()
 
 @app.route('/insertexample')
 def insert_example():
@@ -137,9 +196,7 @@ def login():
 
             return "already logged in"
         else:
-            with open("views/login.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('login.html')
     elif request.method == 'POST':
         
         new_user = Credentials(request.form['email'],
@@ -162,7 +219,7 @@ def login():
             
             else:
 
-                # TODO Popup message showing incorrect 
+                # TODO Popup message showing incorrect details 
                 
                 return redirect('/login')
 
@@ -178,9 +235,7 @@ def register():
         if current_user.is_authenticated:
             return "already logged in 🙄"
         else:
-            with open("views/register.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render()
+            return render_template('register.html')
 
     elif request.method == 'POST':
         
@@ -242,59 +297,22 @@ def is_logged_in():
 @login_required
 def upload_artefact():
     if request.method == 'GET':
-        # show form
-        with open('views/upload_artefact.html', encoding="utf8") as f:
-            template = Template(f.read())
-        return template.render()
+        return render_template('upload_artefact.html')
 
     elif request.method == 'POST':
-        # if we get a KeyError accessing the contents of request.form, flask will
-        # automatically reply with 400 bad request
-
-        # Either stored_with_user or stored_at_loc will be null in the db,
-        # depending on the value of the stored_with enum. Figure out which case we
-        # have.
-        if request.form['stored_with'] == 'user':
-            stored_at_loc = None
-            try:
-                # stored_with_user should be user_id
-                stored_with_user = int(request.form['stored_with_user'])
-            except KeyError:
-                return "missing stored_with_user field", 400
-            except ValueError:
-                return "stored with user wasn't an integer!", 400
-
-        elif request.form['stored_with'] == 'location':
-            stored_at_loc = request.form['stored_at_loc']
-            stored_with_user = None
-        else:
-            # any other value for the stored_with enum is invalid
-            abort(400)
-
-        new_artefact = Artefact(
-                # DB will decide the id, doesn't make sense to add it here.
-                # This is really a data modelling issue, need to think about this more.
-                artefact_id = None,
-                name        = request.form['name'],
-                owner       = current_user.id,
-                description = request.form['description'],
-
-                # same for date_stored, database will call CURRENT_TIMESTAMP
-                date_stored = None,
-                stored_with = request.form['stored_with'],
-                stored_with_user = stored_with_user,
-                stored_at_loc = stored_at_loc)
+        
+        new_artefact = create_artefact()
 
         artefact_id = add_artefact(new_artefact)
 
-        # is there an image?
         if 'pic' in request.files:
+   
             pic = request.files['pic']
-            fname = generate_img_filename(request.form['owner'], pic)
+            fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
-
-            artefact_image = ArtefactImage(None, artefact_id, fname, None)
+            artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
+        
 
         return "Success!"
 
@@ -303,8 +321,14 @@ def unauthorized():
     
     # TODO Make unauthorized html page, redirect to login page
 
-    return '''you must be logged in to access this page<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+    ''' Must either redirect to a login page if you aren't logged in or say you can't access the page'''
+
+    if current_user.is_authenticated:
+        return '''you don't have access to this page<br>
+        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+    else:
+        return '''you must be logged in to access this page<br>
+        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -329,7 +353,49 @@ def bad_request(e):
     # TODO make bad request page
 
     return ''' bad request<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
+
+def create_artefact(artefact_id=None):
+
+    # if we get a KeyError accessing the contents of request.form, flask will
+        # automatically reply with 400 bad request
+
+        # Either stored_with_user or stored_at_loc will be null in the db,
+        # depending on the value of the stored_with enum. Figure out which case we
+        # have.
+    if request.form['stored_with'] == 'user':
+        stored_at_loc = None
+        try:
+            # stored_with_user should be user_id
+            stored_with_user = int(request.form['stored_with_user'])
+        except KeyError:
+            return "missing stored_with_user field", 400
+        except ValueError:
+            return "stored with user wasn't an integer!", 400
+
+    elif request.form['stored_with'] == 'location':
+        stored_at_loc = request.form['stored_at_loc']
+        stored_with_user = None
+    else:
+        # any other value for the stored_with enum is invalid
+        abort(400)
+
+    new_artefact = Artefact(
+            # DB will decide the id, doesn't make sense to add it here.
+            # This is really a data modelling issue, need to think about this more.
+            artefact_id = artefact_id,
+            name        = request.form['name'],
+            owner       = current_user.id,
+            description = request.form['description'],
+
+            # same for date_stored, database will call CURRENT_TIMESTAMP
+            date_stored = None,
+            stored_with = request.form['stored_with'],
+            stored_with_user = stored_with_user,
+            stored_at_loc = stored_at_loc)
+
+    return new_artefact
+
 
 if __name__ == '__main__':
     app.run()

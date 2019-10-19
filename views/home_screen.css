@@ -1,0 +1,16 @@
+body {
+    background-color: #243260;
+    /* get some sweet gradient backgrounds */
+    background-image: linear-gradient(147deg, #ebf5f7 7%, #93d4a6 50%, #2ba13e 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+header {
+    text-align: center;
+    color: lightgrey;
+    background-color: darkgreen;
+}
+.fast {
+    color: blue;
+}
