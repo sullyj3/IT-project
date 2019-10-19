@@ -2,7 +2,9 @@ BEGIN;
 
 CREATE TABLE Family (
     family_id   serial PRIMARY KEY,
-    name        varchar(100) NOT NULL
+    name        varchar(100) NOT NULL,
+    referral_code varchar(120) NOT NULL , 
+        UNIQUE(referral_code)
 );
 
 CREATE TYPE stored_with AS ENUM('user', 'location');
