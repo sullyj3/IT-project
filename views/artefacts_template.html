@@ -12,10 +12,36 @@
         <h1 class="jumbotron-heading">Artefacts</h1>
         <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
         <p>
-          <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-          <a href="#" class="btn btn-secondary my-2">Secondary action</a>
+          <div class="btn-group">
+            <div class="row">
+              <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
+              <p>&nbsp;</p>
+              <form>      
+                <button type="button" class="btn btn-secondary dropdown-toggle my-2" data-toggle="dropdown">Filter by Tag <span class="caret"></span></button>
+                <div class="dropdown-menu scrollable-dropdown" role="menu">
+                  <li>
+                    <div class="form-check dropdown-item">
+                      <p>&nbsp;</p>
+                      <input class="form-check-input" id="tag" type="checkbox">
+                      <label class="form-check-label" for="tag"> Tag </label>
+                    </div>
+                  </li>
+                  <li>
+                    <div class="form-check dropdown-item">
+                      <p>&nbsp;</p>
+                      <input class="form-check-input" id="tag2" type="checkbox">
+                      <label class="form-check-label" for="tag2"> Tag2 </label>
+                    </div>
+                  </li>
+                </div>
+                <button type="submit" class="btn btn-secondary">Filter</button>
+              </form>               
+            </div>   
+          </div>      
         </p>
-      </div>
+      </div> 
+      
+
     </section>
 
     <div class="container">
@@ -37,10 +63,7 @@
                 <div class="card-body">
                   <h5 class="card-title">Name: {{artefact_preview['artefact'].name}}</p></h5>
                   <p style="text-align: left;" class="card-text">Description: {{artefact_preview['artefact'].description}}</p></p>
-                  <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['artefact'].owner}}</small></p>
-                  <p style="text-align: left;" class="card-text">
-                  <small class="text-muted">Name: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small>
-                  </p>
+                  <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small></p>
                   <div class="btn-group">
                     <a href="/artefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
                     <a href="/editartefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
