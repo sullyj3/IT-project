@@ -4,36 +4,32 @@
 
 {% block mainbody %}
 
-    <div class="container home-container">
-        <div class="jumbotron">
-            <h1 class="display-4">Login</h1>
-        <div class="container form-container">
-            <form action="/login" method='POST'>
-                <div class="row">
-                    <div class="col-sm">
-                        
-                        <div class="form-group">
-                                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Email" name="email">
-                        </div>
-                        
-                    </div>
-                    <div class="col-sm">
-                        
-                        <div class="form-group">
-                                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter Password" name="password">
-                                <small id="passWordHelp" class="form-text text-muted"> <a href="/register">Forgot your password?</a> </small>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-                <div class="wrapper">
-                    <button type="submit" value="Login" class="btn btn-primary btn-lg"> Login</button>
-                </div>
+<div class="container home-container">
+  <div class="jumbotron">
+    <h1 class="display-4">Login</h1>
+    <div class="container form-container">
+
+      <form action="/login" method='POST'>
+        <div class="row">
+          <div class="col-sm">
+            <div class="form-group">
+              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter Email" name="email">
             </div>
-        
-        </form>
+          </div>
+          <div class="col-sm">
+            <div class="form-group">
+              <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter Password" name="password">
+              <small id="passWordHelp" class="form-text text-muted"> <a href="/register">Forgot your password?</a> </small>
+            </div>
+          </div>
         </div>
+        <div class="wrapper">
+          <button type="submit" value="Login" class="btn btn-primary btn-lg"> Login</button>
         </div>
+      </form>
+
     </div>
+  </div>
+</div>
+
 {% endblock %}
