@@ -33,12 +33,11 @@ else:
     # we store the db_URL in the app config, rather than as a global variable,
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
-    print(f"DATABASE_URL is '{db_URL}'")
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_URL
 app.config['SECRET_KEY'] = 'hidden'
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy()
 db.init_app(app)
@@ -46,6 +45,9 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+print()
+print("Shell-safe is running!")
+print()
 
 
 # User class to track logging
