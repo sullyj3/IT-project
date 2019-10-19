@@ -1,41 +1,43 @@
 {% extends 'base.html' %}
 
-{% block title %}Artefacts{% endblock %}
+{% block title %}{{artefact.name}}{% endblock %}
 
 {% block mainbody %}
+ 
 <div class="container">
 
   <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">{{artefact.name}} <a class="btn btn-primary" href="/artefacts" role="button" style="font-family: 'Crimson Text', Georgia, Times, serif;">Back</a>
-      <a href="/editartefact/{{artefact.artefact_id}}" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a> </h1>
+     <a href="/editartefact/{{artefact.artefact_id}}" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a> </h1>
   <span class="badge badge-info">Tag1</span>
-  <span class="badge badge-info">Tag2</span>
-  <span class="badge badge-info">Tag3</span>
+<span class="badge badge-info">Tag2</span>
+<span class="badge badge-info">Tag3</span>
 
   <hr class="mt-2 mb-5">
 
   <div class="row text-center text-lg-left">
 
-  {% for image in artefact_images %}
-  <div class="col-lg-3 col-md-4 col-6">
-      <a href="#" data-toggle="modal" data-target=".image_{{image.image_id}}" class="d-block mb-4 h-100">
-        <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="">
-      </a>
-    </div>
+    {% for image in artefact_images %}
+    <div class="col-lg-3 col-md-4 col-6">
+        <a href="#" data-toggle="modal" data-target=".image_{{image.image_id}}" class="d-block mb-4 h-100">
+          <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="">
+        </a>
+      </div>
 
-    <div class="modal fade image_{{image.image_id}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="" height="100%" width="100%">
+      <div class="modal fade image_{{image.image_id}}" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <img class="img-fluid img-thumbnail" src="{{ image.image_url }}" alt="" height="100%" width="100%">
+          </div>
         </div>
       </div>
-    </div>
-    {% endfor %}
+      {% endfor %}
 
   </div>   
   <hr class="mt-2 mb-5">     
-  <p style="text-align: left">{{artefact.description}}</p>
-  <p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
-  <p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
+<p style="text-align: left">{{artefact.description}}</p>
+<p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
+<p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
 
 </div>
+
 {% endblock %}

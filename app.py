@@ -15,8 +15,6 @@ from flask_login import (
 
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-#TODO move all rendering code to views.py
-from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import psycopg2
 
 from persistence import (
@@ -89,7 +87,6 @@ class User(UserMixin, db.Model):
         self.email = db_user[2]
         self.family_id = db_user[5]
         self.surname = db_user[6]
-        
 
 
 @login_manager.user_loader
@@ -101,7 +98,7 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    if current_user.is_authenticated:
+    if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
 
@@ -117,9 +114,7 @@ def edit_artefact(artefact_id):
             return "Couldn't find that Artefact!", 400
 
         if artefact.owner == current_user.id:
-            with open("views/edit_artefact.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render(artefact=artefact)
+            return render_template('edit_artefact.html', artefact=artefact)
 
         else:
             return "not your artefact"
@@ -142,23 +137,13 @@ def edit_artefact(artefact_id):
         else:
             return "not your artefact to edit"
 
-@app.route('/editsettings')
-def editsettings():
-    with open("views/edit_account_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
-
 @app.route('/settings')
 def settings():
-    with open("views/account_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    return render_template('account_settings.html')
 
 @app.route('/family')
 def familysettings():
-    with open("views/family_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    return render_template('family_settings.html')
 
 @app.route('/artefacts')
 @login_required
