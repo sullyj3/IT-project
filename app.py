@@ -332,7 +332,7 @@ def bad_request(e):
     # TODO make bad request page
 
     return ''' bad request<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
 
 def create_artefact(artefact_id=None):
 
