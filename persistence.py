@@ -8,6 +8,9 @@ import psycopg2
 
 import boto3
 
+import string
+import random
+
 from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser, User
 
 ############
@@ -263,3 +266,48 @@ def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
                          artefact_image.image_id,
                          create_presigned_url(artefact_image.image_url),
                          artefact_image.image_description)
+
+def create_family(family_name):
+
+
+    # Generates random referral code
+    
+
+    salt = ''.join(random.choice(string.ascii_uppercase) for x in range(20))
+
+    print(family_name)
+    print(salt)
+
+    referral_code = family_name + salt
+
+    inputs = {"family_name": family_name,
+              "referral_code": referral_code}
+
+    
+    ''' Creates a new family with the ''' 
+
+        
+    sql = '''INSERT INTO Family
+             (name, referral_code)
+             VALUES (%(family_name)s, %(referral_code)s)'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+
+        cur.execute(sql, inputs)
+
+    return get_family_id(referral_code)
+
+def get_family_id(referral_code):
+
+    inputs = {"referral_code": referral_code}
+
+    sql = '''SELECT family_id FROM family
+             WHERE referral_code = %(referral_code)s
+             LIMIT 1'''
+
+    family_id = pg_select(sql, inputs)[0][0]
+
+    print(family_id)
+
+    return family_id

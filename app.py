@@ -15,8 +15,6 @@ from flask_login import (
 
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-#TODO move all rendering code to views.py
-from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import psycopg2
 
 from persistence import (
@@ -32,6 +30,8 @@ from persistence import (
         family_user_ids,
         edit_artefact_db,
         get_current_user_family
+        create_family,
+        get_family_id
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -88,7 +88,6 @@ class User(UserMixin, db.Model):
         self.email = db_user[2]
         self.family_id = db_user[5]
         self.surname = db_user[6]
-        
 
 
 @login_manager.user_loader
@@ -100,7 +99,7 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world():
-    if current_user.is_authenticated:
+    if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
 
@@ -116,9 +115,7 @@ def edit_artefact(artefact_id):
             return "Couldn't find that Artefact!", 400
 
         if artefact.owner == current_user.id:
-            with open("views/edit_artefact.html", encoding='utf8') as f:
-                template = Template(f.read())
-            return template.render(artefact=artefact)
+            return render_template('edit_artefact.html', artefact=artefact)
 
         else:
             return "not your artefact"
@@ -146,23 +143,13 @@ def edit_artefact(artefact_id):
         else:
             return "not your artefact to edit"
 
-@app.route('/editsettings')
-def editsettings():
-    with open("views/edit_account_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
-
 @app.route('/settings')
 def settings():
-    with open("views/account_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    return render_template('account_settings.html')
 
 @app.route('/family')
 def familysettings():
-    with open("views/family_settings.html", encoding='utf8') as f:
-        template = Template(f.read())
-    return template.render()
+    return render_template('family_settings.html')
 
 @app.route('/artefacts')
 @login_required
@@ -197,10 +184,7 @@ def login():
     if request.method == 'GET':
         
         if current_user.is_authenticated:
-
-            # TODO Fill in with appropriate HTML
-
-            return "already logged in"
+            return redirect(hello_world())
         else:
             return render_template('login.html')
     elif request.method == 'POST':
@@ -245,18 +229,25 @@ def register():
 
     elif request.method == 'POST':
         
-        if request.form['pass'] == request.form['confirm_pass']:
-            
-            new_user = Credentials(request.form['email'], request.form['pass'])
+        
+        if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
+            new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
             if (not user_details):         
 
+                # Creates famly if no referral_code
+
+                if request.form["new_family"] ==  "on":
+                    family_id =  create_family(request.form['surname'])                
+                else:
+                    family_id = get_family_id(request.form['referral_code'])
+                
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
-                                        request.form['family_id'],
+                                        family_id,
                                         request.form['email'],
                                         request.form['location'],
                                         generate_password_hash(request.form['pass']))
@@ -269,9 +260,8 @@ def register():
 
                 login_user(User(db_user))
 
-                # return "hmmm"
                 return redirect('/')
-            else:
+            else:   
                 return "User Exists 😳"
         else:
             return "Different Passwords 😳"
@@ -283,7 +273,7 @@ def register():
 def logout_page():
     if request.method == 'GET':
         logout_user()
-        return "user logged out"
+        return redirect('/')
 
 
 # Dummy route to check if logged in
@@ -366,18 +356,7 @@ def unauthorized():
 @app.errorhandler(404)
 def page_not_found(e):
 
-    # TODO Make and actual error page
-
-    return '''whoopsie, you entered a bad url, page not found<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
+    return render_template('error_404.html'), 404
 
 
 @app.errorhandler(400)
