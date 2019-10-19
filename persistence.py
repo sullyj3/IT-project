@@ -268,11 +268,19 @@ def create_family(family_name):
 
 
     # Generates random referral code
-    referral_code = family_name.join(random.choices(string.ascii_uppercase + string.digits, k=20))
+    
+
+    salt = ''.join(random.choice(string.ascii_uppercase) for x in range(20))
+
+    print(family_name)
+    print(salt)
+
+    referral_code = family_name + salt
 
     inputs = {"family_name": family_name,
               "referral_code": referral_code}
 
+    
     ''' Creates a new family with the ''' 
 
         
@@ -285,6 +293,8 @@ def create_family(family_name):
 
         cur.execute(sql, inputs)
 
+    return get_family_id(referral_code)
+
 def get_family_id(referral_code):
 
     inputs = {"referral_code": referral_code}
@@ -293,7 +303,7 @@ def get_family_id(referral_code):
              WHERE referral_code = %(referral_code)s
              LIMIT 1'''
 
-    family_id = pg_select(sql, inputs)[0]
+    family_id = pg_select(sql, inputs)[0][0]
 
     print(family_id)
 

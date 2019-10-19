@@ -31,6 +31,8 @@ from persistence import (
         get_user_artefacts,
         family_user_ids,
         edit_artefact_db,
+        create_family,
+        get_family_id
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -239,18 +241,24 @@ def register():
 
     elif request.method == 'POST':
         
+        
         if request.form['pass'] == request.form['confirm_pass']:
-            
-            new_user = Credentials(request.form['email'], request.form['pass'])
 
+            new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
             if (not user_details):         
 
+                # Creates famly if no referral_code
+                if request.form['referral_code'] == "":
+                    family_id =  create_family(request.form['surname'])                
+                else:
+                    family_id = request.form['referral_code']
+                
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
-                                        request.form['family_id'],
+                                        family_id,
                                         request.form['email'],
                                         request.form['location'],
                                         generate_password_hash(request.form['pass']))
@@ -263,9 +271,8 @@ def register():
 
                 login_user(User(db_user))
 
-                # return "hmmm"
                 return redirect('/')
-            else:
+            else:   
                 return "User Exists 😳"
         else:
             return "Different Passwords 😳"
@@ -277,7 +284,7 @@ def register():
 def logout_page():
     if request.method == 'GET':
         logout_user()
-        return "user logged out"
+        return redirect('/')
 
 
 # Dummy route to check if logged in
