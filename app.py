@@ -284,27 +284,13 @@ def upload_artefact():
 
         artefact_id = add_artefact(new_artefact)
 
-
-
-        # is there an image?
-        print(list(request.files.keys()))
-        if 'pic' not in request.files:
-            flash('No picture!')
-            return redirect(request.url)
-        elif 'pic' in request.files:
-            print("pic has been detected!")
+        if 'pic' in request.files:
+   
             pic = request.files['pic']
-            print("got pic successfully")
-            print(list(request.form.keys()))
             fname = generate_img_filename(current_user.id, pic)
-            print("got file name")
             upload_image(pic, fname)
-            print("uploaded image")
-
-            artefact_image = ArtefactImage(None, artefact_id, fname, None)
-            print("created a new ArtefactImage object")
+            artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
-            print ("added final image")
         
 
         return "Success!"
