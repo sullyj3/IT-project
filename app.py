@@ -227,7 +227,7 @@ def register():
     elif request.method == 'POST':
         
         
-        if request.form['pass'] == request.form['confirm_pass']:
+        if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
             new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
@@ -235,10 +235,11 @@ def register():
             if (not user_details):         
 
                 # Creates famly if no referral_code
-                if request.form['referral_code'] == "":
+
+                if request.form["new_family"] ==  "on":
                     family_id =  create_family(request.form['surname'])                
                 else:
-                    family_id = request.form['referral_code']
+                    family_id = get_family_id(request.form['referral_code'])
                 
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
