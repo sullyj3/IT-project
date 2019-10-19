@@ -178,10 +178,7 @@ def login():
     if request.method == 'GET':
         
         if current_user.is_authenticated:
-
-            # TODO Fill in with appropriate HTML
-
-            return "already logged in"
+            return redirect(hello_world())
         else:
             return render_template('login.html')
     elif request.method == 'POST':
@@ -325,18 +322,7 @@ def unauthorized():
 @app.errorhandler(404)
 def page_not_found(e):
 
-    # TODO Make and actual error page
-
-    return '''whoopsie, you entered a bad url, page not found<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
+    return render_template('error_404.html'), 404
 
 
 @app.errorhandler(400)
