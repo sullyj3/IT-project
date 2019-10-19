@@ -4,13 +4,34 @@ import os
 from flask import Flask, current_app, request, abort, redirect, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import (
+        LoginManager,
+        UserMixin,
+        login_user,
+        login_required,
+        logout_user,
+        current_user
+)
+
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-from jinja2 import Template, Environment, FileSystemLoader, select_autoescape #TODO move all rendering code to views.py
+#TODO move all rendering code to views.py
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids, edit_artefact_db
+from persistence import (
+        get_artefacts,
+        add_artefact,
+        email_taken,
+        register_user,
+        upload_image,
+        add_image,
+        generate_img_filename,
+        get_artefact_images_metadata,
+        get_user_artefacts,
+        family_user_ids,
+        edit_artefact_db,
+)
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
