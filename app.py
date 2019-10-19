@@ -31,6 +31,7 @@ from persistence import (
         get_user_artefacts,
         family_user_ids,
         edit_artefact_db,
+        get_current_user_family
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -291,28 +292,41 @@ def is_logged_in():
         else:
             return "not logged in"
 
-        
+# Testing route to check current user's family
+@app.route('/showfamily')
+def show_family():
+    template = Template('''
+    <h1>family:</h1>
+    <ul>
+        {% for user in family %}
+        <li>{{user.first_name}} {{user.surname}}</li>
+        {% endfor %}
+    </ul>
+    ''')
+
+    family = get_current_user_family()
+    return template.render(family=family)
+
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
 def upload_artefact():
     if request.method == 'GET':
+        family = get_family(current_user.family_id)
         return render_template('upload_artefact.html')
 
     elif request.method == 'POST':
-        
         new_artefact = create_artefact()
 
         artefact_id = add_artefact(new_artefact)
 
         if 'pic' in request.files:
-   
             pic = request.files['pic']
             fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
-        
+
 
         return "Success!"
 

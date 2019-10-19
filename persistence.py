@@ -2,6 +2,7 @@ from typing import List, Tuple, Dict
 from datetime import datetime
 
 from flask import current_app
+from flask_login import current_user
 from werkzeug.datastructures import FileStorage
 import psycopg2
 
@@ -87,7 +88,6 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
 
 ''' Returns a family with the ids and users '''
 def get_family(family_id) -> List[User]:
-
     inputs = {"family_id": family_id}
 
     sql = '''SELECT id, first_name, surname
@@ -96,8 +96,10 @@ def get_family(family_id) -> List[User]:
 
     rows = pg_select(sql=sql, where=inputs)
 
-
     return [User(*row) for row in rows]
+
+def get_current_user_family() -> List[User]:
+    return get_family(current_user.family_id)
 
 
 # Returns the list of users ids for a given family
