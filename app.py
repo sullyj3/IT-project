@@ -132,7 +132,12 @@ def edit_artefact(artefact_id):
 
 
         if artefact.owner == current_user.id:
-            changed_artefact = create_artefact(artefact_id)
+            try:
+                changed_artefact = create_artefact(artefact_id)
+            except KeyError as e:
+                return str(e), 400
+            except ValueError as e:
+                return str(e), 400
 
             edit_artefact_db(changed_artefact)
             
@@ -312,16 +317,30 @@ def show_family():
 @login_required
 def upload_artefact():
     if request.method == 'GET':
-        family = get_family(current_user.family_id)
-        return render_template('upload_artefact.html')
+        family = get_current_user_family()
+
+        # print(f"family: {family}")
+        # for u in family:
+        #     print(f"User id: {u.id}")
+
+        return render_template('upload_artefact.html', family=family)
 
     elif request.method == 'POST':
-        new_artefact = create_artefact()
+        try:
+            new_artefact = create_artefact()
+        except KeyError as e:
+            return str(e), 400
+        except ValueError as e:
+            return str(e), 400
+
+        print(f"new_artefact type: {type(new_artefact)}")
+        print(f"new_artefact {new_artefact}")
 
         artefact_id = add_artefact(new_artefact)
 
-        if 'pic' in request.files:
+        if 'pic' in request.files and request.files['pic'].content_length > 0:
             pic = request.files['pic']
+
             fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
@@ -383,9 +402,9 @@ def create_artefact(artefact_id=None):
             # stored_with_user should be user_id
             stored_with_user = int(request.form['stored_with_user'])
         except KeyError:
-            return "missing stored_with_user field", 400
+            raise  KeyError("missing stored_with_user field")
         except ValueError:
-            return "stored with user wasn't an integer!", 400
+            raise ValueError("stored with user wasn't an integer!")
 
     elif request.form['stored_with'] == 'location':
         stored_at_loc = request.form['stored_at_loc']

@@ -98,6 +98,7 @@ def get_family(family_id) -> List[User]:
 
     return [User(*row) for row in rows]
 
+
 def get_current_user_family() -> List[User]:
     return get_family(current_user.family_id)
 
