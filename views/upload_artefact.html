@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% block title %}Upload an Artefact{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="/static/artefacts.css">
 {% endblock %}
@@ -38,7 +39,7 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
   -->
 
 <div class="container">
-  <form action="/uploadartefact" method="post">
+  <form action="/uploadartefact" method="post" enctype="multipart/form-data" >
 
     <div class="row">
       <div class="col">
@@ -159,4 +160,4 @@ Read more: https://html.com/tags/comment-tag/#ixzz61MFvZlg5
   </form>
 </div>
 
-{%endblock%}
+{% endblock %}

@@ -4,13 +4,34 @@ import os
 from flask import Flask, current_app, request, abort, redirect, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import (
+        LoginManager,
+        UserMixin,
+        login_user,
+        login_required,
+        logout_user,
+        current_user
+)
+
 from flask_bcrypt import check_password_hash, generate_password_hash
 
-from jinja2 import Template, Environment, FileSystemLoader, select_autoescape #TODO move all rendering code to views.py
+#TODO move all rendering code to views.py
+from jinja2 import Template, Environment, FileSystemLoader, select_autoescape
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids, edit_artefact_db
+from persistence import (
+        get_artefacts,
+        add_artefact,
+        email_taken,
+        register_user,
+        upload_image,
+        add_image,
+        generate_img_filename,
+        get_artefact_images_metadata,
+        get_user_artefacts,
+        family_user_ids,
+        edit_artefact_db,
+)
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
@@ -33,12 +54,11 @@ else:
     # we store the db_URL in the app config, rather than as a global variable,
     # to ensure that it is available across requests and threads.
     app.config['db_URL'] = db_URL
-    print(f"DATABASE_URL is '{db_URL}'")
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_URL
 app.config['SECRET_KEY'] = 'hidden'
-
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy()
 db.init_app(app)
@@ -46,6 +66,9 @@ db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+print()
+print("Shell-safe is running!")
+print()
 
 
 # User class to track logging
@@ -282,16 +305,14 @@ def upload_artefact():
 
         artefact_id = add_artefact(new_artefact)
 
-
-
-        # is there an image?
         if 'pic' in request.files:
+   
             pic = request.files['pic']
-            fname = generate_img_filename(request.form['owner'], pic)
+            fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
-
-            artefact_image = ArtefactImage(None, artefact_id, fname, None)
+            artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
+        
 
         return "Success!"
 
@@ -332,7 +353,7 @@ def bad_request(e):
     # TODO make bad request page
 
     return ''' bad request<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> '''
+    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
 
 def create_artefact(artefact_id=None):
 
