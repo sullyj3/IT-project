@@ -4,12 +4,34 @@ import os
 from flask import Flask, current_app, request, abort, redirect, render_template, flash
 
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask_login import (
+        LoginManager,
+        UserMixin,
+        login_user,
+        login_required,
+        logout_user,
+        current_user
+)
+
 from flask_bcrypt import check_password_hash, generate_password_hash
 
 import psycopg2
 
-from persistence import get_artefacts, add_artefact, email_taken, register_user, upload_image, add_image, generate_img_filename, get_artefact_images_metadata, get_user_artefacts, family_user_ids, edit_artefact_db
+from persistence import (
+        get_artefacts,
+        add_artefact,
+        email_taken,
+        register_user,
+        upload_image,
+        add_image,
+        generate_img_filename,
+        get_artefact_images_metadata,
+        get_user_artefacts,
+        family_user_ids,
+        edit_artefact_db,
+        create_family,
+        get_family_id
+)
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
 
@@ -204,18 +226,24 @@ def register():
 
     elif request.method == 'POST':
         
+        
         if request.form['pass'] == request.form['confirm_pass']:
-            
-            new_user = Credentials(request.form['email'], request.form['pass'])
 
+            new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
             if (not user_details):         
 
+                # Creates famly if no referral_code
+                if request.form['referral_code'] == "":
+                    family_id =  create_family(request.form['surname'])                
+                else:
+                    family_id = request.form['referral_code']
+                
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
-                                        request.form['family_id'],
+                                        family_id,
                                         request.form['email'],
                                         request.form['location'],
                                         generate_password_hash(request.form['pass']))
@@ -228,9 +256,8 @@ def register():
 
                 login_user(User(db_user))
 
-                # return "hmmm"
                 return redirect('/')
-            else:
+            else:   
                 return "User Exists 😳"
         else:
             return "Different Passwords 😳"
@@ -242,7 +269,7 @@ def register():
 def logout_page():
     if request.method == 'GET':
         logout_user()
-        return "user logged out"
+        return redirect('/')
 
 
 # Dummy route to check if logged in
