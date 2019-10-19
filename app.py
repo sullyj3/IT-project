@@ -29,7 +29,7 @@ from persistence import (
         get_user_artefacts,
         family_user_ids,
         edit_artefact_db,
-        get_current_user_family
+        get_current_user_family,
         create_family,
         get_family_id
 )
