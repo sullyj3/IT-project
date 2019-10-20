@@ -405,21 +405,39 @@ def get_user(user_id):
 
 ''' Returns the id of a tag,
     if no tag exists with that name, creates one and returns that id'''
-def find_tag(tag_name):
+def get_tag_by_name(tag_name):
     
     inputs = {"tag_name": tag_name}
 
     sql = '''SELECT tag_id FROM tag
-             WHERE name = tag_name
-             LIMIT 1;'''
+             WHERE name = %(tag_name)s;'''
 
     rows = pg_select(sql, inputs)
 
 
     # Tag doesn't exist
     if len(rows) == 0:
-        sql = ''' '''
-        return 1
+        sql = '''INSERT INTO tag
+                (name)
+                VALUES (%(tag_name)s);'''
+
+        with psycopg2.connect(current_app.config['db_URL']) as conn:
+            
+            print("don't use recursion")
+            cur = conn.cursor()
+            cur.execute(sql, inputs)
+
+            return get_tag_by_name(tag_name)
+        
 
     else:
         return rows[0][0]
+
+def pair_tag_to_artefact(artefact_id, tag_id):
+
+    inputs = {"artefact_id": artefact_id,
+              "tag_id": tag_id}
+
+    sql = '''INSERT INTO artefacttaggedwith
+             (artefact_id, tag_id)
+             VALUES ()'''
