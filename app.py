@@ -188,9 +188,9 @@ def maybe_add_tags(artefact_id):
         pair_tag_to_artefact(artefact_id, tag_id)
 
 
-@app.route('/settings')
+@app.route('/profile')
 def settings():
-    return render_template('account_settings.html')
+    return render_template('profile.html')
 
 @app.route('/editsettings')
 def editsettings():
