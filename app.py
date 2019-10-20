@@ -36,7 +36,9 @@ from persistence import (
         get_referral_code,
         remove_artefact,
         get_user,
+        get_tags_by_ids,
         get_tags_of_artefacts,
+        get_tags_of_each_artefact,
         get_user_artefacts,
         register_user,
         remove_artefact,
@@ -187,7 +189,7 @@ def artefacts():
         filtertag_ids = [int(tag_id) for tag_id in request.args.getlist('filtertags')]
         filtered_tags = get_tags_by_ids(filtertag_ids)
 
-        artefacts = filter_artefact_previews_by_tags(family_artefacts, filtertags)
+        artefacts = filter_artefact_previews_by_tags(family_artefacts, filtered_tags)
         return view_artefacts(artefacts, current_user.id, family_tags, filtered_tags)
     else:
         artefacts = family_artefacts
@@ -198,9 +200,18 @@ def filter_artefact_previews_by_tags(previews: [Dict], tags: [Tag]) -> [Dict]:
     artefact_ids = [preview['artefact'].artefact_id for preview in previews]
     artefact_tags = get_tags_of_each_artefact(artefact_ids)
 
+    print('artefact_tags:')
+    print(artefact_tags)
+
     has_all_tags = []
     for p in previews:
         artefact_id = p['artefact'].artefact_id
+        if artefact_id not in artefact_tags:
+            continue
+
+        print(f'artefact_id type: {type(artefact_id)}')
+        print(f'artefact_id: {artefact_id}')
+        print(f'artefact_tags[artefact_id]: {artefact_tags[artefact_id]}')
         if all(tag in artefact_tags[artefact_id] for tag in tags):
             has_all_tags.append(p)
 

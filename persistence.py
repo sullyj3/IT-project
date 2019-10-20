@@ -63,8 +63,8 @@ def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
     '''
 
     where = {'artefact_ids': tuple(artefact_ids)}
-    print("where:")
-    print(where)
+    # print("where:")
+    # print(where)
 
     rows = pg_select(sql, where)
     return [Tag(*row) for row in rows]
@@ -88,8 +88,9 @@ def get_tags_of_each_artefact(artefact_ids: [int]) -> Dict:
 def get_tags_by_ids(ids):
     sql = '''SELECT * FROM tag
              WHERE tag_id in %(ids)s'''
-    rows = pg_select(sql, (tuple(ids,)))
+    rows = pg_select(sql, {'ids': tuple(ids)})
     tags = [Tag(*row) for row in rows]
+    return tags
 
 def get_user_artefacts(user_id, family_id) -> List[Dict]:
     ''' Returns the artefacts that the user is able to view. '''
@@ -132,9 +133,9 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
     with conn:
         cur = conn.cursor()
         if where is not None:
-            print("running query: ")
-            print(cur.mogrify(sql, where))
-            print(str(cur.mogrify(sql, where)))
+            # print("running query: ")
+            # print(cur.mogrify(sql, where))
+            # print(str(cur.mogrify(sql, where)))
             cur.execute(sql, where)
         else:
             cur.execute(sql)
