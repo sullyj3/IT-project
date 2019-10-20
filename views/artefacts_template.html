@@ -110,7 +110,7 @@
                   <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small></p>
                   <div class="btn-group">
                     <a href="/artefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
-                    {% if artefact_preview['id'] == current_user.id %}
+                    {% if artefact_preview['artefact'].owner == user_id %}
                     <a href="/editartefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
                     {% endif %}
                   </div>
