@@ -2,6 +2,20 @@
 
 {% block title %}Family Settings{% endblock %}
 
+{% block head %}
+<script>
+  function copyToClipboard() 
+  {
+    var copy = document.getElementById("referral_code");
+  
+    copy.select();
+    copy.setSelectionRange(0, 99999); /*For mobile devices*/
+    document.execCommand("copy");
+    alert("Copied the text: " + copy.value);
+  }
+</script>
+{% endblock %}
+
 {% block mainbody %}
 
 <div class="container home-container">
@@ -11,14 +25,18 @@
           <hr>
           
         <div class="row">                      
-          <div class="col-md-9 personal-info">
+          <div class="col-md-7 personal-info">
             
-            <form class="form-horizontal" role="form">               
-              <div class="form-group col-md-8">
-                <label for="exampleFormControlInput1">Family Referral Code</label>
-                <input disabled class="form-control" id="exampleFormControlInput1" placeholder="{{referral_code}}">
+            <form class="form-horizontal" role="form">    
+                
+              <div class="form-group col">
+                <label for="referral_code">Family Referral Code</label>
+                <div class="form-inline my-2 my-lg-0">
+                  <input type="text" id="referral_code" class="mr-sm-2 form-control input-monospace input" data-autoselect="" value="{{referral_code}}" aria-label="{{referral_code}}" readonly="">  
+                  <button type="button" class="my-2 my-sm-0 btn btn-light pull-right" onclick="copyToClipboard()">Copy</button>
+                </div>                
               </div>
-              <div class="form-group col-md-8">
+              <div class="form-group col">
                 <label for="list-example">Family Members</label>
                 <div id="list-example" class="list-group scrollable-dropdown">
                   {% for user in family %}

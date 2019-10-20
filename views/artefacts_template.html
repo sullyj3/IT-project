@@ -3,13 +3,19 @@
 {% block title %}Artefacts{% endblock %}
 {% block head %}
     <link rel="stylesheet" href="/static/artefacts.css">
-
-    <!-- these seem to be causing errors -->
-    <!--
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/css/bootstrap-select.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/i18n/defaults-*.min.js"></script>
-    -->
+    <script>
+      const disableFilterSelection = () => {
+          var element1 = document.getElementById("hide1") 
+          var element2 = document.getElementById("hide2") 
+          if (element1.style.display === "none") {
+            element1.style.display = "block";
+            element2.style.display = "block";
+          } else {
+            element1.style.display = "none";
+            element2.style.display = "none";          
+          }
+        }      
+    </script>
 {% endblock %}
 
 {% block mainbody %}
@@ -17,33 +23,32 @@
     <section class="jumbotron text-center">
       <div class="container">
         <h1 class="jumbotron-heading">Artefacts</h1>
-        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
-        <p>
-          <div class="btn-group">
-            <div class="row">
-              <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-              <p>&nbsp;</p>
-              <form action="/artefacts", method="GET">
-
-                <!-- just getting it working for now -->
-                <!-- 
-                <button type="button" class="btn btn-secondary dropdown-toggle my-2" data-toggle="dropdown">Filter by Tag <span class="caret"></span></button>
-                <div class="dropdown-menu scrollable-dropdown" role="menu">
-                -->
-                <div>
-                  <select name="filtertags" multiple>
-                    {% for tag in family_tags %}
-                      <option value="{{tag.tag_id}}">{{ tag.name }}</option>
-                    {% endfor %}
-                  </select>
-                </div>
-
-                <button type="submit" class="btn btn-secondary">Filter</button>
-              </form>
+        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>      
+        
+        <div class="btn-group">
+          <div class="row">
+            <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
+            <p>&nbsp;</p>
+            <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tag <span class="caret"></span></button>
+            <p>&nbsp;</p>
+            <div id="hide1" style="display: none;">
+              <button type="submit" class="btn btn-secondary my-2">Apply</button>      
             </div>
+          </div>       
+        </div>
+
+        <form action="/artefacts" , method="GET">
+          <div id="hide2" style="display: none;">
+            <select name="filtertags" multiple>
+              {% for tag in family_tags %}
+                <option value="{{tag.tag_id}}">{{ tag.name }}</option>
+              {% endfor %}              
+            </select>              
+
           </div>
-        </p>
-      </div> 
+        </form>  
+      </div>      
+      
 
       {% if filtered_tags is not none %}
         {% for tag in filtered_tags %}
@@ -76,7 +81,7 @@
                   <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small></p>
                   <div class="btn-group">
                     <a href="/artefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
-                    {% if artefact_preview['artefact'].owner == user_id %}
+                    {% if artefact_preview['id'] == current_user.id %}
                     <a href="/editartefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">Edit</a>
                     {% endif %}
                   </div>
