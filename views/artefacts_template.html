@@ -5,14 +5,16 @@
     <link rel="stylesheet" href="/static/artefacts.css">
     <script>
       const disableFilterSelection = () => {
-          var element = document.getElementById("hide") 
-          if (element.style.display === "none") {
-            element.style.display = "block";
+          var element1 = document.getElementById("hide1") 
+          var element2 = document.getElementById("hide2") 
+          if (element1.style.display === "none") {
+            element1.style.display = "block";
+            element2.style.display = "block";
           } else {
-            element.style.display = "none";          
+            element1.style.display = "none";
+            element2.style.display = "none";          
           }
-        }
-      
+        }      
     </script>
 {% endblock %}
 
@@ -28,16 +30,15 @@
             <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
             <p>&nbsp;</p>
             <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tag <span class="caret"></span></button>
-            
-            <div id="hide" style="display: none;">
-              <button type="submit" class="btn btn-secondary">Filter</button>      
+            <p>&nbsp;</p>
+            <div id="hide1" style="display: none;">
+              <button type="submit" class="btn btn-secondary my-2">Apply</button>      
             </div>
-  
           </div>       
         </div>
 
         <form action="/artefacts" , method="GET">
-          <div id="hide" style="display: none;">
+          <div id="hide2" style="display: none;">
             <select name="filtertags" multiple="">
               
                 <option value="1">test tag</option>
