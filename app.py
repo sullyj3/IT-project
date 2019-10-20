@@ -154,6 +154,9 @@ def edit_artefact(artefact_id):
 def settings():
     return render_template('account_settings.html')
 
+@app.route('/editsettings')
+def editsettings():
+    return render_template('edit_account_settings.html')
 
 @app.route('/family')
 @login_required
