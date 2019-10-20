@@ -32,12 +32,12 @@
             <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tag <span class="caret"></span></button>
             <p>&nbsp;</p>
             <div id="hide1" style="display: none;">
-              <button type="submit" class="btn btn-secondary my-2">Apply</button>      
+              <button type="submit" form="tags-form" class="btn btn-secondary my-2">Apply</button>      
             </div>
-          </div>       
+          </div>
         </div>
 
-        <form action="/artefacts" , method="GET">
+        <form action="/artefacts" id="tags-form" , method="GET">
           <div id="hide2" style="display: none;">
             <select name="filtertags" multiple>
               {% for tag in family_tags %}
