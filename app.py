@@ -38,7 +38,8 @@ from persistence import (
         get_user_artefacts,
         register_user,
         remove_artefact,
-        upload_image
+        upload_image,
+        get_user_loc
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage
@@ -209,13 +210,13 @@ def artefact(artefact_id):
         owner = get_user(artefact.owner)
 
         if artefact.stored_with == "user":
-            location = artefact.stored_with_user
+            location = get_user_loc(artefact.stored_with_user)
 
         else: 
             location = artefact.stored_at_loc
 
 
-        print("loc: "+ location)
+        print(location)
         print(artefact.date_stored)
         print(artefact.date_stored.date())
         print(type(artefact.date_stored))

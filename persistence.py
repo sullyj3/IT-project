@@ -351,7 +351,7 @@ def get_user_loc(user_id):
 
     inputs = {"user_id": user_id}
 
-    sql = '''SELECT location FROM User
+    sql = '''SELECT location FROM "user"
              WHERE id = %(user_id)s;'''
 
     return pg_select(sql, inputs)[0][0]
