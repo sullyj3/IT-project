@@ -2,6 +2,26 @@
 
 {% block title %}Edit {{artefact.name}}{% endblock %}
 
+{% block head %}
+    <script>
+      const disableStoredWithUser = () => {
+        const storedWithUser = $("#stored_with_user");
+        const storedAtLoc = $("#stored_at_loc");
+
+        const userIsChecked = $("#user").prop("checked");
+
+        if (userIsChecked) {
+          storedWithUser.prop('hidden', false);
+          storedAtLoc.prop('hidden', true);
+        } else {
+          storedWithUser.prop('hidden', true);
+          storedAtLoc.prop('hidden', false);
+        }
+      }
+    </script>
+
+{% endblock %}
+
 {% block mainbody %}
 <section class="jumbotron text-center">
   <div class="container">
@@ -60,38 +80,46 @@
     -->
   </div>
   <div class="form-group">
-      <label for="artefactDescription">Description</label>
-      <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3">{{artefact.description}}</textarea>
-    </div>
+    <label for="artefactDescription">Description</label>
+    <textarea class="form-control" type="text" name="description" id="artefactDescription" rows="3">{{artefact.description}}</textarea>
+  </div>
+  
+  <div class="form-group">
+      <label for="Tags">Tags</label>
+      <input type="text" class="form-control" placeholder="Separate tags by commas" id="tags" name="tags">
+  </div>
+
   <label for="artefactDescription">Artefact stored with: &nbsp;&nbsp;</label>
   <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" {% if artefact.stored_with == "user"%}checked{% endif %}>
+    <input class="form-check-input" type="radio" name="stored_with" id="user" onclick="disableStoredWithUser()" value="user" {% if artefact.stored_with == "user"%}checked{% endif %}>
     <label class="form-check-label" for="location">
-      You
+      Family Member
     </label>
   </div>
   <div class="form-check form-check-inline">
-    <input class="form-check-input" type="radio" name="stored_with" id="location" value="location" {% if artefact.stored_with == "location"%}checked{% endif %}>
+    <input class="form-check-input" type="radio" name="stored_with" id="location" onclick="disableStoredWithUser()" value="location" {% if artefact.stored_with == "location"%}checked{% endif %}>
     <label class="form-check-label" for="location">
       Location
     </label>
   </div>
-  
 
 
   <div class="row">
     <div class="col">
       <div class="form-group">
         <label for="stored_with_user">Stored with user id: (if applicable)</label>
-        <input type="number" id="stored_with_user" name="stored_with_user"
+        <input type="number" class="form-control" id="stored_with_user" name="stored_with_user"
           {% if artefact.stored_with == "user" %}
             value="{{artefact.stored_with_user}}"
+          {% else %}
+            hidden
           {% endif %} ><br>
 
-        <label for="artefactTitle">Stored at location: (if applicable)</label>
-        <input type="text" class="form-control" id="stored_at_loc" name="stored_at_loc"
+        <input type="text" class="form-control" id="stored_at_loc" placeholder="Enter Location" name="stored_at_loc"
           {% if artefact.stored_with == "location" %}
             value="{{artefact.stored_at_loc}}"
+          {% else %}
+            hidden
           {% endif %} ><br>
 
       </div>
@@ -100,9 +128,9 @@
           <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
         </div>
     </div>
-
+<!-- HIDE FROM TO BE MADE
     <div class="col">
-      <div class="row">
+      <div class="row"> 
         <div class="col">
           <div class="dropdown">
             <a class="dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
