@@ -24,8 +24,8 @@ ArtefactUser = namedtuple("ArtefactUser", ("artefact_id",
 
 
 User = namedtuple("User", ("user_id",
-                               "first_name",
-                               "surname"))
+                           "first_name",
+                           "surname"))
 
 Credentials = namedtuple("Credentials", ("email", "password"))
 

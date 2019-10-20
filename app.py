@@ -1,6 +1,8 @@
 import sys
 import os
 
+from typing import Dict
+
 from flask import Flask, current_app, request, abort, redirect, render_template, flash, url_for
 
 from flask_sqlalchemy import SQLAlchemy
@@ -32,14 +34,22 @@ from persistence import (
         get_family,
         get_family_id,
         get_referral_code,
+        remove_artefact,
+        get_user,
+        get_tags_by_ids,
         get_tags_of_artefacts,
+        get_tags_of_each_artefact,
         get_user_artefacts,
         register_user,
         remove_artefact,
-        upload_image
+        upload_image,
+        get_user_loc,
+        get_tags_by_names,
+        insert_tag,
+        pair_tag_to_artefact
 )
 from views import view_artefacts, view_artefact
-from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
+from model import Artefact, Credentials, Register, ArtefactImage, Tag
 
 app = Flask(__name__, template_folder='views')
 
@@ -104,6 +114,10 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world(msg = None):
+
+
+
+
     if msg != None:
         flash(msg) 
     if (current_user.is_authenticated):
@@ -117,7 +131,7 @@ def edit_artefact(artefact_id):
 
     if (not current_user.is_authenticated):
         flash("Need to be logged in to edit artefacts")
-        return redirect('artefacts')
+        return redirect('/artefacts')
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
@@ -130,7 +144,7 @@ def edit_artefact(artefact_id):
             return render_template('edit_artefact.html', artefact=artefact)
         else:
             flash("You are not authorised to edit that artefact")
-            return redirect('artefacts')
+            return redirect('/artefacts')
 
 
     elif request.method == "POST":
@@ -151,7 +165,7 @@ def edit_artefact(artefact_id):
 
         else:
             flash("You are not authorised to edit that artefact")
-            return redirect('artefacts')
+            return redirect('/  artefacts')
 
 
 @app.route('/settings')
@@ -174,22 +188,41 @@ def familysettings():
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    family_artefacts = get_user_artefacts(current_user.id, current_user.family_id)
+    family_artefact_ids = [p['artefact'].artefact_id for p in family_artefacts]
+    family_tags = get_tags_of_artefacts(family_artefact_ids)
+
     if 'filtertags' in request.args:
-        filtertag_ids = request.args.getlist('filtertags')
+        filtertag_ids = [int(tag_id) for tag_id in request.args.getlist('filtertags')]
+        filtered_tags = get_tags_by_ids(filtertag_ids)
 
-        # TODO
-        return Template('''
-                <h1>filtering not implemented yet</h1>
-                <p>you filtered by {% for t in filtertags %}id: {{t}}, {% endfor %}</p>
-        ''').render(filtertags=filtertag_ids)
+        artefacts = filter_artefact_previews_by_tags(family_artefacts, filtered_tags)
+        return view_artefacts(artefacts, current_user.id, family_tags, filtered_tags)
+    else:
+        artefacts = family_artefacts
+        return view_artefacts(artefacts, current_user.id, family_tags)
 
 
-    artefacts = get_user_artefacts(current_user.id, current_user.family_id)
-    artefact_ids = [a['artefact'].artefact_id for a in artefacts]
-    tags = get_tags_of_artefacts(artefact_ids)
+def filter_artefact_previews_by_tags(previews: [Dict], tags: [Tag]) -> [Dict]:
+    artefact_ids = [preview['artefact'].artefact_id for preview in previews]
+    artefact_tags = get_tags_of_each_artefact(artefact_ids)
 
-    return view_artefacts(artefacts, current_user.id, tags)
+    print('artefact_tags:')
+    print(artefact_tags)
 
+    has_all_tags = []
+    for p in previews:
+        artefact_id = p['artefact'].artefact_id
+        if artefact_id not in artefact_tags:
+            continue
+
+        print(f'artefact_id type: {type(artefact_id)}')
+        print(f'artefact_id: {artefact_id}')
+        print(f'artefact_tags[artefact_id]: {artefact_tags[artefact_id]}')
+        if all(tag in artefact_tags[artefact_id] for tag in tags):
+            has_all_tags.append(p)
+
+    return has_all_tags
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
@@ -200,12 +233,24 @@ def artefact(artefact_id):
         flash("Couldn't find that Artefact!")
         return redirect(url_for('artefacts'))
 
-    if artefact.owner in  family_user_ids(current_user.family_id):
+    if artefact.owner in family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
-        return view_artefact(artefact, artefact_images, current_user.id)
+
+        owner = get_user(artefact.owner)
+
+        if artefact.stored_with == "user":
+            location = get_user_loc(artefact.stored_with_user)
+
+        else:
+            location = artefact.stored_at_loc
+
+        tags = get_tags_of_artefacts([artefact.artefact_id])
+
+        return view_artefact(artefact, artefact_images, current_user.id, location, owner, tags)
 
     else:
+        flash("You don't have access to this item")
         return unauthorized()
 
 @app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
@@ -225,29 +270,21 @@ def delete_artefact(artefact_id):
     else:
         return unauthorized()
 
-    
-    # return unauthorized()
+    return unauthorized()
 
-
-
-@app.route('/insertexample')
-def insert_example():
-    add_artefact(example_artefact)
-    return('inserting...')
 
 
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        
+
         if current_user.is_authenticated:
             flash("Already logged in!")
-            flash("ALso a message")
             return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
-        
+
         new_user = Credentials(request.form['email'],
                            request.form['password'])
 
@@ -262,8 +299,9 @@ def login():
 
                 new_user = User(db_user)
                 login_user(new_user)
+                flash("Successfully logged in")
                 return redirect('/')
-            
+
             else:
                 flash("Incorrect details, try again") 
                 return redirect('/login')
@@ -315,49 +353,22 @@ def register():
 
                 login_user(User(db_user))
 
+                flash('Successfully registered')
                 return redirect('/')
-            else:   
+            else:
                 flash("User already exists")
         else:
             flash("Passwords are not the same, or you have missing fields")
         return redirect(url_for('register'))
             
 
-
 # Dummy route to logout
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout_page():
-    if request.method == 'GET':
-        logout_user()
-        return redirect('/')
-
-# TODO get rid of it!
-# Dummy route to check if logged in
-@app.route('/islogged')
-def is_logged_in():
-    if request.method == 'GET':
-        if current_user.is_authenticated:
-
-            user_info = "Logged in<br>User_id: {}<br>User_email: {}"
-            return user_info.format(current_user.id, current_user.email)
-        else:
-            return "not logged in"
-
-# Testing route to check current user's family
-@app.route('/showfamily')
-def show_family():
-    template = Template('''
-    <h1>family:</h1>
-    <ul>
-        {% for user in family %}
-        <li>{{user.first_name}} {{user.surname}}</li>
-        {% endfor %}
-    </ul>
-    ''')
-
-    family = get_current_user_family()
-    return template.render(family=family)
+    logout_user()
+    flash("You have been logged out")
+    return redirect('/')
 
 
 # test route for getting artefact tags
@@ -381,10 +392,6 @@ def upload_artefact():
     if request.method == 'GET':
         family = get_current_user_family()
 
-        # print(f"family: {family}")
-        # for u in family:
-        #     print(f"User id: {u.id}")
-
         return render_template('upload_artefact.html', family=family)
 
     elif request.method == 'POST':
@@ -395,8 +402,21 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        print(f"new_artefact type: {type(new_artefact)}")
-        print(f"new_artefact {new_artefact}")
+        # Puts tags into formatted list
+        tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+        print(tags)
+
+        existing_tags = get_tags_by_names(tags)
+
+        existing_names = [t.name for t in existing_tags]
+        new = [t for t in tags if t not in existing_names]
+
+        tag_ids = [t.tag_id for t in existing_tags]
+
+        for tag in tags:
+            if tag not in existing_names:
+                tag_ids.append(insert_tag(tag))
 
         artefact_id = add_artefact(new_artefact)
 
@@ -437,7 +457,6 @@ def bad_request(e):
 
 @app.errorhandler(405)
 def method_not_allowed(e):
-    flash("Not allowed")
     return redirect('/')
 
 def create_artefact(artefact_id=None):

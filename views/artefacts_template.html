@@ -32,7 +32,7 @@
                 -->
                 <div>
                   <select name="filtertags" multiple>
-                    {% for tag in tags %}
+                    {% for tag in family_tags %}
                       <option value="{{tag.tag_id}}">{{ tag.name }}</option>
                     {% endfor %}
                   </select>
@@ -45,10 +45,12 @@
         </p>
       </div> 
 
-    <span class="badge badge-info">Tag1</span>
-    <span class="badge badge-info">Tag2</span>
-    <span class="badge badge-info">Tag3</span>
-      
+      {% if filtered_tags is not none %}
+        {% for tag in filtered_tags %}
+        <span class="badge badge-info">{{tag.name}}</span>
+        {% endfor %}
+      {% endif %}
+
 
     </section>
 
@@ -69,8 +71,8 @@
                 {% endif %}
 
                 <div class="card-body">
-                  <h5 class="card-title">Name: {{artefact_preview['artefact'].name}}</p></h5>
-                  <p style="text-align: left;" class="card-text">Description: {{artefact_preview['artefact'].description}}</p></p>
+                  <h5 class="card-title">{{artefact_preview['artefact'].name}}</p></h5>
+                  <p style="text-align: left;" class="card-text">{{artefact_preview['artefact'].description}}</p></p>
                   <p style="text-align: left;" class="card-text"><small class="text-muted">Owner: {{artefact_preview['first_name']}} {{artefact_preview['surname']}}</small></p>
                   <div class="btn-group">
                     <a href="/artefact/{{artefact_preview['artefact'].artefact_id}}" class="btn btn-sm btn-outline-secondary">View</a>
