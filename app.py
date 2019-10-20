@@ -142,6 +142,7 @@ def settings():
     return render_template('account_settings.html')
 
 @app.route('/family')
+@login_required
 def familysettings():
     return render_template('family_settings.html')
 
