@@ -171,11 +171,11 @@ def familysettings():
     return render_template('family_settings.html', family=family, referral_code=referral_code)
 
 
-@app.route('/artefacts', methods=['GET', 'POST'])
+@app.route('/artefacts')
 @login_required
 def artefacts():
-    if request.method == 'POST' and 'filtertags' in request.form:
-        filtertag_ids = request.form.getlist('filtertags')
+    if 'filtertags' in request.args:
+        filtertag_ids = request.args.getlist('filtertags')
 
         # TODO
         return Template('''
