@@ -328,15 +328,15 @@ def register():
             new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
-            if (not user_details):         
-
+            if not user_details:
                 # Creates famly if no referral_code
 
-                if request.form["new_family"] == "on":
-                    family_id =  create_family(request.form['surname'])                
+                if "new_family" in request.form:
+                    family_id = create_family(request.form['surname'])
                 else:
                     family_id = get_family_id(request.form['referral_code'])
-                
+
+
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
@@ -350,7 +350,6 @@ def register():
 
                 # Logs in user after adding to database
                 db_user = email_taken(new_user)
-
                 login_user(User(db_user))
 
                 flash('Successfully registered')
@@ -360,7 +359,7 @@ def register():
         else:
             flash("Passwords are not the same, or you have missing fields")
         return redirect(url_for('register'))
-            
+
 
 # Dummy route to logout
 @app.route('/logout', methods=['POST'])
