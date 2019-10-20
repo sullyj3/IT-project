@@ -366,13 +366,23 @@ def upload_artefact():
 
         artefact_id = add_artefact(new_artefact)
 
-        if 'pic' in request.files and request.files['pic'].content_length > 0:
+        print("Does this submission have a picture? : "+str('pic' in request.files))
+        if ('pic' in request.files):
+            print("content length: "+str(request.files['pic'].content_length))
+
+        print(request.files['pic'].value)
+
+        if 'pic' in request.files: #and request.files['pic'].content_length > 0:
+
             pic = request.files['pic']
 
             fname = generate_img_filename(current_user.id, pic)
+            print("Pic is found! it's name is: "+fname)
             upload_image(pic, fname)
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
+        else:
+            print("No pic uploaded")
 
         flash("Successfully uploaded artefact")
         return redirect('/artefact/'+str(artefact_id))
