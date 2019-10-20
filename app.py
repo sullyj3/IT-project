@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect, render_template, flash
+from flask import Flask, current_app, request, abort, redirect, render_template, flash, url_for
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
@@ -29,10 +29,13 @@ from persistence import (
         get_artefact_images_metadata,
         get_artefacts,
         get_current_user_family,
+        get_family,
         get_family_id,
+        get_referral_code,
         get_tags_of_artefacts,
         get_user_artefacts,
         register_user,
+        remove_artefact,
         upload_image
 )
 from views import view_artefacts, view_artefact
@@ -143,6 +146,7 @@ def edit_artefact(artefact_id):
             return redirect('/artefact/'+str(artefact_id))
 
         else:
+            # TODO Pop for not your artefact
             return "not your artefact to edit"
 
 
@@ -152,8 +156,12 @@ def settings():
 
 
 @app.route('/family')
+@login_required
 def familysettings():
-    return render_template('family_settings.html')
+    
+    referral_code = get_referral_code(current_user.family_id)
+    family = get_family(current_user.family_id)
+    return render_template('family_settings.html', family=family, referral_code=referral_code)
 
 
 @app.route('/artefacts')
@@ -182,6 +190,28 @@ def artefact(artefact_id):
     else:
         return unauthorized()
 
+@app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
+@login_required
+def delete_artefact(artefact_id):
+
+
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    if artefact.owner == current_user.id:
+        remove_artefact(artefact_id)
+        return redirect('/artefacts')
+
+    else:
+        return unauthorized()
+
+    
+    # return unauthorized()
+
+
+
 @app.route('/insertexample')
 def insert_example():
     add_artefact(example_artefact)
@@ -193,7 +223,9 @@ def login():
     if request.method == 'GET':
         
         if current_user.is_authenticated:
-            return redirect(hello_world())
+            flash("Already logged in!")
+            flash("ALso a message")
+            return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
@@ -218,7 +250,8 @@ def login():
             
             else:
 
-                # TODO Popup message showing incorrect details 
+                # TODO Popup message showing incorrect details
+                flash("Incorrect details, try again") 
                 
                 return redirect('/login')
 
@@ -390,6 +423,11 @@ def bad_request(e):
 
     return ''' bad request<br>
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    # TODO redirect
+    return redirect('/')
 
 def create_artefact(artefact_id=None):
 

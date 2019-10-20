@@ -21,7 +21,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- TODO need favicon.ico -->
     <link rel="shortcut icon" href="static/images/favicon.ico">
-    <title>{% block title %}{% endblock %} - Shell-Safe 🐢</title>
+    <title>{% block title %}{% endblock %} - Shell-Safe <img src="static/images/turtle2.jpg" alt="Turtle"></title>
     {% block head %}{% endblock %}
 </head>
 
@@ -84,11 +84,12 @@
             </div>
           </div>
         </a>
-
+        <!--
         <form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
+        -->
 
         {% else %}
 
@@ -109,6 +110,17 @@
       </div>
     </nav>
 
+    <!-- Messages to be displayed to alert -->
+    <!-- In order to flash a message, use flash("msg") before returning a page to add that message
+      to the messages to be displayed on the returned page -->
+    <div class="container" id="flashed_messages_container">
+      {% for message in get_flashed_messages() %}
+      <div class= "alert alert-warning">
+        <button type='button' class = "close" data-dismiss="alert">&times;</button>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
     {% block mainbody %}{% endblock %}
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

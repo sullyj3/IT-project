@@ -9,15 +9,24 @@
       <div class="container">
         <h1>My Family</h1>
           <hr>
+        <h2>Family Referral Code is: {{referral_code}}</h2>
+
+        {% for user in family%}
+
+          {{user.first_name}} {{user.surname}} <br>
+
+        {% endfor %}
           
         <div class="row">                      
           <div class="col-md-9 personal-info">
+
+            
             
             <form class="form-horizontal" role="form">
                
               <div class="form-group col-md-8">
-                <label for="exampleFormControlInput1">Add a new family member</label>
-                <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="name@example.com">
+                <label for="exampleFormControlInput1">Family Reference Code</label>
+                <input disabled class="form-control" id="exampleFormControlInput1" placeholder="123456">
               </div>
               <div class="form-group col-md-8">
                 <label for="exampleFormControlSelect1">Remove a family member</label>
