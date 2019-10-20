@@ -5,7 +5,7 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "name",
                                    "description",
                                    "date_stored",
-                                   "stored_with",
+                                   "stored_with",      # string - "user" or "location"
                                    "stored_with_user",
                                    "stored_at_loc"))
 
