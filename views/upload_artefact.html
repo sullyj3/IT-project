@@ -67,7 +67,7 @@
     </div>
 
     <!-- What's the point of both these two????-->
-    <p>Stored with user (if applicable)</p>
+    <label for="stored_with_user">Stored with user</label>
     <select class="custom-select" name="stored_with_user" id="stored_with_user">
       {% for user in family %}
       <option value="{{user.user_id}}">{{user.first_name}} {{user.surname}}</option>

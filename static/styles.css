@@ -29,3 +29,14 @@ p {
 	margin-top:30px;
 }
 
+.scrollable-dropdown {
+    height: 200px;
+    max-height: 200px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.row-centered{
+    margin: auto; 
+    max-width: 10%;
+}
