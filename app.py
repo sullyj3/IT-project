@@ -114,15 +114,12 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world(msg = None):
-
-
-
-
     if msg != None:
         flash(msg) 
     if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
+
 
 @app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
 @login_required
@@ -160,6 +157,8 @@ def edit_artefact(artefact_id):
                 return unauthorized()
 
             edit_artefact_db(changed_artefact)
+
+            maybe_add_pic(artefact_id)
 
             return redirect('/artefact/'+str(artefact_id))
 
@@ -323,29 +322,21 @@ def register():
             return render_template('register.html')
 
     elif request.method == 'POST':  
-        
+
         if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
             new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
-            if (not user_details):         
-
-                
-
+            if not user_details:
                 # Creates famly if no referral_code
 
-                print("before if")
-
-
-
                 if "new_family" in request.form:
-                    print("new _family == on")
-                    family_id = create_family(request.form['surname'])                
+                    family_id = create_family(request.form['surname'])
                 else:
                     family_id = get_family_id(request.form['referral_code'])
 
-                
+
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
@@ -368,7 +359,7 @@ def register():
         else:
             flash("Passwords are not the same, or you have missing fields")
         return redirect(url_for('register'))
-            
+
 
 # Dummy route to logout
 @app.route('/logout', methods=['POST'])
@@ -431,8 +422,15 @@ def upload_artefact():
         for tag_id in tag_ids:
             pair_tag_to_artefact(artefact_id, tag_id)
 
-        if 'pic' in request.files:
-            pic = request.files['pic']
+        maybe_add_pic(artefact_id)
+
+        flash("Successfully uploaded artefact")
+        return redirect('/artefact/'+str(artefact_id))
+
+
+def maybe_add_pic(artefact_id: int):
+    if 'pic' in request.files:
+        pic = request.files['pic']
 
         if pic.filename != '':
 
@@ -443,8 +441,6 @@ def upload_artefact():
         else:
             print("A file was given, but it was empty")
 
-        flash("Successfully uploaded artefact")
-        return redirect('/artefact/'+str(artefact_id))
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -469,7 +465,7 @@ def bad_request(e):
 def method_not_allowed(e):
     return redirect('/')
 
-def create_artefact(artefact_id=None):
+def create_artefact(artefact_id=None) -> Artefact:
 
     # if we get a KeyError accessing the contents of request.form, flask will
         # automatically reply with 400 bad request
