@@ -32,14 +32,17 @@ from persistence import (
         get_family,
         get_family_id,
         get_referral_code,
+        remove_artefact,
+        get_user,
         get_tags_of_artefacts,
         get_user_artefacts,
         register_user,
         remove_artefact,
-        upload_image
+        upload_image,
+        get_user_loc
 )
 from views import view_artefacts, view_artefact
-from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
+from model import Artefact, Credentials, Register, ArtefactImage
 
 app = Flask(__name__, template_folder='views')
 
@@ -151,7 +154,7 @@ def edit_artefact(artefact_id):
 
         else:
             flash("You are not authorised to edit that artefact")
-            return redirect('artefacts')
+            return redirect('/  artefacts')
 
 
 @app.route('/settings')
@@ -200,12 +203,28 @@ def artefact(artefact_id):
         flash("Couldn't find that Artefact!")
         return redirect(url_for('artefacts'))
 
-    if artefact.owner in  family_user_ids(current_user.family_id):
+    if artefact.owner in family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
-        return view_artefact(artefact, artefact_images, current_user.id)
+
+        owner = get_user(artefact.owner)
+
+        if artefact.stored_with == "user":
+            location = get_user_loc(artefact.stored_with_user)
+
+        else: 
+            location = artefact.stored_at_loc
+
+
+        print(location)
+        print(artefact.date_stored)
+        print(artefact.date_stored.date())
+        print(type(artefact.date_stored))
+
+        return view_artefact(artefact, artefact_images, current_user.id, location, owner)
 
     else:
+        flash("You don't have access to this item")
         return unauthorized()
 
 @app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
@@ -225,15 +244,8 @@ def delete_artefact(artefact_id):
     else:
         return unauthorized()
 
-    
-    # return unauthorized()
+    return unauthorized()
 
-
-
-@app.route('/insertexample')
-def insert_example():
-    add_artefact(example_artefact)
-    return('inserting...')
 
 
 @app.route('/login', methods=['GET','POST'])
