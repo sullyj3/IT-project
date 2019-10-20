@@ -112,42 +112,43 @@ def hello_world(msg = None):
 @login_required
 def edit_artefact(artefact_id):
     print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
+
+    if (not current_user.is_authenticated):
+        flash("Need to be logged in to edit artefacts")
+        return redirect('artefacts')
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        flash("Couldn't find that artefact")
+        return redirect(url_for('artefacts'))
+
+    
     if request.method == "GET":
-
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
         if artefact.owner == current_user.id:
             return render_template('edit_artefact.html', artefact=artefact)
-
         else:
-            return "not your artefact"
+            flash("You are not authorised to edit that artefact")
+            return redirect('artefacts')
+
 
     elif request.method == "POST":
-        
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
 
         if artefact.owner == current_user.id:
             try:
                 changed_artefact = create_artefact(artefact_id)
             except KeyError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
             except ValueError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
 
             edit_artefact_db(changed_artefact)
-            
             return redirect('/artefact/'+str(artefact_id))
 
         else:
-            # TODO Pop for not your artefact
-            return "not your artefact to edit"
+            flash("You are not authorised to edit that artefact")
+            return redirect('artefacts')
 
 @app.route('/settings')
 def settings():
@@ -177,7 +178,8 @@ def artefact(artefact_id):
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
-        return "Couldn't find that Artefact!", 400
+        flash("Couldn't find that Artefact!")
+        return redirect(url_for('artefacts'))
 
     if artefact.owner in  family_user_ids(current_user.family_id):
 
@@ -248,7 +250,8 @@ def login():
                 return redirect('/login')
 
         else:
-            return "no user exists 😳"
+            flash("That user doesn't exist!")
+            return hello_world()
 
 
 @app.route('/register', methods=['GET','POST'])
