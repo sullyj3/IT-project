@@ -368,7 +368,6 @@ def bad_request(e):
 
 @app.errorhandler(405)
 def method_not_allowed(e):
-    
     return redirect('/')
 
 def create_artefact(artefact_id=None):

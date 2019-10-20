@@ -275,7 +275,8 @@ def create_family(family_name):
     
     referral_code = family_name + salt
 
-    referral_code = referral_code.join(e for e in string if e.isalnum())
+    referral_code = "".join(e for e in referral_code if e.isalnum())
+    print(referral_code)
 
     inputs = {"family_name": family_name,
               "referral_code": referral_code}
