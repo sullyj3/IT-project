@@ -1,6 +1,8 @@
 import sys
 import os
 
+from typing import Dict
+
 from flask import Flask, current_app, request, abort, redirect, render_template, flash, url_for
 
 from flask_sqlalchemy import SQLAlchemy
@@ -34,7 +36,9 @@ from persistence import (
         get_referral_code,
         remove_artefact,
         get_user,
+        get_tags_by_ids,
         get_tags_of_artefacts,
+        get_tags_of_each_artefact,
         get_user_artefacts,
         register_user,
         remove_artefact,
@@ -42,7 +46,7 @@ from persistence import (
         get_user_loc
 )
 from views import view_artefacts, view_artefact
-from model import Artefact, Credentials, Register, ArtefactImage
+from model import Artefact, Credentials, Register, ArtefactImage, Tag
 
 app = Flask(__name__, template_folder='views')
 
@@ -177,22 +181,41 @@ def familysettings():
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    family_artefacts = get_user_artefacts(current_user.id, current_user.family_id)
+    family_artefact_ids = [p['artefact'].artefact_id for p in family_artefacts]
+    family_tags = get_tags_of_artefacts(family_artefact_ids)
+
     if 'filtertags' in request.args:
-        filtertag_ids = request.args.getlist('filtertags')
+        filtertag_ids = [int(tag_id) for tag_id in request.args.getlist('filtertags')]
+        filtered_tags = get_tags_by_ids(filtertag_ids)
 
-        # TODO
-        return Template('''
-                <h1>filtering not implemented yet</h1>
-                <p>you filtered by {% for t in filtertags %}id: {{t}}, {% endfor %}</p>
-        ''').render(filtertags=filtertag_ids)
+        artefacts = filter_artefact_previews_by_tags(family_artefacts, filtered_tags)
+        return view_artefacts(artefacts, current_user.id, family_tags, filtered_tags)
+    else:
+        artefacts = family_artefacts
+        return view_artefacts(artefacts, current_user.id, family_tags)
 
 
-    artefacts = get_user_artefacts(current_user.id, current_user.family_id)
-    artefact_ids = [a['artefact'].artefact_id for a in artefacts]
-    tags = get_tags_of_artefacts(artefact_ids)
+def filter_artefact_previews_by_tags(previews: [Dict], tags: [Tag]) -> [Dict]:
+    artefact_ids = [preview['artefact'].artefact_id for preview in previews]
+    artefact_tags = get_tags_of_each_artefact(artefact_ids)
 
-    return view_artefacts(artefacts, current_user.id, tags)
+    print('artefact_tags:')
+    print(artefact_tags)
 
+    has_all_tags = []
+    for p in previews:
+        artefact_id = p['artefact'].artefact_id
+        if artefact_id not in artefact_tags:
+            continue
+
+        print(f'artefact_id type: {type(artefact_id)}')
+        print(f'artefact_id: {artefact_id}')
+        print(f'artefact_tags[artefact_id]: {artefact_tags[artefact_id]}')
+        if all(tag in artefact_tags[artefact_id] for tag in tags):
+            has_all_tags.append(p)
+
+    return has_all_tags
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
