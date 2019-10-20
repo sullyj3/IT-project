@@ -36,12 +36,11 @@
         </div>
       </div>
       {% endfor %}
-
   </div>   
   <hr class="mt-2 mb-5">     
 <p style="text-align: left">{{artefact.description}}</p>
-<p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
-<p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
+<p style="text-align: left"> Added on {{artefact.date_stored.date()}}, by {{owner.first_name}} {{owner.surname}}</p>
+<p style="text-align: left"> Location: {{artefact_loc}}</p>
 
 </div>
 

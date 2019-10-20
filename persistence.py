@@ -327,3 +327,25 @@ def remove_artefact(artefact_id):
         cur = conn.cursor()
 
         cur.execute(sql, inputs)
+
+
+def get_user_loc(user_id):
+
+    inputs = {"user_id": user_id}
+
+    sql = '''SELECT location FROM User
+             WHERE id = %(user_id)s;'''
+
+    return pg_select(sql, inputs)[0][0]
+
+def get_user(user_id):
+    inputs = {"user_id": user_id}
+
+    sql = '''SELECT id, first_name, surname FROM "user"
+             WHERE id = %(user_id)s
+             LIMIT 1;'''
+    rows = pg_select(sql, inputs)
+    [user] = rows
+
+    return User(*user)
+
