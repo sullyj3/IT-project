@@ -8,7 +8,7 @@
     <h1 class="jumbotron-heading">Edit Artefact</h1>
     <p class="lead text-muted">From here you can edit your wonderful artefact! Reupload pictures, change the description and title.</p>
     <p>
-      <a href="/viewartefact" class="btn btn-primary my-2">Back to Artefact</a>
+      <a onclick="window.history.back()" class="btn btn-primary my-2">Back</a>
       
       <a class="nav-item btn-logout">
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#deleteModal">
@@ -27,8 +27,10 @@
                   Are you sure you want to delete this artefact?
                   </div>
                   <div class="modal-footer">
-                    <a class="btn btn-secondary" data-dismiss="modal" role="button">Close</a>
-                    <a class="btn btn-primary" href="/artefacts" role="button">Delete</a>
+                    <form action="/deleteartefact/{{artefact.artefact_id}}" method="post">
+                      <a class="btn btn-secondary" data-dismiss="modal" role="button">Close</a>
+                      <a type="submit" class="btn btn-primary" href="/artefacts" role="button">Delete</a>
+                    </form>
                   </div>
                 </div>
               </div>
