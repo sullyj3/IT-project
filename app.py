@@ -137,7 +137,9 @@ def edit_artefact(artefact_id):
 
     if request.method == "GET":
         if artefact.owner == current_user.id:
-            return render_template('edit_artefact.html', artefact=artefact)
+
+            family = get_current_user_family()
+            return render_template('edit_artefact.html', artefact=artefact, family=family)
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/artefacts')
