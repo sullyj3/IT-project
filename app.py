@@ -377,10 +377,14 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        print(f"new_artefact type: {type(new_artefact)}")
-        print(f"new_artefact {new_artefact}")
+        tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+        print(tags)
+
 
         artefact_id = add_artefact(new_artefact)
+
+        # Check if tags exist
 
         if 'pic' in request.files and request.files['pic'].content_length > 0:
             pic = request.files['pic']

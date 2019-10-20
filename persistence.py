@@ -367,3 +367,23 @@ def get_user(user_id):
 
     return User(*user)
 
+''' Returns the id of a tag,
+    if no tag exists with that name, creates one and returns that id'''
+def find_tag(tag_name):
+    
+    inputs = {"tag_name": tag_name}
+
+    sql = '''SELECT tag_id FROM tag
+             WHERE name = tag_name
+             LIMIT 1;'''
+
+    rows = pg_select(sql, inputs)
+
+
+    # Tag doesn't exist
+    if len(rows) == 0:
+        sql = ''' '''
+        return 1
+
+    else:
+        return rows[0][0]
