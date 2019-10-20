@@ -172,6 +172,16 @@ def familysettings():
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    if 'filtertags' in request.form:
+        filtertags = request.form.getlist('filtertags')
+
+        # TODO
+        return Template('''
+                <h1>filtering not implemented yet</h1>
+                <p>you filtered by {% for t in filtertags %}t,{% endfor %}</p>
+        ''').render(filtertags=filtertags)
+
+
     artefacts = get_user_artefacts(current_user.id, current_user.family_id)
     artefact_ids = [a['artefact'].artefact_id for a in artefacts]
     tags = get_tags_of_artefacts(artefact_ids)
