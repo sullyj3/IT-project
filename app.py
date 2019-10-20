@@ -44,7 +44,9 @@ from persistence import (
         remove_artefact,
         upload_image,
         get_user_loc,
-        get_tag_by_name
+        get_tags_by_names,
+        insert_tag,
+        pair_tag_to_artefact
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, Tag
@@ -405,12 +407,21 @@ def upload_artefact():
 
         print(tags)
 
+        existing_tags = get_tags_by_names(tags)
+
+        existing_names = [t.name for t in existing_tags]
+        new = [t for t in tags if t not in existing_names]
+
+        tag_ids = [t.tag_id for t in existing_tags]
+
         for tag in tags:
-            print(tag)
-            print(type(tag))
-            print(get_tag_by_name(tag))
+            if tag not in existing_names:
+                tag_ids.append(insert_tag(tag))
 
         artefact_id = add_artefact(new_artefact)
+
+        for tag_id in tag_ids:
+            pair_tag_to_artefact(artefact_id, tag_id)
 
         # Check if tags exist
 

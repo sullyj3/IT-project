@@ -416,36 +416,31 @@ def get_user(user_id):
 
     return User(*user)
 
-''' Returns the id of a tag,
-    if no tag exists with that name, creates one and returns that id'''
-def get_tag_by_name(tag_name):
+''' Inserts a tag into the database'''
+def insert_tag(tag_name):
     
     inputs = {"tag_name": tag_name}
 
-    sql = '''SELECT tag_id FROM tag
-             WHERE name = %(tag_name)s;'''
+    sql = '''INSERT INTO tag
+            (name)
+            VALUES (%(tag_name)s)
+            RETURNING tag_id;'''
 
-    rows = pg_select(sql, inputs)
-
-
-    # Tag doesn't exist
-    if len(rows) == 0:
-        sql = '''INSERT INTO tag
-                (name)
-                VALUES (%(tag_name)s);'''
-
-        with psycopg2.connect(current_app.config['db_URL']) as conn:
-            
-            print("don't use recursion")
-            cur = conn.cursor()
-            cur.execute(sql, inputs)
-
-            return get_tag_by_name(tag_name)
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
         
+        cur = conn.cursor()
+        cur.execute(sql, inputs)
+        return cur.fetchone()[0]
 
-    else:
-        return rows[0][0]
+def get_tags_by_names(tags):
 
+    sql = '''SELECT * FROM tag
+             WHERE name in %(name)s'''
+    rows = pg_select(sql, {'name': tuple(tags)})
+    tags = [Tag(*row) for row in rows]
+    return tags
+
+''' Pairs a tag with an artefact'''
 def pair_tag_to_artefact(artefact_id, tag_id):
 
     inputs = {"artefact_id": artefact_id,
@@ -453,4 +448,9 @@ def pair_tag_to_artefact(artefact_id, tag_id):
 
     sql = '''INSERT INTO artefacttaggedwith
              (artefact_id, tag_id)
-             VALUES ()'''
+             VALUES (%(artefact_id)s, %(tag_id)s)'''
+    
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        
+        cur = conn.cursor()
+        cur.execute(sql, inputs)
