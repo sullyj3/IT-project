@@ -167,7 +167,7 @@ def familysettings():
 @login_required
 def artefacts():
 
-    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id))
+    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id), current_user.id)
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
@@ -180,7 +180,7 @@ def artefact(artefact_id):
     if artefact.owner in  family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
-        return view_artefact(artefact, artefact_images)
+        return view_artefact(artefact, artefact_images, current_user.id)
 
     else:
         return unauthorized()
