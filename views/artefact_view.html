@@ -30,14 +30,17 @@
           </div>
         </div>
       </div>
-      {% endfor %}
+    {% endfor %}
 
   </div>   
   <hr class="mt-2 mb-5">     
-<p style="text-align: left">{{artefact.description}}</p>
-<p style="text-align: left"> Added on: "0/69/420" by {{artefact.owner}}</p>
-<p style="text-align: left"> Location: "42 Wallaby Way, Sydney"</p>
-
+  <p style="text-align: left">{{artefact.description}}</p>
+  <p style="text-align: left"> Added on: {{artefact.date_stored}} by {{artefact.owner}}</p>
+  {% if artefact.stored_with == "location"  %}
+    <p style="text-align: left"> Location: {{artefact.stored_at_loc}}; </p>
+  {% else %}
+    <p style="text-align: left"> Location: TODO; </p>
+  {% endif %}
 </div>
 
 {% endblock %}
