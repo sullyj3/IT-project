@@ -174,14 +174,14 @@ def familysettings():
 @app.route('/artefacts', methods=['GET', 'POST'])
 @login_required
 def artefacts():
-    if request.method == 'POST' and filtertags in request.form:
-        filtertags = request.form.getlist('filtertags')
+    if request.method == 'POST' and 'filtertags' in request.form:
+        filtertag_ids = request.form.getlist('filtertags')
 
         # TODO
         return Template('''
                 <h1>filtering not implemented yet</h1>
-                <p>you filtered by {% for t in filtertags %}{{t.name}}{% endfor %}</p>
-        ''').render(filtertags=filtertags)
+                <p>you filtered by {% for t in filtertags %}id: {{t}}, {% endfor %}</p>
+        ''').render(filtertags=filtertag_ids)
 
 
     artefacts = get_user_artefacts(current_user.id, current_user.family_id)

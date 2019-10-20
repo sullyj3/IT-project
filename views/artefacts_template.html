@@ -24,17 +24,17 @@
               <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
               <p>&nbsp;</p>
               <form action="/artefacts", method="POST">
-                <button type="button" class="btn btn-secondary dropdown-toggle my-2" data-toggle="dropdown">Filter by Tag <span class="caret"></span></button>
 
                 <!-- just getting it working for now -->
-                <!-- <div class="dropdown-menu scrollable-dropdown" role="menu"> -->
+                <!-- 
+                <button type="button" class="btn btn-secondary dropdown-toggle my-2" data-toggle="dropdown">Filter by Tag <span class="caret"></span></button>
+                <div class="dropdown-menu scrollable-dropdown" role="menu">
+                -->
                 <div>
                   <select name="filtertags" multiple>
-                    <ul>
                     {% for tag in tags %}
-                      <option value="{{tag.id}}">{{ tag.name }}</option>
+                      <option value="{{tag.tag_id}}">{{ tag.name }}</option>
                     {% endfor %}
-                    </ul>
                   </select>
                 </div>
 
