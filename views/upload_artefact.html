@@ -61,7 +61,7 @@
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="radio" name="stored_with" id="user" value="user" onclick="disableStoredWithUser()" checked>
       <label class="form-check-label" for="location">
-        Family member
+        Family Member
       </label>
     </div>
     <div class="form-check form-check-inline">
@@ -71,8 +71,6 @@
       </label>
     </div>
 
-    <!-- What's the point of both these two????-->
-    <label for="stored_with_user">Stored with user</label>
     <select class="custom-select" name="stored_with_user" id="stored_with_user">
       {% for user in family %}
       <option value="{{user.user_id}}">{{user.first_name}} {{user.surname}}</option>
@@ -82,17 +80,16 @@
     <div class="row">
       <div class="col">
         <div class="form-group">
-          <label for="artefactTitle">Stored at location</label>
-          <input type="text" class="form-control" name="stored_at_loc" id="stored_at_loc" hidden>
+          <input type="text" class="form-control" name="stored_at_loc" id="stored_at_loc" hidden placeholder="Enter Location">
         </div>
         <div class="form-group">
           <label for="imageUpload">Image/s: (optional)</label>
           <input type="file" class="form-control-file" multiple data-show-upload="true" name="pic" data-show-caption="true" accept="image/*">
         </div>
       </div>
-
+<!--
       <div class="col">
-        <div class="row">
+        <div class="row"> 
 
           <div class="col">
             <div class="dropdown">
@@ -114,7 +111,7 @@
                 </li>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- <div class="col">
             <div class="form-group">
