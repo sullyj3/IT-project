@@ -43,7 +43,8 @@ from persistence import (
         register_user,
         remove_artefact,
         upload_image,
-        get_user_loc
+        get_user_loc,
+        get_tag_by_name
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, Tag
@@ -111,6 +112,10 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world(msg = None):
+
+
+
+
     if msg != None:
         flash(msg) 
     if (current_user.is_authenticated):
@@ -399,10 +404,19 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        print(f"new_artefact type: {type(new_artefact)}")
-        print(f"new_artefact {new_artefact}")
+        # Puts tags into formatted list
+        tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+        print(tags)
+
+        for tag in tags:
+            print(tag)
+            print(type(tag))
+            print(get_tag_by_name(tag))
 
         artefact_id = add_artefact(new_artefact)
+
+        # Check if tags exist
 
         if 'pic' in request.files and request.files['pic'].content_length > 0:
             pic = request.files['pic']
