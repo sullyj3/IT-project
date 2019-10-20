@@ -11,7 +11,15 @@ import boto3
 import string
 import random
 
-from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser, User
+from model import (
+        Artefact,
+        Credentials,
+        Register,
+        ArtefactImage,
+        ArtefactUser,
+        User,
+        Tag
+)
 
 ############
 # Database #
@@ -44,6 +52,16 @@ def row_to_artefact_preview(row: Tuple) -> Dict:
 
     return d
 
+def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
+    sql = '''
+    SELECT DISTINCT tag_id, name
+    FROM Tag
+    NATURAL JOIN ArtefactTaggedWith
+    WHERE artefact_id IN %(artefact_ids)s
+    '''
+
+    rows = pg_select(sql=sql, where={'artefact_ids': tuple(artefact_ids)})
+    return [Tag(*row) for row in rows]
 
 # Returns the artefacts that the user is able to view
 def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:

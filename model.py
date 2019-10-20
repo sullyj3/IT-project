@@ -41,4 +41,6 @@ ArtefactImage = namedtuple("ArtefactImage", ("image_id",
                                              "image_url",
                                              "image_description"))
 
+Tag = namedtuple("Tag", ("tag_id", "name"))
+
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)

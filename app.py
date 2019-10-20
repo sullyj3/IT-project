@@ -14,24 +14,26 @@ from flask_login import (
 )
 
 from flask_bcrypt import check_password_hash, generate_password_hash
+from jinja2 import Template
 
 import psycopg2
 
 from persistence import (
-        get_artefacts,
         add_artefact,
-        email_taken,
-        register_user,
-        upload_image,
         add_image,
+        create_family,
+        edit_artefact_db,
+        email_taken,
+        family_user_ids,
         generate_img_filename,
         get_artefact_images_metadata,
-        get_user_artefacts,
-        family_user_ids,
-        edit_artefact_db,
+        get_artefacts,
         get_current_user_family,
-        create_family,
-        get_family_id
+        get_family_id,
+        get_tags_of_artefacts,
+        get_user_artefacts,
+        register_user,
+        upload_image
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -44,7 +46,7 @@ app = Flask(__name__, template_folder='views')
 # setup still gets run.
 
 # DATABASE_URL is the env variable that heroku uses to give us a reference to
-# our postgres database in production. When developing, backend developers 
+# our postgres database in production. When developing, backend developers
 # should set it to the appropriate URL when running this app
 
 db_URL = os.environ.get("DATABASE_URL")
@@ -302,6 +304,21 @@ def show_family():
     family = get_current_user_family()
     return template.render(family=family)
 
+
+# test route for getting artefact tags
+@app.route('/testtags')
+def testtags():
+    template = Template('''
+    <h1>Artefacts 33, 34, and 45 have the following tags:</h1>
+    <ul>
+        {% for tag in tags %}
+        <li>{{tag.name}}</li>
+        {% endfor %}
+    </ul>
+    ''')
+
+    tags = get_tags_of_artefacts([33,34,45])
+    return template.render(tags=tags)
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
