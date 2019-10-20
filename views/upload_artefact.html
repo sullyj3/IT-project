@@ -11,11 +11,11 @@
         const userIsChecked = $("#user").prop("checked");
 
         if (userIsChecked) {
-          storedWithUser.prop('disabled', false);
-          storedAtLoc.prop('disabled', true);
+          storedWithUser.prop('hidden', false);
+          storedAtLoc.prop('hidden', true);
         } else {
-          storedWithUser.prop('disabled', true);
-          storedAtLoc.prop('disabled', false);
+          storedWithUser.prop('hidden', true);
+          storedAtLoc.prop('hidden', false);
         }
       }
     </script>
@@ -77,7 +77,7 @@
       <div class="col">
         <div class="form-group">
           <label for="artefactTitle">Stored at location</label>
-          <input type="text" class="form-control" name="stored_at_loc" id="stored_at_loc" disabled>
+          <input type="text" class="form-control" name="stored_at_loc" id="stored_at_loc" hidden>
         </div>
         <div class="form-group">
           <label for="imageUpload">Image/s: (optional)</label>
