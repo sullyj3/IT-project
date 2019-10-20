@@ -13,9 +13,9 @@
     {% endif %}
   </h1>
   
-  <span class="badge badge-info">Tag1</span>
-  <span class="badge badge-info">Tag2</span>
-  <span class="badge badge-info">Tag3</span>
+  {% for tag in tags %}
+  <span class="badge badge-info">{{tag.name}}</span>
+  {% endfor %}
 
   <hr class="mt-2 mb-5">
 

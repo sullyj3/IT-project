@@ -242,16 +242,12 @@ def artefact(artefact_id):
         if artefact.stored_with == "user":
             location = get_user_loc(artefact.stored_with_user)
 
-        else: 
+        else:
             location = artefact.stored_at_loc
 
+        tags = get_tags_of_artefacts([artefact.artefact_id])
 
-        print(location)
-        print(artefact.date_stored)
-        print(artefact.date_stored.date())
-        print(type(artefact.date_stored))
-
-        return view_artefact(artefact, artefact_images, current_user.id, location, owner)
+        return view_artefact(artefact, artefact_images, current_user.id, location, owner, tags)
 
     else:
         flash("You don't have access to this item")
@@ -281,15 +277,14 @@ def delete_artefact(artefact_id):
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        
+
         if current_user.is_authenticated:
             flash("Already logged in!")
-            flash("ALso a message")
             return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
-        
+
         new_user = Credentials(request.form['email'],
                            request.form['password'])
 
@@ -306,7 +301,7 @@ def login():
                 login_user(new_user)
                 flash("Successfully logged in")
                 return redirect('/')
-            
+
             else:
                 flash("Incorrect details, try again") 
                 return redirect('/login')
