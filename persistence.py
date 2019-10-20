@@ -387,12 +387,24 @@ def remove_artefact(artefact_id):
 
     inputs = {"artefact_id": artefact_id}
 
-    sql = '''DELETE FROM artefact
+    sql = '''DELETE FROM artefacttaggedwith
              WHERE artefact_id = %(artefact_id)s;'''
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
+        cur.execute(sql, inputs)
 
+    sql = '''DELETE FROM artefactimage
+             WHERE artefact_id = %(artefact_id)s;'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        cur.execute(sql, inputs)
+
+    sql = '''DELETE FROM artefact
+             WHERE artefact_id = %(artefact_id)s;'''
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
         cur.execute(sql, inputs)
 
 
@@ -449,8 +461,12 @@ def pair_tag_to_artefact(artefact_id, tag_id):
     sql = '''INSERT INTO artefacttaggedwith
              (artefact_id, tag_id)
              VALUES (%(artefact_id)s, %(tag_id)s)'''
-    
+
     with psycopg2.connect(current_app.config['db_URL']) as conn:
-        
+
         cur = conn.cursor()
-        cur.execute(sql, inputs)
+
+        try:
+            cur.execute(sql, inputs)
+        except psycopg2.errors.UniqueViolation as e:
+            print(f'artefact {artefact_id} is already tagged with tag {tag_id}')

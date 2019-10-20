@@ -114,24 +114,20 @@ def load_user(user_id):
 # --------------------- #
 @app.route('/')
 def hello_world(msg = None):
-
-
-
-
     if msg != None:
         flash(msg) 
     if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
 
+
 @app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
 @login_required
 def edit_artefact(artefact_id):
-    print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
-
     if (not current_user.is_authenticated):
         flash("Need to be logged in to edit artefacts")
         return redirect('/artefacts')
+
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
@@ -145,7 +141,6 @@ def edit_artefact(artefact_id):
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/artefacts')
-
 
     elif request.method == "POST":
 
@@ -161,11 +156,34 @@ def edit_artefact(artefact_id):
 
             edit_artefact_db(changed_artefact)
 
+            maybe_add_pics(artefact_id)
+            maybe_add_tags(artefact_id)
+
+            flash("Successfully edited artefact")
             return redirect('/artefact/'+str(artefact_id))
 
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/  artefacts')
+
+def maybe_add_tags(artefact_id):
+    # Puts tags into formatted list
+    tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+    if not tags:
+        return
+
+    existing_tags = get_tags_by_names(tags)
+
+    existing_tag_names = [t.name for t in existing_tags]
+    tag_ids = [t.tag_id for t in existing_tags]
+
+    for tag in tags:
+        if tag not in existing_tag_names:
+            tag_ids.append(insert_tag(tag))
+
+    for tag_id in tag_ids:
+        pair_tag_to_artefact(artefact_id, tag_id)
 
 
 @app.route('/settings')
@@ -265,6 +283,7 @@ def delete_artefact(artefact_id):
 
     if artefact.owner == current_user.id:
         remove_artefact(artefact_id)
+        flash("Artefact successfully deleted")
         return redirect('/artefacts')
 
     else:
@@ -322,21 +341,21 @@ def register():
             return render_template('register.html')
 
     elif request.method == 'POST':  
-        
+
         if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
             new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
 
-            if (not user_details):         
-
+            if not user_details:
                 # Creates famly if no referral_code
 
-                if request.form["new_family"] ==  "on":
-                    family_id =  create_family(request.form['surname'])                
+                if "new_family" in request.form:
+                    family_id = create_family(request.form['surname'])
                 else:
                     family_id = get_family_id(request.form['referral_code'])
-                
+
+
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
                                         request.form['surname'],
@@ -350,7 +369,6 @@ def register():
 
                 # Logs in user after adding to database
                 db_user = email_taken(new_user)
-
                 login_user(User(db_user))
 
                 flash('Successfully registered')
@@ -360,7 +378,7 @@ def register():
         else:
             flash("Passwords are not the same, or you have missing fields")
         return redirect(url_for('register'))
-            
+
 
 # Dummy route to logout
 @app.route('/logout', methods=['POST'])
@@ -402,39 +420,30 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        # Puts tags into formatted list
-        tags = [tag.strip() for tag in request.form["tags"].split(',')]
-
-        print(tags)
-
-        existing_tags = get_tags_by_names(tags)
-
-        existing_names = [t.name for t in existing_tags]
-        new = [t for t in tags if t not in existing_names]
-
-        tag_ids = [t.tag_id for t in existing_tags]
-
-        for tag in tags:
-            if tag not in existing_names:
-                tag_ids.append(insert_tag(tag))
-
         artefact_id = add_artefact(new_artefact)
 
-
-        if 'pic' in request.files:
-            pic = request.files['pic']
-
-        if pic.filename != '':
-
-            fname = generate_img_filename(current_user.id, pic)
-            upload_image(pic, fname)
-            artefact_image = ArtefactImage(None, artefact_id, fname, None)  
-            add_image(artefact_image)
-        else:
-            print("A file was given, but it was empty")
+        maybe_add_tags(artefact_id)
+        maybe_add_pics(artefact_id)
 
         flash("Successfully uploaded artefact")
         return redirect('/artefact/'+str(artefact_id))
+
+
+def maybe_add_pics(artefact_id: int):
+    if 'pic' in request.files:
+
+        pics = request.files.getlist('pic')
+
+        for pic in pics:
+            if pic.filename != '':
+
+                fname = generate_img_filename(current_user.id, pic)
+                upload_image(pic, fname)
+                artefact_image = ArtefactImage(None, artefact_id, fname, None)  
+                add_image(artefact_image)
+            else:
+                print("A file was given, but it was empty")
+
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -459,7 +468,7 @@ def bad_request(e):
 def method_not_allowed(e):
     return redirect('/')
 
-def create_artefact(artefact_id=None):
+def create_artefact(artefact_id=None) -> Artefact:
 
     # if we get a KeyError accessing the contents of request.form, flask will
         # automatically reply with 400 bad request
