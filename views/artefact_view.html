@@ -6,8 +6,13 @@
  
 <div class="container">
 
+  
   <h1 class="font-weight-light text-center text-lg-left mt-4 mb-0">{{artefact.name}} <a class="btn btn-primary" href="/artefacts" role="button" style="font-family: 'Crimson Text', Georgia, Times, serif;">Back to Artefacts</a>
-     <a href="/editartefact/{{artefact.artefact_id}}" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a> </h1>
+    {% if artefact.owner == user_id %}
+      <a href="/editartefact/{{artefact.artefact_id}}" class="btn btn-secondary my-2" style="font-family: 'Crimson Text', Georgia, Times, serif;">Edit</a>
+    {% endif %}
+  </h1>
+  
   <span class="badge badge-info">Tag1</span>
   <span class="badge badge-info">Tag2</span>
   <span class="badge badge-info">Tag3</span>
