@@ -26,27 +26,27 @@
         <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>      
         
         <div class="btn-group">
-          <div class="row">
-            <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
-            <p>&nbsp;</p>
-            <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tag <span class="caret"></span></button>
-            <p>&nbsp;</p>
-            <div id="hide1" style="display: none;">
-              <button type="submit" form="tags-form" class="btn btn-secondary my-2">Apply</button>      
-            </div>
-          </div>
+          <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
+          <p>&nbsp;</p>
+          <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tags <span class="caret"></span></button>
+          <p>&nbsp;</p>
+        </div>       
+
+        <div class="row justify-content-center">
+              <form action="/artefacts" id="tags-form" , method="GET">
+                <div id="hide2" style="display: none;">
+                  <select class="form-control" name="filtertags" multiple style="width: 200px;">
+                    {% for tag in family_tags %}
+                      <option value="{{tag.tag_id}}">{{ tag.name }}</option>
+                    {% endfor %}
+                  </select> 
+                </div>
+              </form>
         </div>
 
-        <form action="/artefacts" id="tags-form" , method="GET">
-          <div id="hide2" style="display: none;">
-            <select name="filtertags" multiple>
-              {% for tag in family_tags %}
-                <option value="{{tag.tag_id}}">{{ tag.name }}</option>
-              {% endfor %}              
-            </select>              
-
-          </div>
-        </form>  
+        <div class="row justify-content-center">
+          <button type="submit" form="tags-form" id="hide1" class="btn btn-outline-success my-2" style="display: none; width: 200px;">Apply</button>             
+        </div>
       </div>      
       
 
