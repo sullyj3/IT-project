@@ -1,6 +1,8 @@
 import sys
 import os
 
+from typing import Dict
+
 from flask import Flask, current_app, request, abort, redirect, render_template, flash, url_for
 
 from flask_sqlalchemy import SQLAlchemy
@@ -14,30 +16,40 @@ from flask_login import (
 )
 
 from flask_bcrypt import check_password_hash, generate_password_hash
+from jinja2 import Template
 
 import psycopg2
 
 from persistence import (
-        get_artefacts,
         add_artefact,
-        email_taken,
-        register_user,
-        upload_image,
         add_image,
+        create_family,
+        edit_artefact_db,
+        email_taken,
+        family_user_ids,
         generate_img_filename,
         get_artefact_images_metadata,
-        get_user_artefacts,
-        family_user_ids,
-        edit_artefact_db,
+        get_artefacts,
         get_current_user_family,
-        create_family,
-        get_family_id, 
         get_family,
+        get_family_id,
         get_referral_code,
-        remove_artefact
+        remove_artefact,
+        get_user,
+        get_tags_by_ids,
+        get_tags_of_artefacts,
+        get_tags_of_each_artefact,
+        get_user_artefacts,
+        register_user,
+        remove_artefact,
+        upload_image,
+        get_user_loc,
+        get_tags_by_names,
+        insert_tag,
+        pair_tag_to_artefact
 )
 from views import view_artefacts, view_artefact
-from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
+from model import Artefact, Credentials, Register, ArtefactImage, Tag
 
 app = Flask(__name__, template_folder='views')
 
@@ -47,7 +59,7 @@ app = Flask(__name__, template_folder='views')
 # setup still gets run.
 
 # DATABASE_URL is the env variable that heroku uses to give us a reference to
-# our postgres database in production. When developing, backend developers 
+# our postgres database in production. When developing, backend developers
 # should set it to the appropriate URL when running this app
 
 db_URL = os.environ.get("DATABASE_URL")
@@ -101,7 +113,13 @@ def load_user(user_id):
 # ------ ROUTES ------- #
 # --------------------- #
 @app.route('/')
-def hello_world():
+def hello_world(msg = None):
+
+
+
+
+    if msg != None:
+        flash(msg) 
     if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
@@ -110,42 +128,45 @@ def hello_world():
 @login_required
 def edit_artefact(artefact_id):
     print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
+
+    if (not current_user.is_authenticated):
+        flash("Need to be logged in to edit artefacts")
+        return redirect('/artefacts')
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        flash("Couldn't find that artefact")
+        return redirect(url_for('artefacts'))
+
+
     if request.method == "GET":
-
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
         if artefact.owner == current_user.id:
             return render_template('edit_artefact.html', artefact=artefact)
-
         else:
-            return "not your artefact"
+            flash("You are not authorised to edit that artefact")
+            return redirect('/artefacts')
+
 
     elif request.method == "POST":
-        
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
 
         if artefact.owner == current_user.id:
             try:
                 changed_artefact = create_artefact(artefact_id)
             except KeyError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
             except ValueError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
 
             edit_artefact_db(changed_artefact)
-            
+
             return redirect('/artefact/'+str(artefact_id))
 
         else:
-            # TODO Pop for not your artefact
-            return "not your artefact to edit"
+            flash("You are not authorised to edit that artefact")
+            return redirect('/  artefacts')
+
 
 @app.route('/settings')
 def settings():
@@ -163,11 +184,45 @@ def familysettings():
     family = get_family(current_user.family_id)
     return render_template('family_settings.html', family=family, referral_code=referral_code)
 
+
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    family_artefacts = get_user_artefacts(current_user.id, current_user.family_id)
+    family_artefact_ids = [p['artefact'].artefact_id for p in family_artefacts]
+    family_tags = get_tags_of_artefacts(family_artefact_ids)
 
-    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id), current_user.id)
+    if 'filtertags' in request.args:
+        filtertag_ids = [int(tag_id) for tag_id in request.args.getlist('filtertags')]
+        filtered_tags = get_tags_by_ids(filtertag_ids)
+
+        artefacts = filter_artefact_previews_by_tags(family_artefacts, filtered_tags)
+        return view_artefacts(artefacts, current_user.id, family_tags, filtered_tags)
+    else:
+        artefacts = family_artefacts
+        return view_artefacts(artefacts, current_user.id, family_tags)
+
+
+def filter_artefact_previews_by_tags(previews: [Dict], tags: [Tag]) -> [Dict]:
+    artefact_ids = [preview['artefact'].artefact_id for preview in previews]
+    artefact_tags = get_tags_of_each_artefact(artefact_ids)
+
+    print('artefact_tags:')
+    print(artefact_tags)
+
+    has_all_tags = []
+    for p in previews:
+        artefact_id = p['artefact'].artefact_id
+        if artefact_id not in artefact_tags:
+            continue
+
+        print(f'artefact_id type: {type(artefact_id)}')
+        print(f'artefact_id: {artefact_id}')
+        print(f'artefact_tags[artefact_id]: {artefact_tags[artefact_id]}')
+        if all(tag in artefact_tags[artefact_id] for tag in tags):
+            has_all_tags.append(p)
+
+    return has_all_tags
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
@@ -175,14 +230,27 @@ def artefact(artefact_id):
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
-        return "Couldn't find that Artefact!", 400
+        flash("Couldn't find that Artefact!")
+        return redirect(url_for('artefacts'))
 
-    if artefact.owner in  family_user_ids(current_user.family_id):
+    if artefact.owner in family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
-        return view_artefact(artefact, artefact_images, current_user.id)
+
+        owner = get_user(artefact.owner)
+
+        if artefact.stored_with == "user":
+            location = get_user_loc(artefact.stored_with_user)
+
+        else:
+            location = artefact.stored_at_loc
+
+        tags = get_tags_of_artefacts([artefact.artefact_id])
+
+        return view_artefact(artefact, artefact_images, current_user.id, location, owner, tags)
 
     else:
+        flash("You don't have access to this item")
         return unauthorized()
 
 @app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
@@ -202,29 +270,21 @@ def delete_artefact(artefact_id):
     else:
         return unauthorized()
 
-    
-    # return unauthorized()
+    return unauthorized()
 
-
-
-@app.route('/insertexample')
-def insert_example():
-    add_artefact(example_artefact)
-    return('inserting...')
 
 
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        
+
         if current_user.is_authenticated:
             flash("Already logged in!")
-            flash("ALso a message")
             return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
-        
+
         new_user = Credentials(request.form['email'],
                            request.form['password'])
 
@@ -238,21 +298,17 @@ def login():
             if check_password_hash(hash_pw.tobytes(), new_user.password):
 
                 new_user = User(db_user)
-
                 login_user(new_user)
-
+                flash("Successfully logged in")
                 return redirect('/')
-            
-            else:
 
-                # TODO Popup message showing incorrect details
+            else:
                 flash("Incorrect details, try again") 
-                
                 return redirect('/login')
 
-
         else:
-            return "no user exists 😳"
+            flash("That user doesn't exist!")
+            return redirect('/login')
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -260,12 +316,12 @@ def register():
     if request.method == 'GET':
 
         if current_user.is_authenticated:
-            return "already logged in 🙄"
+            flash("You are already registered")
+            return redirect(url_for('/'))
         else:
             return render_template('register.html')
 
-    elif request.method == 'POST':
-        
+    elif request.method == 'POST':  
         
         if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
@@ -297,58 +353,44 @@ def register():
 
                 login_user(User(db_user))
 
+                flash('Successfully registered')
                 return redirect('/')
-            else:   
-                return "User Exists 😳"
+            else:
+                flash("User already exists")
         else:
-            return "Different Passwords 😳"
-
+            flash("Passwords are not the same, or you have missing fields")
+        return redirect(url_for('register'))
+            
 
 # Dummy route to logout
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout_page():
-    if request.method == 'GET':
-        logout_user()
-        return redirect('/')
+    logout_user()
+    flash("You have been logged out")
+    return redirect('/')
 
 
-# Dummy route to check if logged in
-@app.route('/islogged')
-def is_logged_in():
-    if request.method == 'GET':
-        if current_user.is_authenticated:
-
-            user_info = "Logged in<br>User_id: {}<br>User_email: {}"
-            return user_info.format(current_user.id, current_user.email)
-        else:
-            return "not logged in"
-
-# Testing route to check current user's family
-@app.route('/showfamily')
-def show_family():
+# test route for getting artefact tags
+@app.route('/testtags')
+def testtags():
     template = Template('''
-    <h1>family:</h1>
+    <h1>Artefacts 33, 34, and 45 have the following tags:</h1>
     <ul>
-        {% for user in family %}
-        <li>{{user.first_name}} {{user.surname}}</li>
+        {% for tag in tags %}
+        <li>{{tag.name}}</li>
         {% endfor %}
     </ul>
     ''')
 
-    family = get_current_user_family()
-    return template.render(family=family)
-
+    tags = get_tags_of_artefacts([33,34,45])
+    return template.render(tags=tags)
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
 def upload_artefact():
     if request.method == 'GET':
         family = get_current_user_family()
-
-        # print(f"family: {family}")
-        # for u in family:
-        #     print(f"User id: {u.id}")
 
         return render_template('upload_artefact.html', family=family)
 
@@ -360,10 +402,28 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        print(f"new_artefact type: {type(new_artefact)}")
-        print(f"new_artefact {new_artefact}")
+        # Puts tags into formatted list
+        tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+        print(tags)
+
+        existing_tags = get_tags_by_names(tags)
+
+        existing_names = [t.name for t in existing_tags]
+        new = [t for t in tags if t not in existing_names]
+
+        tag_ids = [t.tag_id for t in existing_tags]
+
+        for tag in tags:
+            if tag not in existing_names:
+                tag_ids.append(insert_tag(tag))
 
         artefact_id = add_artefact(new_artefact)
+
+        for tag_id in tag_ids:
+            pair_tag_to_artefact(artefact_id, tag_id)
+
+        # Check if tags exist
 
         if 'pic' in request.files and request.files['pic'].content_length > 0:
             pic = request.files['pic']
@@ -373,22 +433,16 @@ def upload_artefact():
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
 
-
-        return "Success!"
+        flash("Successfully uploaded artefact")
+        return redirect('/artefact/'+str(artefact_id))
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    
-    # TODO Make unauthorized html page, redirect to login page
-
-    ''' Must either redirect to a login page if you aren't logged in or say you can't access the page'''
 
     if current_user.is_authenticated:
-        return '''you don't have access to this page<br>
-        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+        return hello_world(msg = "You don't have access to that page")
     else:
-        return '''you must be logged in to access this page<br>
-        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+        return hello_world(msg = "You must be logged in as a user authorised for that content in order to access it")
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -399,14 +453,10 @@ def page_not_found(e):
 @app.errorhandler(400)
 def bad_request(e):
 
-    # TODO make bad request page
-
-    return ''' bad request<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
+    return render_template('error_400.html'), 400
 
 @app.errorhandler(405)
 def method_not_allowed(e):
-    # TODO redirect
     return redirect('/')
 
 def create_artefact(artefact_id=None):

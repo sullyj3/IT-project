@@ -11,7 +11,17 @@ import boto3
 import string
 import random
 
-from model import Artefact, Credentials, Register, ArtefactImage, ArtefactUser, User
+from collections import defaultdict
+
+from model import (
+        Artefact,
+        Credentials,
+        Register,
+        ArtefactImage,
+        ArtefactUser,
+        User,
+        Tag
+)
 
 ############
 # Database #
@@ -44,13 +54,56 @@ def row_to_artefact_preview(row: Tuple) -> Dict:
 
     return d
 
+def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
+    if len(artefact_ids) == 0:
+        return []
 
-# Returns the artefacts that the user is able to view
-def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
+    sql = '''
+    SELECT DISTINCT tag_id, name
+    FROM Tag
+    NATURAL JOIN ArtefactTaggedWith
+    WHERE artefact_id IN %(artefact_ids)s
+    '''
 
-    # Relevant inputs for where clauses
-    inputs = {"user_id": user_id,
-              "family_id": family_id}
+    where = {'artefact_ids': tuple(artefact_ids)}
+    # print("where:")
+    # print(where)
+
+    rows = pg_select(sql, where)
+    return [Tag(*row) for row in rows]
+
+def get_tags_of_each_artefact(artefact_ids: [int]) -> Dict:
+    ''' Return dict mapping each artefact_id to a list of tags '''
+
+    if len(artefact_ids) == 0:
+        return {}
+
+    sql = '''
+    SELECT artefact_id, tag_id, Tag.name FROM ArtefactTaggedWith
+    NATURAL JOIN Tag
+    WHERE artefact_id in %(artefact_ids)s
+    '''
+
+    where = {'artefact_ids': tuple(artefact_ids)}
+
+    rows = pg_select(sql, where)
+    rows = [(artefact_id, Tag(tag_id, tag_name))
+            for (artefact_id, tag_id, tag_name) in rows]
+    return groupBy_first(rows)
+
+def get_tags_by_ids(ids):
+    sql = '''SELECT * FROM tag
+             WHERE tag_id in %(ids)s'''
+
+    if len(ids) == 0:
+        return []
+
+    rows = pg_select(sql, {'ids': tuple(ids)})
+    tags = [Tag(*row) for row in rows]
+    return tags
+
+def get_user_artefacts(user_id, family_id) -> List[Dict]:
+    ''' Returns the artefacts that the user is able to view. '''
 
     sql = '''
     SELECT DISTINCT ON (Artefact.artefact_id)
@@ -60,17 +113,25 @@ def get_user_artefacts(user_id, family_id) -> List[ArtefactUser]:
     ON Artefact.owner = "user".id
     LEFT JOIN ArtefactImage
     ON Artefact.artefact_id = ArtefactImage.artefact_id
-    WHERE "user".family_id = %(family_id)s
+    WHERE "user".family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where={"user_id": user_id, "family_id": family_id})
+
+    previews = [row_to_artefact_preview(row) for row in rows]
+    return previews
+
+def groupBy_first(lst):
+    ''' Convert a list of key value pairs to a dict mapping each key to a list 
+        of the values with that key
     '''
+    d = defaultdict(list)
+    for (fst, snd) in lst:
+        d[fst].append(snd)
 
-    rows = pg_select(sql=sql, where=inputs)
-
-    return [row_to_artefact_preview(row) for row in rows]
-
+    return d
 
 def pg_select(sql: str, where=None) -> List[Tuple]:
-    '''
-        sql: A select statement
+    ''' sql: A select statement
         can now work with input dicts
     '''
     try:
@@ -82,6 +143,9 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
     with conn:
         cur = conn.cursor()
         if where is not None:
+            # print("running query: ")
+            # print(cur.mogrify(sql, where))
+            # print(str(cur.mogrify(sql, where)))
             cur.execute(sql, where)
         else:
             cur.execute(sql)
@@ -136,8 +200,11 @@ def get_artefacts(artefact_ids=None) -> [Artefact]:
                 (artefact_ids,))
 
     elif type(artefact_ids) == list:
-        rows = pg_select('SELECT * from Artefact WHERE artefact_id IN %s',
-                (artefact_ids,))
+        if len(artefact_ids) == 0:
+            rows = []
+        else:
+            rows = pg_select('SELECT * from Artefact WHERE artefact_id IN %s',
+                    (artefact_ids,))
     else:
         raise ValueError("artefact_ids must be an int or list of ints")
 
@@ -275,7 +342,8 @@ def create_family(family_name):
     
     referral_code = family_name + salt
 
-    referral_code = referral_code.join(e for e in string if e.isalnum())
+    referral_code = "".join(e for e in referral_code if e.isalnum())
+    print(referral_code)
 
     inputs = {"family_name": family_name,
               "referral_code": referral_code}
@@ -325,4 +393,64 @@ def remove_artefact(artefact_id):
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
 
+        cur.execute(sql, inputs)
+
+
+def get_user_loc(user_id):
+
+    inputs = {"user_id": user_id}
+
+    sql = '''SELECT location FROM "user"
+             WHERE id = %(user_id)s;'''
+
+    return pg_select(sql, inputs)[0][0]
+
+def get_user(user_id):
+    inputs = {"user_id": user_id}
+
+    sql = '''SELECT id, first_name, surname FROM "user"
+             WHERE id = %(user_id)s
+             LIMIT 1;'''
+    rows = pg_select(sql, inputs)
+    [user] = rows
+
+    return User(*user)
+
+''' Inserts a tag into the database'''
+def insert_tag(tag_name):
+    
+    inputs = {"tag_name": tag_name}
+
+    sql = '''INSERT INTO tag
+            (name)
+            VALUES (%(tag_name)s)
+            RETURNING tag_id;'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        
+        cur = conn.cursor()
+        cur.execute(sql, inputs)
+        return cur.fetchone()[0]
+
+def get_tags_by_names(tags):
+
+    sql = '''SELECT * FROM tag
+             WHERE name in %(name)s'''
+    rows = pg_select(sql, {'name': tuple(tags)})
+    tags = [Tag(*row) for row in rows]
+    return tags
+
+''' Pairs a tag with an artefact'''
+def pair_tag_to_artefact(artefact_id, tag_id):
+
+    inputs = {"artefact_id": artefact_id,
+              "tag_id": tag_id}
+
+    sql = '''INSERT INTO artefacttaggedwith
+             (artefact_id, tag_id)
+             VALUES (%(artefact_id)s, %(tag_id)s)'''
+    
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        
+        cur = conn.cursor()
         cur.execute(sql, inputs)

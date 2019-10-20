@@ -13,9 +13,9 @@
     {% endif %}
   </h1>
   
-  <span class="badge badge-info">Tag1</span>
-  <span class="badge badge-info">Tag2</span>
-  <span class="badge badge-info">Tag3</span>
+  {% for tag in tags %}
+  <span class="badge badge-info">{{tag.name}}</span>
+  {% endfor %}
 
   <hr class="mt-2 mb-5">
 
@@ -35,17 +35,13 @@
           </div>
         </div>
       </div>
-    {% endfor %}
-
+      {% endfor %}
   </div>   
   <hr class="mt-2 mb-5">     
-  <p style="text-align: left">{{artefact.description}}</p>
-  <p style="text-align: left"> Added on: {{artefact.date_stored}} by {{artefact.owner}}</p>
-  {% if artefact.stored_with == "location"  %}
-    <p style="text-align: left"> Location: {{artefact.stored_at_loc}}; </p>
-  {% else %}
-    <p style="text-align: left"> Location: TODO; </p>
-  {% endif %}
+<p style="text-align: left">{{artefact.description}}</p>
+<p style="text-align: left"><b>Location: {{artefact_loc}}</b></p>
+<p style="text-align: left"><i>Added on {{artefact.date_stored.date()}}, by {{owner.first_name}} {{owner.surname}}</i></p>
+
 </div>
 
 {% endblock %}
