@@ -421,6 +421,8 @@ def upload_artefact():
 
         artefact_id = add_artefact(new_artefact)
 
+        for tag_id in tag_ids:
+            pair_tag_to_artefact(artefact_id, tag_id)
 
         if 'pic' in request.files:
             pic = request.files['pic']
