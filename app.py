@@ -31,7 +31,10 @@ from persistence import (
         edit_artefact_db,
         get_current_user_family,
         create_family,
-        get_family_id
+        get_family_id, 
+        get_family,
+        get_referral_code,
+        remove_artefact
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -143,15 +146,24 @@ def edit_artefact(artefact_id):
             return redirect('/artefact/'+str(artefact_id))
 
         else:
+            # TODO Pop for not your artefact
             return "not your artefact to edit"
 
 @app.route('/settings')
 def settings():
     return render_template('account_settings.html')
 
+@app.route('/editsettings')
+def editsettings():
+    return render_template('edit_account_settings.html')
+
 @app.route('/family')
+@login_required
 def familysettings():
-    return render_template('family_settings.html')
+    
+    referral_code = get_referral_code(current_user.family_id)
+    family = get_family(current_user.family_id)
+    return render_template('family_settings.html', family=family, referral_code=referral_code)
 
 @app.route('/artefacts')
 @login_required
@@ -174,6 +186,28 @@ def artefact(artefact_id):
 
     else:
         return unauthorized()
+
+@app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
+@login_required
+def delete_artefact(artefact_id):
+
+
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    if artefact.owner == current_user.id:
+        remove_artefact(artefact_id)
+        return redirect('/artefacts')
+
+    else:
+        return unauthorized()
+
+    
+    # return unauthorized()
+
+
 
 @app.route('/insertexample')
 def insert_example():
@@ -358,6 +392,11 @@ def page_not_found(e):
 def bad_request(e):
 
     return render_template('error_400.html'), 400
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    # TODO redirect
+    return redirect('/')
 
 def create_artefact(artefact_id=None):
 

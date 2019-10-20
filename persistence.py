@@ -146,12 +146,14 @@ def get_artefacts(artefact_ids=None) -> [Artefact]:
 
 def add_artefact(artefact: Artefact) -> int:
     '''returns the id of the newly inserted artefact'''
+    
+    sql = '''INSERT INTO Artefact
+            (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
+            VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
+            RETURNING artefact_id;'''
+
     with psycopg2.connect(current_app.config['db_URL']) as conn:
-        cur = conn.cursor()
-        sql = '''INSERT INTO Artefact
-                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
-                 RETURNING artefact_id;'''
+        cur = conn.cursor()        
 
         cur.execute(sql, artefact._asdict())
         (artefact_id,) = cur.fetchone()
@@ -161,16 +163,12 @@ def add_artefact(artefact: Artefact) -> int:
 def edit_artefact_db(artefact: Artefact):
     ''' changes a new artefact '''
 
+    sql = '''UPDATE Artefact
+             SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with_user)s, stored_at_loc = %(stored_at_loc)s, stored_with = %(stored_with)s
+             WHERE artefact_id = %(artefact_id)s;'''
+
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
-        sql = '''UPDATE Artefact
-                 (name, owner, description, date_stored, stored_with, stored_with_user, stored_at_loc)
-                 VALUES (%(name)s, %(owner)s, %(description)s, CURRENT_TIMESTAMP, %(stored_with)s, %(stored_with_user)s, %(stored_at_loc)s)
-                 RETURNING artefact_id;'''
-
-        sql = '''UPDATE Artefact
-                 SET name = %(name)s, description = %(description)s, stored_with_user = %(stored_with_user)s, stored_at_loc = %(stored_at_loc)s, stored_with = %(stored_with)s
-                 WHERE artefact_id = %(artefact_id)s;'''
 
         cur.execute(sql, artefact._asdict())
 
@@ -181,7 +179,7 @@ def email_taken(credentials: Credentials):
     sql = '''SELECT *
         FROM "user"
         WHERE email=%(email)s
-        LIMIT 1'''
+        LIMIT 1;'''
 
     # Returns user, if none with email returns None
     with psycopg2.connect(current_app.config['db_URL']) as conn:
@@ -219,7 +217,7 @@ def add_image(artefact_image: ArtefactImage):
         cur = conn.cursor()
         sql = '''INSERT INTO ArtefactImage
                  (artefact_id, image_url, image_description)
-                 VALUES (%(artefact_id)s, %(image_url)s, %(image_description)s)'''
+                 VALUES (%(artefact_id)s, %(image_url)s, %(image_description)s);'''
 
         cur.execute(sql, artefact_image._asdict())
 
@@ -269,16 +267,15 @@ def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
 
 def create_family(family_name):
 
-
-    # Generates random referral code
-    
-
     salt = ''.join(random.choice(string.ascii_uppercase) for x in range(20))
 
+    
     print(family_name)
     print(salt)
-
+    
     referral_code = family_name + salt
+
+    referral_code = referral_code.join(e for e in string if e.isalnum())
 
     inputs = {"family_name": family_name,
               "referral_code": referral_code}
@@ -289,7 +286,7 @@ def create_family(family_name):
         
     sql = '''INSERT INTO Family
              (name, referral_code)
-             VALUES (%(family_name)s, %(referral_code)s)'''
+             VALUES (%(family_name)s, %(referral_code)s);'''
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
@@ -304,10 +301,28 @@ def get_family_id(referral_code):
 
     sql = '''SELECT family_id FROM family
              WHERE referral_code = %(referral_code)s
-             LIMIT 1'''
+             LIMIT 1;'''
 
-    family_id = pg_select(sql, inputs)[0][0]
+    return pg_select(sql, inputs)[0][0]
 
-    print(family_id)
+def get_referral_code(family_id):
 
-    return family_id
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT referral_code FROM family
+             WHERE family_id = %(family_id)s
+             LIMIT 1;'''
+
+    return pg_select(sql, inputs)[0][0]
+
+def remove_artefact(artefact_id):
+
+    inputs = {"artefact_id": artefact_id}
+
+    sql = '''DELETE FROM artefact
+             WHERE artefact_id = %(artefact_id)s;'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+
+        cur.execute(sql, inputs)
