@@ -251,7 +251,7 @@ def login():
 
         else:
             flash("That user doesn't exist!")
-            return hello_world()
+            return redirect('/login')
 
 
 @app.route('/register', methods=['GET','POST'])
