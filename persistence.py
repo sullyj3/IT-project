@@ -55,6 +55,9 @@ def row_to_artefact_preview(row: Tuple) -> Dict:
     return d
 
 def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
+    if len(artefact_ids) == 0:
+        return []
+
     sql = '''
     SELECT DISTINCT tag_id, name
     FROM Tag
@@ -72,6 +75,9 @@ def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
 def get_tags_of_each_artefact(artefact_ids: [int]) -> Dict:
     ''' Return dict mapping each artefact_id to a list of tags '''
 
+    if len(artefact_ids) == 0:
+        return {}
+
     sql = '''
     SELECT artefact_id, tag_id, Tag.name FROM ArtefactTaggedWith
     NATURAL JOIN Tag
@@ -88,6 +94,10 @@ def get_tags_of_each_artefact(artefact_ids: [int]) -> Dict:
 def get_tags_by_ids(ids):
     sql = '''SELECT * FROM tag
              WHERE tag_id in %(ids)s'''
+
+    if len(ids) == 0:
+        return []
+
     rows = pg_select(sql, {'ids': tuple(ids)})
     tags = [Tag(*row) for row in rows]
     return tags
@@ -190,8 +200,11 @@ def get_artefacts(artefact_ids=None) -> [Artefact]:
                 (artefact_ids,))
 
     elif type(artefact_ids) == list:
-        rows = pg_select('SELECT * from Artefact WHERE artefact_id IN %s',
-                (artefact_ids,))
+        if len(artefact_ids) == 0:
+            rows = []
+        else:
+            rows = pg_select('SELECT * from Artefact WHERE artefact_id IN %s',
+                    (artefact_ids,))
     else:
         raise ValueError("artefact_ids must be an int or list of ints")
 
