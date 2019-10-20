@@ -103,7 +103,9 @@ def load_user(user_id):
 # ------ ROUTES ------- #
 # --------------------- #
 @app.route('/')
-def hello_world():
+def hello_world(msg = None):
+    if msg != None:
+        flash(msg) 
     if (current_user.is_authenticated):
         return artefacts()        
     return render_template('helloturtles.html')
@@ -246,18 +248,12 @@ def login():
             if check_password_hash(hash_pw.tobytes(), new_user.password):
 
                 new_user = User(db_user)
-
                 login_user(new_user)
-
                 return redirect('/')
             
             else:
-
-                # TODO Popup message showing incorrect details
                 flash("Incorrect details, try again") 
-                
                 return redirect('/login')
-
 
         else:
             return "no user exists 😳"
@@ -268,12 +264,12 @@ def register():
     if request.method == 'GET':
 
         if current_user.is_authenticated:
-            return "already logged in 🙄"
+            flash("You are already registered")
+            return redirect(url_for('/'))
         else:
             return render_template('register.html')
 
-    elif request.method == 'POST':
-        
+    elif request.method == 'POST':  
         
         if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
@@ -307,9 +303,11 @@ def register():
 
                 return redirect('/')
             else:   
-                return "User Exists 😳"
+                flash("User already exists")
         else:
-            return "Different Passwords 😳"
+            flash("Passwords are not the same, or you have missing fields")
+        return redirect(url_for('register'))
+            
 
 
 # Dummy route to logout
@@ -320,7 +318,7 @@ def logout_page():
         logout_user()
         return redirect('/')
 
-
+# TODO get rid of it!
 # Dummy route to check if logged in
 @app.route('/islogged')
 def is_logged_in():
@@ -396,22 +394,16 @@ def upload_artefact():
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
 
-
-        return "Success!"
+        flash("Successfully uploaded artefact")
+        return redirect('/artefact/'+str(artefact_id))
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    
-    # TODO Make unauthorized html page, redirect to login page
-
-    ''' Must either redirect to a login page if you aren't logged in or say you can't access the page'''
 
     if current_user.is_authenticated:
-        return '''you don't have access to this page<br>
-        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+        return hello_world(msg = "You don't have access to that page")
     else:
-        return '''you must be logged in to access this page<br>
-        <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>'''
+        return hello_world(msg = "You must be logged in as a user authorised for that content in order to access it")
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -422,10 +414,7 @@ def page_not_found(e):
 @app.errorhandler(400)
 def bad_request(e):
 
-    # TODO make bad request page
-
-    return ''' bad request<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
+    return render_template('error_400.html'), 400
 
 @app.errorhandler(405)
 def method_not_allowed(e):
