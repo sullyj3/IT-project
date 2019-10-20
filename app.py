@@ -123,7 +123,7 @@ def edit_artefact(artefact_id):
             return "not your artefact"
 
     elif request.method == "POST":
-        
+
         try:
             [artefact] = get_artefacts(artefact_id)
         except ValueError as e:
@@ -139,25 +139,32 @@ def edit_artefact(artefact_id):
                 return str(e), 400
 
             edit_artefact_db(changed_artefact)
-            
+
             return redirect('/artefact/'+str(artefact_id))
 
         else:
             return "not your artefact to edit"
 
+
 @app.route('/settings')
 def settings():
     return render_template('account_settings.html')
+
 
 @app.route('/family')
 def familysettings():
     return render_template('family_settings.html')
 
+
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    artefacts = get_user_artefacts(current_user.id, current_user.family_id)
+    artefact_ids = [a['artefact'].artefact_id for a in artefacts]
+    tags = get_tags_of_artefacts(artefact_ids)
 
-    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id))
+    return view_artefacts(artefacts, tags)
+
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
