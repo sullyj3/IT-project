@@ -31,7 +31,9 @@ from persistence import (
         edit_artefact_db,
         get_current_user_family,
         create_family,
-        get_family_id
+        get_family_id, 
+        get_family,
+        get_referral_code
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -141,6 +143,7 @@ def edit_artefact(artefact_id):
             return redirect('/artefact/'+str(artefact_id))
 
         else:
+            # TODO Pop for not your artefact
             return "not your artefact to edit"
 
 @app.route('/settings')
@@ -150,7 +153,10 @@ def settings():
 @app.route('/family')
 @login_required
 def familysettings():
-    return render_template('family_settings.html')
+    
+    referral_code = get_referral_code(current_user.family_id)
+    family = get_family(current_user.family_id)
+    return render_template('family_settings.html', family=family, referral_code=referral_code)
 
 @app.route('/artefacts')
 @login_required

@@ -269,16 +269,15 @@ def img_with_presigned_url(artefact_image: ArtefactImage) -> ArtefactImage:
 
 def create_family(family_name):
 
-
-    # Generates random referral code
-    
-
     salt = ''.join(random.choice(string.ascii_uppercase) for x in range(20))
 
+    
     print(family_name)
     print(salt)
-
+    
     referral_code = family_name + salt
+
+    referral_code = referral_code.join(e for e in string if e.isalnum())
 
     inputs = {"family_name": family_name,
               "referral_code": referral_code}
@@ -306,8 +305,14 @@ def get_family_id(referral_code):
              WHERE referral_code = %(referral_code)s
              LIMIT 1'''
 
-    family_id = pg_select(sql, inputs)[0][0]
+    return pg_select(sql, inputs)[0][0]
 
-    print(family_id)
+def get_referral_code(family_id):
 
-    return family_id
+    inputs = {"family_id": family_id}
+
+    sql = '''SELECT referral_code FROM family
+             WHERE family_id = %(family_id)s
+             LIMIT 1'''
+
+    return pg_select(sql, inputs)[0][0]

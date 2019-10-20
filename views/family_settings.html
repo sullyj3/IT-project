@@ -9,7 +9,13 @@
       <div class="container">
         <h1>My Family</h1>
           <hr>
-        <h2>Family Referral Code is: </h2>
+        <h2>Family Referral Code is: {{referral_code}}</h2>
+
+        {% for user in family%}
+
+          {{user.first_name}} {{user.surname}} <br>
+
+        {% endfor %}
           
         <div class="row">                      
           <div class="col-md-9 personal-info">
