@@ -387,12 +387,24 @@ def remove_artefact(artefact_id):
 
     inputs = {"artefact_id": artefact_id}
 
-    sql = '''DELETE FROM artefact
+    sql = '''DELETE FROM artefacttaggedwith
              WHERE artefact_id = %(artefact_id)s;'''
 
     with psycopg2.connect(current_app.config['db_URL']) as conn:
         cur = conn.cursor()
+        cur.execute(sql, inputs)
 
+    sql = '''DELETE FROM artefactimage
+             WHERE artefact_id = %(artefact_id)s;'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
+        cur.execute(sql, inputs)
+
+    sql = '''DELETE FROM artefact
+             WHERE artefact_id = %(artefact_id)s;'''
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        cur = conn.cursor()
         cur.execute(sql, inputs)
 
 

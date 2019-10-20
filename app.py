@@ -265,6 +265,7 @@ def delete_artefact(artefact_id):
 
     if artefact.owner == current_user.id:
         remove_artefact(artefact_id)
+        flash("Artefact successfully deleted")
         return redirect('/artefacts')
 
     else:
