@@ -11,6 +11,8 @@ import boto3
 import string
 import random
 
+from collections import defaultdict
+
 from model import (
         Artefact,
         Credentials,
@@ -60,22 +62,37 @@ def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
     WHERE artefact_id IN %(artefact_ids)s
     '''
 
-    rows = pg_select(sql=sql, where={'artefact_ids': tuple(artefact_ids)})
+    where = {'artefact_ids': tuple(artefact_ids)}
+    print("where:")
+    print(where)
+
+    rows = pg_select(sql, where)
     return [Tag(*row) for row in rows]
 
-# Returns the artefacts that the user is able to view
-def get_user_artefacts(user_id, family_id, filtertag_ids=None) -> List[Dict]:
+def get_tags_of_each_artefact(artefact_ids: [int]) -> Dict:
+    ''' Return dict mapping each artefact_id to a list of tags '''
 
-    if filtertag_ids is not None:
-        print('filtertag_ids:')
-        print(filtertag_ids)
+    sql = '''
+    SELECT artefact_id, tag_id, Tag.name FROM ArtefactTaggedWith
+    NATURAL JOIN Tag
+    WHERE artefact_id in %(artefact_ids)s
+    '''
 
-        #TODO
-        raise NotImplementedError
+    where = {'artefact_ids': tuple(artefact_ids)}
 
-    # Relevant inputs for where clauses
-    inputs = {"user_id": user_id,
-              "family_id": family_id}
+    rows = pg_select(sql, where)
+    rows = [(artefact_id, Tag(tag_id, tag_name))
+            for (artefact_id, tag_id, tag_name) in rows]
+    return groupBy_first(rows)
+
+def get_tags_by_ids(ids):
+    sql = '''SELECT * FROM tag
+             WHERE tag_id in %(ids)s'''
+    rows = pg_select(sql, (tuple(ids,)))
+    tags = [Tag(*row) for row in rows]
+
+def get_user_artefacts(user_id, family_id) -> List[Dict]:
+    ''' Returns the artefacts that the user is able to view. '''
 
     sql = '''
     SELECT DISTINCT ON (Artefact.artefact_id)
@@ -85,17 +102,25 @@ def get_user_artefacts(user_id, family_id, filtertag_ids=None) -> List[Dict]:
     ON Artefact.owner = "user".id
     LEFT JOIN ArtefactImage
     ON Artefact.artefact_id = ArtefactImage.artefact_id
-    WHERE "user".family_id = %(family_id)s
+    WHERE "user".family_id = %(family_id)s'''
+
+    rows = pg_select(sql=sql, where={"user_id": user_id, "family_id": family_id})
+
+    previews = [row_to_artefact_preview(row) for row in rows]
+    return previews
+
+def groupBy_first(lst):
+    ''' Convert a list of key value pairs to a dict mapping each key to a list 
+        of the values with that key
     '''
+    d = defaultdict(list)
+    for (fst, snd) in lst:
+        d[fst].append(snd)
 
-    rows = pg_select(sql=sql, where=inputs)
-
-    return [row_to_artefact_preview(row) for row in rows]
-
+    return d
 
 def pg_select(sql: str, where=None) -> List[Tuple]:
-    '''
-        sql: A select statement
+    ''' sql: A select statement
         can now work with input dicts
     '''
     try:
@@ -107,6 +132,9 @@ def pg_select(sql: str, where=None) -> List[Tuple]:
     with conn:
         cur = conn.cursor()
         if where is not None:
+            print("running query: ")
+            print(cur.mogrify(sql, where))
+            print(str(cur.mogrify(sql, where)))
             cur.execute(sql, where)
         else:
             cur.execute(sql)
