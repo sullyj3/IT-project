@@ -331,12 +331,20 @@ def register():
 
             if (not user_details):         
 
+                
+
                 # Creates famly if no referral_code
 
-                if request.form["new_family"] ==  "on":
-                    family_id =  create_family(request.form['surname'])                
+                print("before if")
+
+
+
+                if "new_family" in request.form:
+                    print("new _family == on")
+                    family_id = create_family(request.form['surname'])                
                 else:
                     family_id = get_family_id(request.form['referral_code'])
+
                 
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
@@ -351,7 +359,6 @@ def register():
 
                 # Logs in user after adding to database
                 db_user = email_taken(new_user)
-
                 login_user(User(db_user))
 
                 flash('Successfully registered')
