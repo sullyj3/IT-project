@@ -114,7 +114,6 @@ def load_user(user_id):
 def hello_world(msg = None):
 
 
-    print(get_tag_by_name("test tag"))
 
 
     if msg != None:
