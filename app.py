@@ -114,42 +114,44 @@ def hello_world(msg = None):
 @login_required
 def edit_artefact(artefact_id):
     print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
+
+    if (not current_user.is_authenticated):
+        flash("Need to be logged in to edit artefacts")
+        return redirect('artefacts')
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        flash("Couldn't find that artefact")
+        return redirect(url_for('artefacts'))
+
+
     if request.method == "GET":
-
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
         if artefact.owner == current_user.id:
             return render_template('edit_artefact.html', artefact=artefact)
-
         else:
-            return "not your artefact"
+            flash("You are not authorised to edit that artefact")
+            return redirect('artefacts')
+
 
     elif request.method == "POST":
-
-        try:
-            [artefact] = get_artefacts(artefact_id)
-        except ValueError as e:
-            return "Couldn't find that Artefact!", 400
-
 
         if artefact.owner == current_user.id:
             try:
                 changed_artefact = create_artefact(artefact_id)
             except KeyError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
             except ValueError as e:
-                return str(e), 400
+                print(str(e))
+                return unauthorized()
 
             edit_artefact_db(changed_artefact)
 
             return redirect('/artefact/'+str(artefact_id))
 
         else:
-            # TODO Pop for not your artefact
-            return "not your artefact to edit"
+            flash("You are not authorised to edit that artefact")
+            return redirect('artefacts')
 
 
 @app.route('/settings')
@@ -169,16 +171,16 @@ def familysettings():
     return render_template('family_settings.html', family=family, referral_code=referral_code)
 
 
-@app.route('/artefacts')
+@app.route('/artefacts', methods=['GET', 'POST'])
 @login_required
 def artefacts():
-    if 'filtertags' in request.form:
+    if request.method == 'POST' and filtertags in request.form:
         filtertags = request.form.getlist('filtertags')
 
         # TODO
         return Template('''
                 <h1>filtering not implemented yet</h1>
-                <p>you filtered by {% for t in filtertags %}t,{% endfor %}</p>
+                <p>you filtered by {% for t in filtertags %}{{t.name}}{% endfor %}</p>
         ''').render(filtertags=filtertags)
 
 
@@ -186,7 +188,7 @@ def artefacts():
     artefact_ids = [a['artefact'].artefact_id for a in artefacts]
     tags = get_tags_of_artefacts(artefact_ids)
 
-    return view_artefacts(artefacts, tags)
+    return view_artefacts(artefacts, current_user.id, tags)
 
 
 @app.route('/artefact/<int:artefact_id>')
@@ -195,12 +197,13 @@ def artefact(artefact_id):
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
-        return "Couldn't find that Artefact!", 400
+        flash("Couldn't find that Artefact!")
+        return redirect(url_for('artefacts'))
 
     if artefact.owner in  family_user_ids(current_user.family_id):
 
         artefact_images = get_artefact_images_metadata(artefact_id)
-        return view_artefact(artefact, artefact_images)
+        return view_artefact(artefact, artefact_images, current_user.id)
 
     else:
         return unauthorized()
@@ -266,7 +269,8 @@ def login():
                 return redirect('/login')
 
         else:
-            return "no user exists 😳"
+            flash("That user doesn't exist!")
+            return hello_world()
 
 
 @app.route('/register', methods=['GET','POST'])
