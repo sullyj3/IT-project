@@ -33,7 +33,8 @@ from persistence import (
         create_family,
         get_family_id, 
         get_family,
-        get_referral_code
+        get_referral_code,
+        remove_artefact
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, example_artefact
@@ -179,6 +180,28 @@ def artefact(artefact_id):
 
     else:
         return unauthorized()
+
+@app.route('/deleteartefact/<int:artefact_id>', methods=['POST'])
+@login_required
+def delete_artefact(artefact_id):
+
+
+    try:
+        [artefact] = get_artefacts(artefact_id)
+    except ValueError as e:
+        return "Couldn't find that Artefact!", 400
+
+    if artefact.owner == current_user.id:
+        remove_artefact(artefact_id)
+        return redirect('/artefacts')
+
+    else:
+        return unauthorized()
+
+    
+    # return unauthorized()
+
+
 
 @app.route('/insertexample')
 def insert_example():
@@ -373,6 +396,11 @@ def bad_request(e):
 
     return ''' bad request<br>
     <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif> ''', 400
+
+@app.errorhandler(405)
+def method_not_allowed(e):
+    # TODO redirect
+    return redirect('/')
 
 def create_artefact(artefact_id=None):
 

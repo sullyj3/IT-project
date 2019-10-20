@@ -27,8 +27,10 @@
                   Are you sure you want to delete this artefact?
                   </div>
                   <div class="modal-footer">
-                    <a class="btn btn-secondary" data-dismiss="modal" role="button">Close</a>
-                    <a class="btn btn-primary" href="/artefacts" role="button">Delete</a>
+                    <form action='/deleteartefact/{{artefact.artefact_id}}' method="POST">
+                      <a class="btn btn-secondary" data-dismiss="modal" role="button">Close</a>
+                      <button class="btn btn-primary  " type="submit" value="Delete">Delete</button>
+                    </form>
                   </div>
                 </div>
               </div>
