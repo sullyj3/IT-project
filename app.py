@@ -14,28 +14,31 @@ from flask_login import (
 )
 
 from flask_bcrypt import check_password_hash, generate_password_hash
+from jinja2 import Template
 
 import psycopg2
 
 from persistence import (
-        get_artefacts,
         add_artefact,
-        email_taken,
-        register_user,
-        upload_image,
         add_image,
+        create_family,
+        edit_artefact_db,
+        email_taken,
+        family_user_ids,
         generate_img_filename,
         get_artefact_images_metadata,
-        get_user_artefacts,
-        family_user_ids,
-        edit_artefact_db,
+        get_artefacts,
         get_current_user_family,
-        create_family,
-        get_family_id, 
         get_family,
+        get_family_id,
         get_referral_code,
         remove_artefact,
-        get_user
+        get_user,
+        get_tags_of_artefacts,
+        get_user_artefacts,
+        register_user,
+        remove_artefact,
+        upload_image
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage
@@ -48,7 +51,7 @@ app = Flask(__name__, template_folder='views')
 # setup still gets run.
 
 # DATABASE_URL is the env variable that heroku uses to give us a reference to
-# our postgres database in production. When developing, backend developers 
+# our postgres database in production. When developing, backend developers
 # should set it to the appropriate URL when running this app
 
 db_URL = os.environ.get("DATABASE_URL")
@@ -123,7 +126,7 @@ def edit_artefact(artefact_id):
         flash("Couldn't find that artefact")
         return redirect(url_for('artefacts'))
 
-    
+
     if request.method == "GET":
         if artefact.owner == current_user.id:
             return render_template('edit_artefact.html', artefact=artefact)
@@ -145,11 +148,13 @@ def edit_artefact(artefact_id):
                 return unauthorized()
 
             edit_artefact_db(changed_artefact)
+
             return redirect('/artefact/'+str(artefact_id))
 
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/  artefacts')
+
 
 @app.route('/settings')
 def settings():
@@ -167,11 +172,26 @@ def familysettings():
     family = get_family(current_user.family_id)
     return render_template('family_settings.html', family=family, referral_code=referral_code)
 
+
 @app.route('/artefacts')
 @login_required
 def artefacts():
+    if 'filtertags' in request.args:
+        filtertag_ids = request.args.getlist('filtertags')
 
-    return view_artefacts(get_user_artefacts(current_user.id, current_user.family_id), current_user.id)
+        # TODO
+        return Template('''
+                <h1>filtering not implemented yet</h1>
+                <p>you filtered by {% for t in filtertags %}id: {{t}}, {% endfor %}</p>
+        ''').render(filtertags=filtertag_ids)
+
+
+    artefacts = get_user_artefacts(current_user.id, current_user.family_id)
+    artefact_ids = [a['artefact'].artefact_id for a in artefacts]
+    tags = get_tags_of_artefacts(artefact_ids)
+
+    return view_artefacts(artefacts, current_user.id, tags)
+
 
 @app.route('/artefact/<int:artefact_id>')
 @login_required
@@ -350,6 +370,21 @@ def show_family():
     family = get_current_user_family()
     return template.render(family=family)
 
+
+# test route for getting artefact tags
+@app.route('/testtags')
+def testtags():
+    template = Template('''
+    <h1>Artefacts 33, 34, and 45 have the following tags:</h1>
+    <ul>
+        {% for tag in tags %}
+        <li>{{tag.name}}</li>
+        {% endfor %}
+    </ul>
+    ''')
+
+    tags = get_tags_of_artefacts([33,34,45])
+    return template.render(tags=tags)
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required

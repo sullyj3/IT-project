@@ -5,7 +5,7 @@ Artefact = namedtuple("Artefact", ("artefact_id",
                                    "name",
                                    "description",
                                    "date_stored",
-                                   "stored_with",
+                                   "stored_with",      # string - "user" or "location"
                                    "stored_with_user",
                                    "stored_at_loc"))
 
@@ -40,5 +40,7 @@ ArtefactImage = namedtuple("ArtefactImage", ("image_id",
                                              "artefact_id",
                                              "image_url",
                                              "image_description"))
+
+Tag = namedtuple("Tag", ("tag_id", "name"))
 
 example_artefact = Artefact(None, "Spellbook", 1, "old and spooky", None, 'user', 1, None)
