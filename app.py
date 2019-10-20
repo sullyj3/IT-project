@@ -115,7 +115,7 @@ def edit_artefact(artefact_id):
 
     if (not current_user.is_authenticated):
         flash("Need to be logged in to edit artefacts")
-        return redirect('artefacts')
+        return redirect('/artefacts')
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
@@ -128,7 +128,7 @@ def edit_artefact(artefact_id):
             return render_template('edit_artefact.html', artefact=artefact)
         else:
             flash("You are not authorised to edit that artefact")
-            return redirect('artefacts')
+            return redirect('/artefacts')
 
 
     elif request.method == "POST":
@@ -243,6 +243,7 @@ def login():
 
                 new_user = User(db_user)
                 login_user(new_user)
+                flash("Successfully logged in")
                 return redirect('/')
             
             else:
@@ -251,7 +252,7 @@ def login():
 
         else:
             flash("That user doesn't exist!")
-            return hello_world()
+            return redirect('/login')
 
 
 @app.route('/register', methods=['GET','POST'])
@@ -296,49 +297,22 @@ def register():
 
                 login_user(User(db_user))
 
+                flash('Successfully registered')
                 return redirect('/')
-            else:   
+            else:
                 flash("User already exists")
         else:
             flash("Passwords are not the same, or you have missing fields")
         return redirect(url_for('register'))
             
 
-
 # Dummy route to logout
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 @login_required
 def logout_page():
-    if request.method == 'GET':
-        logout_user()
-        return redirect('/')
-
-# TODO get rid of it!
-# Dummy route to check if logged in
-@app.route('/islogged')
-def is_logged_in():
-    if request.method == 'GET':
-        if current_user.is_authenticated:
-
-            user_info = "Logged in<br>User_id: {}<br>User_email: {}"
-            return user_info.format(current_user.id, current_user.email)
-        else:
-            return "not logged in"
-
-# Testing route to check current user's family
-@app.route('/showfamily')
-def show_family():
-    template = Template('''
-    <h1>family:</h1>
-    <ul>
-        {% for user in family %}
-        <li>{{user.first_name}} {{user.surname}}</li>
-        {% endfor %}
-    </ul>
-    ''')
-
-    family = get_current_user_family()
-    return template.render(family=family)
+    logout_user()
+    flash("You have been logged out")
+    return redirect('/')
 
 
 @app.route('/uploadartefact', methods=['GET','POST'])
@@ -346,10 +320,6 @@ def show_family():
 def upload_artefact():
     if request.method == 'GET':
         family = get_current_user_family()
-
-        # print(f"family: {family}")
-        # for u in family:
-        #     print(f"User id: {u.id}")
 
         return render_template('upload_artefact.html', family=family)
 
