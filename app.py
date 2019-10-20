@@ -420,18 +420,18 @@ def upload_artefact():
 
         artefact_id = add_artefact(new_artefact)
 
-        for tag_id in tag_ids:
-            pair_tag_to_artefact(artefact_id, tag_id)
 
-        # Check if tags exist
-
-        if 'pic' in request.files and request.files['pic'].content_length > 0:
+        if 'pic' in request.files:
             pic = request.files['pic']
+
+        if pic.filename != '':
 
             fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
+        else:
+            print("A file was given, but it was empty")
 
         flash("Successfully uploaded artefact")
         return redirect('/artefact/'+str(artefact_id))
