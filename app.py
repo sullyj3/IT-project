@@ -274,15 +274,14 @@ def delete_artefact(artefact_id):
 @app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
-        
+
         if current_user.is_authenticated:
             flash("Already logged in!")
-            flash("ALso a message")
             return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
-        
+
         new_user = Credentials(request.form['email'],
                            request.form['password'])
 
@@ -299,7 +298,7 @@ def login():
                 login_user(new_user)
                 flash("Successfully logged in")
                 return redirect('/')
-            
+
             else:
                 flash("Incorrect details, try again") 
                 return redirect('/login')
