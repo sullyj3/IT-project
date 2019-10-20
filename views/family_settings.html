@@ -16,21 +16,15 @@
             <form class="form-horizontal" role="form">
                
               <div class="form-group col-md-8">
-                <label for="exampleFormControlInput1">Family Reference Code</label>
-                <input disabled class="form-control" id="exampleFormControlInput1" placeholder="123456">
+                <label for="exampleFormControlInput1">Family Referral Code</label>
+                <input disabled class="form-control" id="exampleFormControlInput1" placeholder="{{referral_code}}">
               </div>
               <div class="form-group col-md-8">
                 <label for="list-example">Family Members</label>
                 <div id="list-example" class="list-group scrollable-dropdown">
-                    <a class="list-group-item">Item 1</a>
-                    <a class="list-group-item">Item 2</a>
-                    <a class="list-group-item">Item 3</a>
-                    <a class="list-group-item">Item 4</a>
-                    <a class="list-group-item">Item 4</a>
-                    <a class="list-group-item">Item 4</a>
-                    <a class="list-group-item">Item 4</a>
-                    <a class="list-group-item">Item 4</a>
-                    <a class="list-group-item">Item 4</a>
+                  {% for user in family %}
+                    <a class="list-group-item">{{user.first_name}} {{user.surname}}</a>
+                  {% endfor %}
                   </div>
               </div>     
                           
