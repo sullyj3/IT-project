@@ -4,9 +4,15 @@
 {% block head %}
     <link rel="stylesheet" href="/static/artefacts.css">
     <script>
-      $(function () {
-        $('.selectpicker').selectpicker();
-      });
+      const disableFilterSelection = () => {
+          var element = document.getElementById("hide") 
+          if (element.style.display === "none") {
+            element.style.display = "block";
+          } else {
+            element.style.display = "none";          
+          }
+        }
+      
     </script>
 {% endblock %}
 
@@ -15,91 +21,33 @@
     <section class="jumbotron text-center">
       <div class="container">
         <h1 class="jumbotron-heading">Artefacts</h1>
-        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>
+        <p class="lead text-muted">This is your family's collection of wonderful artefacts! From here you can view them all, or even edit the ones that belong to you!</p>      
+        
         <div class="btn-group">
           <div class="row">
             <a href="/uploadartefact" class="btn btn-primary my-2">Add an Artefact</a>
             <p>&nbsp;</p>
-            <form>      
-              <button type="button" class="btn btn-secondary dropdown-toggle my-2" data-toggle="dropdown">Filter by Tag <span class="caret"></span></button>
-             
-              <label class="text-white mb-3 lead">Where do you live?</label>
-              <!-- Multiselect dropdown -->
-              <select multiple data-style="bg-white rounded-pill px-4 py-3 shadow-sm " class="selectpicker w-100">
-                  <option>United Kingdom</option>
-                  <option>United States</option>
-                  <option>France</option>
-                  <option>Germany</option>
-                  <option>Italy</option>
-              </select><!-- End -->
+            <button type="button" class="btn btn-secondary dropdown-toggle my-2" onclick="disableFilterSelection()">Filter by Tag <span class="caret"></span></button>
+            
+            <div id="hide" style="display: none;">
+              <button type="submit" class="btn btn-secondary">Filter</button>      
+            </div>
+  
+          </div>       
+        </div>
+
+        <form action="/artefacts" , method="GET">
+          <div id="hide" style="display: none;">
+            <select name="filtertags" multiple="">
               
-              <!--<select class="dropdown-menu scrollable-dropdown form-control" id="formSelect" role="menu">
-                <option class="dropdown-item">1</option>
-                <option class="dropdown-item">2</option>
-                <option class="dropdown-item">3</option>
-                <option class="dropdown-item">4</option>
-                <option class="dropdown-item">5</option>              
-              </select>
-                <!--
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag" type="checkbox">
-                    <label class="form-check-label" for="tag"> Tag </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag2" type="checkbox">
-                    <label class="form-check-label" for="tag2"> Tag2 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag3" type="checkbox">
-                    <label class="form-check-label" for="tag3"> Tag3 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag4" type="checkbox">
-                    <label class="form-check-label" for="tag4"> Tag4 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag5" type="checkbox">
-                    <label class="form-check-label" for="tag5"> Tag5 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                      <input class="form-check-input" id="tag6" type="checkbox">
-                      <label class="form-check-label" for="tag6"> Tag6 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag7" type="checkbox">
-                    <label class="form-check-label" for="tag7"> Tag7 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag8" type="checkbox">
-                    <label class="form-check-label" for="tag8"> Tag8 </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check dropdown-item">
-                    <input class="form-check-input" id="tag9" type="checkbox">
-                    <label class="form-check-label" for="tag9"> Tag9 </label>
-                  </div>
-                </li> -->
+                <option value="1">test tag</option>
               
-              <button type="submit" class="btn btn-secondary">Filter</button>
-            </form>  
-          </div>                    
-        </div>   
+                <option value="2">another test tag</option>
+              
+            </select>              
+
+          </div>
+        </form>  
       </div>      
       
 
