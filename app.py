@@ -1,7 +1,7 @@
 import sys
 import os
 
-from flask import Flask, current_app, request, abort, redirect, render_template, flash
+from flask import Flask, current_app, request, abort, redirect, render_template, flash, url_for
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
@@ -178,7 +178,9 @@ def login():
     if request.method == 'GET':
         
         if current_user.is_authenticated:
-            return redirect(hello_world())
+            flash("Already logged in!")
+            flash("ALso a message")
+            return redirect(url_for('artefacts'))
         else:
             return render_template('login.html')
     elif request.method == 'POST':
@@ -203,7 +205,8 @@ def login():
             
             else:
 
-                # TODO Popup message showing incorrect details 
+                # TODO Popup message showing incorrect details
+                flash("Incorrect details, try again") 
                 
                 return redirect('/login')
 
