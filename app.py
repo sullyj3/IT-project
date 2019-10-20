@@ -124,11 +124,10 @@ def hello_world(msg = None):
 @app.route('/editartefact/<int:artefact_id>', methods=['GET','POST'])
 @login_required
 def edit_artefact(artefact_id):
-    print(f"got request, method = {request.method}, artefact_id = {artefact_id}")
-
     if (not current_user.is_authenticated):
         flash("Need to be logged in to edit artefacts")
         return redirect('/artefacts')
+
     try:
         [artefact] = get_artefacts(artefact_id)
     except ValueError as e:
@@ -142,7 +141,6 @@ def edit_artefact(artefact_id):
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/artefacts')
-
 
     elif request.method == "POST":
 
@@ -159,12 +157,33 @@ def edit_artefact(artefact_id):
             edit_artefact_db(changed_artefact)
 
             maybe_add_pic(artefact_id)
+            maybe_add_tags(artefact_id)
 
+            flash("Successfully edited artefact")
             return redirect('/artefact/'+str(artefact_id))
 
         else:
             flash("You are not authorised to edit that artefact")
             return redirect('/  artefacts')
+
+def maybe_add_tags(artefact_id):
+    # Puts tags into formatted list
+    tags = [tag.strip() for tag in request.form["tags"].split(',')]
+
+    if not tags:
+        return
+
+    existing_tags = get_tags_by_names(tags)
+
+    existing_tag_names = [t.name for t in existing_tags]
+    tag_ids = [t.tag_id for t in existing_tags]
+
+    for tag in tags:
+        if tag not in existing_tag_names:
+            tag_ids.append(insert_tag(tag))
+
+    for tag_id in tag_ids:
+        pair_tag_to_artefact(artefact_id, tag_id)
 
 
 @app.route('/settings')
@@ -401,27 +420,9 @@ def upload_artefact():
         except ValueError as e:
             return str(e), 400
 
-        # Puts tags into formatted list
-        tags = [tag.strip() for tag in request.form["tags"].split(',')]
-
-        print(tags)
-
-        existing_tags = get_tags_by_names(tags)
-
-        existing_names = [t.name for t in existing_tags]
-        new = [t for t in tags if t not in existing_names]
-
-        tag_ids = [t.tag_id for t in existing_tags]
-
-        for tag in tags:
-            if tag not in existing_names:
-                tag_ids.append(insert_tag(tag))
-
         artefact_id = add_artefact(new_artefact)
 
-        for tag_id in tag_ids:
-            pair_tag_to_artefact(artefact_id, tag_id)
-
+        maybe_add_tags(artefact_id)
         maybe_add_pic(artefact_id)
 
         flash("Successfully uploaded artefact")
