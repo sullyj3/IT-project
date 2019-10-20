@@ -1,0 +1,10 @@
+/* p {
+    font-size: 40px;
+} */
+
+#seal_img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 35%;
+}
