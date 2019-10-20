@@ -468,5 +468,5 @@ def pair_tag_to_artefact(artefact_id, tag_id):
 
         try:
             cur.execute(sql, inputs)
-        except psycopg2.UniqueViolation as e:
+        except psycopg2.errors.UniqueViolation as e:
             print(f'artefact {artefact_id} is already tagged with tag {tag_id}')

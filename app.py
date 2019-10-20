@@ -156,7 +156,7 @@ def edit_artefact(artefact_id):
 
             edit_artefact_db(changed_artefact)
 
-            maybe_add_pic(artefact_id)
+            maybe_add_pics(artefact_id)
             maybe_add_tags(artefact_id)
 
             flash("Successfully edited artefact")
@@ -423,24 +423,26 @@ def upload_artefact():
         artefact_id = add_artefact(new_artefact)
 
         maybe_add_tags(artefact_id)
-        maybe_add_pic(artefact_id)
+        maybe_add_pics(artefact_id)
 
         flash("Successfully uploaded artefact")
         return redirect('/artefact/'+str(artefact_id))
 
 
-def maybe_add_pic(artefact_id: int):
+def maybe_add_pics(artefact_id: int):
     if 'pic' in request.files:
-        pic = request.files['pic']
 
-        if pic.filename != '':
+        pics = request.files.getlist('pic')
 
-            fname = generate_img_filename(current_user.id, pic)
-            upload_image(pic, fname)
-            artefact_image = ArtefactImage(None, artefact_id, fname, None)  
-            add_image(artefact_image)
-        else:
-            print("A file was given, but it was empty")
+        for pic in pics:
+            if pic.filename != '':
+
+                fname = generate_img_filename(current_user.id, pic)
+                upload_image(pic, fname)
+                artefact_image = ArtefactImage(None, artefact_id, fname, None)  
+                add_image(artefact_image)
+            else:
+                print("A file was given, but it was empty")
 
 
 @login_manager.unauthorized_handler
