@@ -23,7 +23,7 @@ ArtefactUser = namedtuple("ArtefactUser", ("artefact_id",
                                            "surname"))
 
 
-User = namedtuple("FamilyID", ("user_id",
+User = namedtuple("User", ("user_id",
                                "first_name",
                                "surname"))
 

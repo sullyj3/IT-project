@@ -29,6 +29,7 @@ from persistence import (
         get_user_artefacts,
         family_user_ids,
         edit_artefact_db,
+        get_current_user_family,
         create_family,
         get_family_id
 )
@@ -128,7 +129,12 @@ def edit_artefact(artefact_id):
 
 
         if artefact.owner == current_user.id:
-            changed_artefact = create_artefact(artefact_id)
+            try:
+                changed_artefact = create_artefact(artefact_id)
+            except KeyError as e:
+                return str(e), 400
+            except ValueError as e:
+                return str(e), 400
 
             edit_artefact_db(changed_artefact)
             
@@ -178,10 +184,7 @@ def login():
     if request.method == 'GET':
         
         if current_user.is_authenticated:
-
-            # TODO Fill in with appropriate HTML
-
-            return "already logged in"
+            return redirect(hello_world())
         else:
             return render_template('login.html')
     elif request.method == 'POST':
@@ -227,7 +230,7 @@ def register():
     elif request.method == 'POST':
         
         
-        if request.form['pass'] == request.form['confirm_pass']:
+        if request.form['pass'] == request.form['confirm_pass'] and len(request.form['pass']) > 0:
 
             new_user = Credentials(request.form['email'], request.form['pass'])
             user_details = email_taken(new_user)
@@ -235,10 +238,11 @@ def register():
             if (not user_details):         
 
                 # Creates famly if no referral_code
-                if request.form['referral_code'] == "":
+
+                if request.form["new_family"] ==  "on":
                     family_id =  create_family(request.form['surname'])                
                 else:
-                    family_id = request.form['referral_code']
+                    family_id = get_family_id(request.form['referral_code'])
                 
                 # Creates new register with hashed password
                 new_register = Register(request.form['first_name'],
@@ -283,28 +287,55 @@ def is_logged_in():
         else:
             return "not logged in"
 
-        
+# Testing route to check current user's family
+@app.route('/showfamily')
+def show_family():
+    template = Template('''
+    <h1>family:</h1>
+    <ul>
+        {% for user in family %}
+        <li>{{user.first_name}} {{user.surname}}</li>
+        {% endfor %}
+    </ul>
+    ''')
+
+    family = get_current_user_family()
+    return template.render(family=family)
+
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
 def upload_artefact():
     if request.method == 'GET':
-        return render_template('upload_artefact.html')
+        family = get_current_user_family()
+
+        # print(f"family: {family}")
+        # for u in family:
+        #     print(f"User id: {u.id}")
+
+        return render_template('upload_artefact.html', family=family)
 
     elif request.method == 'POST':
-        
-        new_artefact = create_artefact()
+        try:
+            new_artefact = create_artefact()
+        except KeyError as e:
+            return str(e), 400
+        except ValueError as e:
+            return str(e), 400
+
+        print(f"new_artefact type: {type(new_artefact)}")
+        print(f"new_artefact {new_artefact}")
 
         artefact_id = add_artefact(new_artefact)
 
-        if 'pic' in request.files:
-   
+        if 'pic' in request.files and request.files['pic'].content_length > 0:
             pic = request.files['pic']
+
             fname = generate_img_filename(current_user.id, pic)
             upload_image(pic, fname)
             artefact_image = ArtefactImage(None, artefact_id, fname, None)  
             add_image(artefact_image)
-        
+
 
         return "Success!"
 
@@ -325,18 +356,7 @@ def unauthorized():
 @app.errorhandler(404)
 def page_not_found(e):
 
-    # TODO Make and actual error page
-
-    return '''whoopsie, you entered a bad url, page not found<br>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <img src=https://media1.giphy.com/media/enj50kao8gMfu/source.gif>
-    <br><img src=https://i.kym-cdn.com/photos/images/newsfeed/001/392/206/cd2.jpeg>''', 404
+    return render_template('error_404.html'), 404
 
 
 @app.errorhandler(400)
@@ -361,9 +381,9 @@ def create_artefact(artefact_id=None):
             # stored_with_user should be user_id
             stored_with_user = int(request.form['stored_with_user'])
         except KeyError:
-            return "missing stored_with_user field", 400
+            raise  KeyError("missing stored_with_user field")
         except ValueError:
-            return "stored with user wasn't an integer!", 400
+            raise ValueError("stored with user wasn't an integer!")
 
     elif request.form['stored_with'] == 'location':
         stored_at_loc = request.form['stored_at_loc']
