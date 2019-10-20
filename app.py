@@ -175,18 +175,16 @@ def familysettings():
 @login_required
 def artefacts():
     if 'filtertags' in request.args:
-        filtertag_ids = request.args.getlist('filtertags')
+        filtertag_ids = [int(tag_id) for tag_id in request.args.getlist('filtertags')]
+        #tags = get_tags_by_ids(filtertag_ids)
+        artefacts = get_user_artefacts(current_user.id, current_user.family_id, filtertag_ids)
 
-        # TODO
-        return Template('''
-                <h1>filtering not implemented yet</h1>
-                <p>you filtered by {% for t in filtertags %}id: {{t}}, {% endfor %}</p>
-        ''').render(filtertags=filtertag_ids)
+    else:
+        artefacts = get_user_artefacts(current_user.id, current_user.family_id)
 
+        artefact_ids = [a['artefact'].artefact_id for a in artefacts]
+        tags = get_tags_of_artefacts(artefact_ids)
 
-    artefacts = get_user_artefacts(current_user.id, current_user.family_id)
-    artefact_ids = [a['artefact'].artefact_id for a in artefacts]
-    tags = get_tags_of_artefacts(artefact_ids)
 
     return view_artefacts(artefacts, current_user.id, tags)
 

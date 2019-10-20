@@ -64,7 +64,14 @@ def get_tags_of_artefacts(artefact_ids: [int]) -> [Tag]:
     return [Tag(*row) for row in rows]
 
 # Returns the artefacts that the user is able to view
-def get_user_artefacts(user_id, family_id) -> List[Dict]:
+def get_user_artefacts(user_id, family_id, filtertag_ids=None) -> List[Dict]:
+
+    if filtertag_ids is not None:
+        print('filtertag_ids:')
+        print(filtertag_ids)
+
+        #TODO
+        raise NotImplementedError
 
     # Relevant inputs for where clauses
     inputs = {"user_id": user_id,
