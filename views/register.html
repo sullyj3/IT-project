@@ -2,6 +2,13 @@
 
 {% block title %}Register{% endblock %}
 
+
+{% block head %}
+
+
+{% endblock %}
+
+
 {% block mainbody %}
 
 <div class="container home-container">
@@ -62,13 +69,13 @@
           <div class="col-sm">
               <div class="form-group">
                   <label for="exampleInputID1">Family Code</label>
-                  <input type="text" class="form-control" id="exampleInputID1" placeholder="Enter Family Code to join a family" name="referral_code">
+                  <input type="text" class="form-control" id="familyCode" placeholder="Enter Family Code to join a family" name="referral_code">
                 </div>
           </div>
           <div class="col-sm">
               <label for="exampleInputID1">&nbsp;</label>
             <div class="form-group form-check">              
-              <input type="checkbox" class="form-check-input" id="newFamilyCheckbox" name="new_family">
+              <input type="checkbox" class="form-check-input" id="checkBox" name="new_family">
               <label class="form-check-label" for="exampleCheck1">Create New Family</label>
             </div>                    
           </div>
@@ -80,6 +87,13 @@
         </div>
 
       </form>
+
+      <script>
+          document.getElementById('checkBox').onchange = function() {
+            document.getElementById('familyCode').disabled = this.checked;
+            document.getElementById('familyCode').value = "";
+        };
+        </script>
 
     </div>
   </div>
