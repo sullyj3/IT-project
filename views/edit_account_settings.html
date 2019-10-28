@@ -13,7 +13,7 @@
                 <!-- edit form column -->
                 <div class="col-md-8 personal-info">
                 
-                <form class="form-horizontal" role="form">
+                <form action="/edit_settings" class="form-horizontal" role="form" method='POST'>
                     
                     <div class="form-group">
                         <label class="col-lg-3 control-label">First name:</label>
@@ -31,13 +31,13 @@
                     <div class="form-group">
                         <label class="col-lg-3 control-label">Email:</label>
                         <div class="col-lg-10">
-                        <input class="form-control" type="text" value="janesemail@gmail.com">
+                        <input class="form-control" type="text" value="janesemail@gmail.com" disabled>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="col-md-3 control-label"></label>
                         <div class="col">
-                        <a role="button" class="btn btn-primary" href="/settings" value="Save Changes">Save Changes</a>
+                        <a role="button" type="submit" value="edit_settings" class="btn btn-primary" href="/settings" value="Save Changes">Save Changes</a>
                         <span></span>
                         <a role="button" class="btn btn-default" href="/settings" value="Cancel">Cancel</a>
                         </div>
