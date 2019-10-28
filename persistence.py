@@ -383,6 +383,7 @@ def get_referral_code(family_id):
 
     return pg_select(sql, inputs)[0][0]
 
+''' Removes an artefacts tags then images then the artefact '''
 def remove_artefact(artefact_id):
 
     inputs = {"artefact_id": artefact_id}
@@ -470,3 +471,17 @@ def pair_tag_to_artefact(artefact_id, tag_id):
             cur.execute(sql, inputs)
         except psycopg2.errors.UniqueViolation as e:
             print(f'artefact {artefact_id} is already tagged with tag {tag_id}')
+
+
+def edit_user_details(user_id, details):
+    inputs = details._asdict()
+    inputs["user_id"] = user_id
+
+    sql = '''UPDATE "user"
+             SET first_name = %(first_name)s, surname = %(surname)s, location = %(location)s
+             WHERE id = %(user_id)s;'''
+
+    with psycopg2.connect(current_app.config['db_URL']) as conn:
+        
+        cur = conn.cursor()
+        cur.execute(sql, inputs) 
