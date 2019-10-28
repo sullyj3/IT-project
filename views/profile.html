@@ -27,6 +27,12 @@
                           </div>
                       </div>
                       <div class="form-group">
+                        <label class="col-lg-3 control-label">Location:</label>
+                        <div class="col-lg-10">
+                        <input class="form-control" type="text" value="{{current_user.location}}" disabled>
+                        </div>
+                    </div>
+                      <div class="form-group">
                           <label class="col-lg-3 control-label">Email:</label>
                           <div class="col-lg-10">
                           <input class="form-control" type="text" value="{{current_user.email}}" disabled>
@@ -34,14 +40,14 @@
                       </div>
 
                     </fieldset>
-                    <!--
+                    
                     <div class="form-group">
                         <label class="col-md-3 control-label"></label>
                         <div class="col-md-10">
-                        <a role="button" href="/editsettings" class="btn btn-primary" value="Make Changes">Make Changes</a>
+                        <a role="button" href="/editprofile" class="btn btn-primary" value="Make Changes">Make Changes</a>
                         </div>
                     </div>
-                    -->
+                   
                   </form>
                 </div>
             </div>
