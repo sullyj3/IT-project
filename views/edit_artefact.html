@@ -26,7 +26,7 @@
 <section class="jumbotron text-center">
   <div class="container">
     <h1 class="jumbotron-heading">Edit Artefact</h1>
-    <p class="lead text-muted">From here you can edit your wonderful artefact! Reupload pictures, change the description and title.</p>
+    <p class="lead text-muted">From here you can edit your wonderful artefact! Add pictures, change the description, title and more.</p>
     <p>
       <a onclick="window.history.back()" class="btn btn-primary my-2" style="color:white;" >Back</a>
       
@@ -112,7 +112,11 @@
             hidden
           {% endif %}>
           {% for user in family %}
-            <option value="{{user.user_id}}">{{user.first_name}} {{user.surname}}</option>
+            {% if artefact.stored_with_user == user.user_id %}
+              <option value="{{user.user_id}}" selected>{{user.first_name}} {{user.surname}}</option>
+            {% else %}
+              <option value="{{user.user_id}}">{{user.first_name}} {{user.surname}}</option>
+            {% endif %}
           {% endfor %}
         </select>
 
