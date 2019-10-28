@@ -46,7 +46,8 @@ from persistence import (
         get_user_loc,
         get_tags_by_names,
         insert_tag,
-        pair_tag_to_artefact
+        pair_tag_to_artefact,
+        edit_user_details
 )
 from views import view_artefacts, view_artefact
 from model import Artefact, Credentials, Register, ArtefactImage, Tag
@@ -92,8 +93,9 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50), unique=True)
     first_name = db.Column(db.String(100))
-    surname = db.Column(db.String(100), unique=True)
+    surname = db.Column(db.String(100))
     family_id = db.Column(db.Integer)
+    location = db.Column(db.String(200))
 
     def __init__(self, db_user, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -103,6 +105,7 @@ class User(UserMixin, db.Model):
         self.email = db_user[2]
         self.family_id = db_user[5]
         self.surname = db_user[6]
+        self.location = db_user[4]
 
 
 @login_manager.user_loader
@@ -189,12 +192,30 @@ def maybe_add_tags(artefact_id):
 
 
 @app.route('/profile')
+@login_required
 def settings():
     return render_template('profile.html')
 
-@app.route('/editsettings')
+@app.route('/editprofile', methods=['GET', 'POST'])
+@login_required
 def editsettings():
-    return render_template('edit_account_settings.html')
+
+    if request.method == 'GET':
+        return render_template('edit_account_settings.html')
+    elif request.method == 'POST':
+
+        changed_details = Register(first_name = request.form["first_name"],
+                                   surname = request.form["surname"],
+                                   location = request.form["location"],
+                                   family_id = None,
+                                   email = None,
+                                   password = None
+        )
+
+
+        edit_user_details(current_user.id, changed_details)
+        flash("Details changed")
+        return redirect('/profile')
 
 @app.route('/family')
 @login_required
@@ -390,21 +411,6 @@ def logout_page():
     flash("You have been logged out")
     return redirect('/')
 
-
-# test route for getting artefact tags
-@app.route('/testtags')
-def testtags():
-    template = Template('''
-    <h1>Artefacts 33, 34, and 45 have the following tags:</h1>
-    <ul>
-        {% for tag in tags %}
-        <li>{{tag.name}}</li>
-        {% endfor %}
-    </ul>
-    ''')
-
-    tags = get_tags_of_artefacts([33,34,45])
-    return template.render(tags=tags)
 
 @app.route('/uploadartefact', methods=['GET','POST'])
 @login_required
