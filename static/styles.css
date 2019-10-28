@@ -51,3 +51,7 @@ p {
 .btn.dropdown-toggle:focus {
     outline: none !important;
 }
+
+.btn-logout {
+    margin-left: 13px;
+}
