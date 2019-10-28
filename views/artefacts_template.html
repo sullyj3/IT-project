@@ -33,19 +33,23 @@
         </div>       
 
         <div class="row justify-content-center">
-              <form action="/artefacts" id="tags-form" , method="GET">
-                <div id="hide2" style="display: none;">
-                  <select class="form-control" name="filtertags" multiple style="width: 200px;">
-                    {% for tag in family_tags %}
-                      <option value="{{tag.tag_id}}">{{ tag.name }}</option>
-                    {% endfor %}
-                  </select> 
-                </div>
-              </form>
+          <form action="/artefacts" id="tags-form" , method="GET">
+            <div id="hide2" style="display: none;">
+              <select class="form-control" name="filtertags" multiple style="width: 200px;">
+                {% for tag in family_tags %}
+                  <option value="{{tag.tag_id}}">{{ tag.name }}</option>
+                {% endfor %}
+              </select> 
+            </div>
+          </form>
         </div>
-
-        <div class="row justify-content-center">
-          <button type="submit" form="tags-form" id="hide1" class="btn btn-outline-success my-2" style="display: none; width: 200px;">Apply</button>             
+        <div id="hide1" style="display: none;">
+          <div class="row justify-content-center">
+            <button type="submit" form="tags-form" class="btn btn-outline-success my-2" style="width: 200px;">Apply</button>          
+          </div>
+          <div class="row justify-content-center">
+            <small class="text-muted hidden-sm hidden-xs"> (Use CTRL + Click to select multiple tags!) </small>             
+          </div>
         </div>
       </div>      
       
